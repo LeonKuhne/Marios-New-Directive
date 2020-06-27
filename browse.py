@@ -1,63 +1,96 @@
 import sys, pygame
-import level
+from lvl import Level
+from edit import Editor
 
 class Browser:
-    grid_size = 50
     size = width, height = 1000, 600
     level = None
     
-    def __init__(self):
+    def __init__(self, grid_size):
         pygame.init()
+        pygame.font.init()
         
-        self.screen = pygame.display.set_mode(self.size)
+        self.screen = pygame.display.set_mode(self.size, pygame.RESIZABLE)
         self.clock = pygame.time.Clock()
+        self.grid_size = grid_size
 
-        self.ball = pygame.image.load("mario.png")
-        self.ballrect = self.ball.get_rect()
+        self.editor = None
 
     # for dev purposes
     def draw_grid(self):
         red = pygame.Color("#ff0000")
-        for x in range(0, self.width, self.grid_size):    # draw horizontals
-            pygame.draw.line(self.screen, red, (x, 0), (x, self.height))
-        for y in range(0, self.height, self.grid_size):   # draw verticals
-            pygame.draw.line(self.screen, red, (0, y), (self.width, y))
+        width = self.screen.get_width()
+        height = self.screen.get_height()
+
+        for x in range(0, width, self.grid_size):    # draw horizontals
+            pygame.draw.line(self.screen, red, (x, 0), (x, height))
+        for y in range(0, height, self.grid_size):   # draw verticals
+            pygame.draw.line(self.screen, red, (0, height-y), (width, height-y))
 
     def set_level(self, level):
         self.level = level
+        self.level.grid_size = self.grid_size
 
     def run(self):
         running = True
 
         while running:
-            # handle exiting
+            
+            # EVENTS
+            #
+
             for event in pygame.event.get():
+                # handle exiting
                 if event.type == pygame.QUIT:
                     running = False;
-                    break;
-    
-            speed = [1, 1]
-            self.ballrect = self.ballrect.move(speed)
-            if self.ballrect.left < 0 or self.ballrect.right > self.width:
-                speed[0] = -speed[0]
-            if self.ballrect.top < 0 or self.ballrect.bottom > self.height:
-                speed[1] = -speed[1]
 
-            # draw
-            self.screen.fill((0, 0, 0))
-            self.screen.blit(self.ball, self.ballrect)
-            self.draw_grid()
-            if self.level: self.level.draw(self.screen)
-            pygame.display.flip()
+                # handle resize
+                if event.type == pygame.VIDEORESIZE:
+                    self.screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+
+                if event.type == pygame.KEYDOWN:
+                    
+                    # close game
+                    if event.key == pygame.K_w and event.mod == pygame.KMOD_LCTRL:
+                        running = False;
+                    
+                    # toggle editor
+                    if event.key == pygame.K_ESCAPE:
+                        if self.level:
+                            self.editor = None if self.editor else Editor(self.screen, self.level, self.grid_size)
+                        else:
+                            print("please select a level before pausing")
+
+                # editor > draw blocks
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_x, mouse_y = pygame.mouse.get_pos()
+                    mouse_y = self.screen.get_height()-mouse_y # flip y
+                    col = int(mouse_x/self.level.grid_size)
+                    row = int(mouse_y/self.level.grid_size)
+
+                    if self.editor: # button 1: primary
+                        self.editor.add_block(event.button, col, row)
+
+    
+            #-------------------------------------------#----# DRAW #----#
+            self.screen.fill((0, 0, 0))                 # > background   #
+            if self.level: self.level.draw(self.screen) # > level        #
+            self.draw_grid()                            # > grid         #
+            if self.editor: self.editor.draw()          # > editor       #
+            pygame.display.flip()                       # -> render      #
+            #-------------------------------------------###------------###
 
             self.clock.tick(120)
 
-        sys.exit()
+        self.level.save()
 
+        
 if __name__ == '__main__':
+    grid_size = 50
     project_dir = "/home/device/Projects/MND"
-    level = level.Level(project_dir)
+    level = Level(project_dir)
 
-    game = Browser()
+    game = Browser(grid_size)
     game.set_level(level)
     game.run()
+    sys.exit()
