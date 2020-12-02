@@ -14,11 +14,12 @@ class Block:
     BLOCK_BOT_THRESHOLD = 10
     BLOCK_SIDE_THRESHOLD = 10
     
-    def __init__(self, col, row, value):
+    def __init__(self, col, row, value, text=""):
         self.col = col
         self.row = row
         self.color = Block.value_to_color(value)
         self.value = value
+        self.text = text
 
     def value_to_color(val):
         if val == 0:
@@ -47,7 +48,7 @@ class Block:
         # draw door number
         if self.value > 0:
             text_font = font.Font(font.get_default_font(), 16)
-            text = text_font.render(str(self.value), False, (0, 0, 0))
+            text = text_font.render(self.text, False, (0, 0, 0))
             screen.blit(text, ((self.col + 0.5) * gs, height - (self.row + 0.5) * gs))
 
 

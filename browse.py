@@ -123,6 +123,10 @@ class Browser:
                             gs = self.grid_size
                             rect = zero_rect.move(col_id*gs, height-row_id*gs - gs)
                             self.player.collide_with(block, height)
+
+                        elif block.value > 0:
+                            # change the level
+                            self.level.navigate(block.value)
                         
                         row_id += 1
 

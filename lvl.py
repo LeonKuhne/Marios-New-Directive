@@ -1,22 +1,21 @@
 import pygame
 import os.path
+import os
 from block import Block
 
-FILE_EXT = ".mario"
 
 class Level:
+    
+    FILE_EXT = ".mario"
 
     def __init__(self, dir_path, grid_size=20):
         self.blocks = []
         self.name = ""
         self.grid_size = grid_size
         self.door_count = 0
-
-        self.path = f"{dir_path}/{FILE_EXT}"
-        if os.path.exists(self.path):
-            self.load()
-        else:
-            self.save()
+        
+        self.dir = dir_path
+        self.navigate()
    
     def compress_vertical(self, column):
         line = ""
@@ -125,11 +124,11 @@ class Level:
         return grid
 
     # load a .mario file into a usable 2D array (that uses x, y coordinates)
-    def load(self):
+    def load(self, files):
         lines = []
 
         # read in file
-        with open(self.path) as f:
+        with open(f"{self.dir}/{Level.FILE_EXT}") as f:
             self.name = f.readline().strip()
             print(f"loading {self.name}...")
             
@@ -141,24 +140,35 @@ class Level:
 
         # setup blocks
         self.blocks = []
+        self.door_count = 0
         for col_id in range(len(values)):
             col_vals = values[col_id]
 
             cols = []
             for row_id in range(len(col_vals)):
                 val = col_vals[row_id]
+                text = files[val]
                 block = Block(col_id, row_id, val)
                 cols.append(block)
 
+                # count doors
+                if val > 0: self.door_count += 1
+
             self.blocks.append(cols)
 
-        # count doors (folders)
-        self.door_count = 0
-        for cols in values:
-            for val in cols:
-                if self.door_count > 0:
-                    self.door_count += 1
-        print(f"doors: {self.door_count}")
+
+    def navigate(self, selection=0):
+        # update files
+        files = os.listdir(self.dir)
+
+        # select the file
+        if selection in range(1, len(files)+1):
+            self.dir += f"/{files[selection]}"
+
+        if os.path.exists(f"{self.dir}/{Level.FILE_EXT}"):
+            self.load(files)
+        else:
+            self.save()
 
     # save and overwrite file
     def save(self):
@@ -167,7 +177,7 @@ class Level:
 
         lines = self.compress_horizontal(values)
 
-        with open(self.path, "w") as f:
+        with open(f"{self.dir}/{Level.FILE_EXT}", "w") as f:
 
             # write level name
             f.write(f"{self.name}\n")
