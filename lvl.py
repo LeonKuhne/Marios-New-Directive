@@ -146,7 +146,9 @@ class Level:
 
             cols = []
             for row_id in range(len(col_vals)):
-                cols.append(Block(col_id, row_id, col_vals[row_id]))
+                val = col_vals[row_id]
+                block = Block(col_id, row_id, val)
+                cols.append(block)
 
             self.blocks.append(cols)
 
@@ -161,7 +163,7 @@ class Level:
     # save and overwrite file
     def save(self):
         print("saving...")
-        values = map(lambda x: map(lambda y: y.value, x), self.blocks)
+        values = list(map(lambda x: list(map(lambda y: y.value, x)), self.blocks))
 
         lines = self.compress_horizontal(values)
 

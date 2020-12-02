@@ -27,6 +27,8 @@ class Block:
             color = (255, 255, 255) # white
         elif val == -2: 
             color = (0, 0, 0, 155) # black
+        elif val == -3: 
+            color = (255, 155, 0) # orange 
         elif val < 0: 
             color = (0, 255, 0) # green
         return color 
