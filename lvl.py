@@ -10,6 +10,7 @@ class Level:
         self.blocks = []
         self.name = ""
         self.grid_size = grid_size
+        self.door_count = 0
 
         self.path = f"{dir_path}/{FILE_EXT}"
         if os.path.exists(self.path):
@@ -136,12 +137,33 @@ class Level:
                 lines.append(line.strip())
 
         # decompress & save
-        self.blocks = self.decompress_horizontal(lines)
+        values = self.decompress_horizontal(lines)
+
+        # setup blocks
+        self.blocks = []
+        for col_id in range(len(values)):
+            col_vals = values[col_id]
+
+            cols = []
+            for row_id in range(len(col_vals)):
+                cols.append(Block(col_id, row_id, col_vals[row_id]))
+
+            self.blocks.append(cols)
+
+        # count doors (folders)
+        self.door_count = 0
+        for cols in values:
+            for val in cols:
+                if self.door_count > 0:
+                    self.door_count += 1
+        print(f"doors: {self.door_count}")
 
     # save and overwrite file
     def save(self):
         print("saving...")
-        lines = self.compress_horizontal(self.blocks)
+        values = map(lambda x: map(lambda y: y.value, x), self.blocks)
+
+        lines = self.compress_horizontal(values)
 
         with open(self.path, "w") as f:
 
@@ -155,8 +177,8 @@ class Level:
         for col_idx in range(0, len(self.blocks)):
             col = self.blocks[col_idx]
             for row_idx in range(0, len(col)):
-                value = col[row_idx]
-                Block.draw(screen, col_idx, row_idx, value, self.grid_size)
+                block = col[row_idx]
+                block.draw(screen, self.grid_size)
   
     def toString(self):
         return f"{self.name}: {self.blocks}"

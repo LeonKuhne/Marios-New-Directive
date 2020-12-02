@@ -23,7 +23,7 @@ class Editor:
         # extend rows
         while row_idx >= len(self.blocks[col_idx]):
             self.blocks[col_idx].append(0)
-        
+
         # replace block
         self.blocks[col_idx][row_idx] = value
         
@@ -44,13 +44,13 @@ class Editor:
 
         # draw neighbors
         for col_offset in range(0, 3, 2):
-            Block.draw(cursor_surface, col_offset, 1, (255, 150, 0), gs, 1)
+            Block.draw(cursor_surface, col_offset, 1, -1, gs, 1)
         for row_offset in range(0, 3, 2):
-            Block.draw(cursor_surface, 1, row_offset, (255, 150, 0), gs, 1)
+            Block.draw(cursor_surface, 1, row_offset, -1, gs, 1)
         
         # draw cursor block
-        Block.draw(cursor_surface, 1, 1, (255, 255, 255, 175), gs)
-        Block.draw(cursor_surface, 1, 1, (255, 255, 0), gs, 2)
+        Block.draw(cursor_surface, 1, 1, 1, gs, 5)
+        Block.draw(cursor_surface, 1, 1, -2, gs)
 
         # calculate positions
         x = row * gs + gs/2

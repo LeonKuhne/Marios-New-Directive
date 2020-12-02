@@ -16,8 +16,8 @@ class Player:
 
     F_GRAVITY = 0.0032
     F_FRICTION = 0.002
-    F_AIR_FRICTION = 0.02
-    F_JUMP = 0.18
+    F_AIR_FRICTION = 0.015
+    F_JUMP = 0.17
     F_MOVE = 0.005
 
     def __init__(self, grid_size):
@@ -50,25 +50,25 @@ class Player:
         if -self.vel['x'] < self.MAX_SPEED:
             self.vel['x'] -= self.F_MOVE
 
-    def collide_with(self, rect):
-        block = Block(rect)
-        if block.collides(self.rect):
+    def collide_with(self, block, screen_height):
+        rect_block = block.rect(self.grid_size, screen_height)
+        if Block.collides(rect_block, self.rect):
 
             # get collision side
-            top_side = block.on_top(self.rect)
-            side = block.on_side(self.rect)
+            top_side = Block.on_top(rect_block, self.rect)
+            side = Block.on_side(rect_block, self.rect)
             
             # adjust player pos
             if top_side and not side:
-                self.fix_top(top_side, rect)
+                self.fix_top(top_side, rect_block)
                 self.side = top_side
             if side and not top_side:
-                self.fix_sides(side, rect)
+                self.fix_sides(side, rect_block)
                 self.side = side
        
             if side and top_side:
-                #self.fix_sides(side, rect)
-                self.fix_top(top_side, rect)
+                #self.fix_sides(side, rect_block)
+                self.fix_top(top_side, rect_block)
                 self.side = top_side
             
             return True
@@ -110,7 +110,10 @@ class Player:
 
         else:
             # apply gravity
-            self.vel['y'] -= self.F_GRAVITY         
+            self.vel['y'] -= self.F_GRAVITY
+
+            # apply air friction
+            self.vel['x'] *= (1 - self.F_AIR_FRICTION)
 
     def tick(self):
         # set new speed

@@ -1,4 +1,5 @@
 import pygame
+from pygame import font
 from enum import Enum
 
 class Block:
@@ -13,68 +14,69 @@ class Block:
     BLOCK_BOT_THRESHOLD = 10
     BLOCK_SIDE_THRESHOLD = 10
     
-    def __init__(self, rect):
-        self.rect = rect
+    def __init__(self, col, row, value):
+        self.col = col
+        self.row = row
+        self.color = Block.value_to_color(value)
+        self.value = value
 
     def value_to_color(val):
-
         if val == 0:
             color = (0, 0, 0) # black
-        elif val == 1:
-            color = (0, 0, 255) # blue
-        elif val == 2:
-            color = (0, 255, 0) # green
-        elif val == 3:
-            color = (255, 255, 0) # yellow
-        elif val == 4:
+        elif val > 0:
             color = (255, 255, 255) # white
-        elif val == -1: 
-            color = (255, 150, 0)
-        else:
-            color = (255, 0, 0) # red
-
+        elif val == -2: 
+            color = (0, 0, 0, 155) # black
+        elif val < 0: 
+            color = (0, 255, 0) # green
         return color 
     
-    def rect(col, row, gs, screen_height):
-        x = col * gs
-        y = row * gs
+    def rect(self, gs, screen_height):
+        x = self.col * gs
+        y = self.row * gs
         # render with flipped y-axis
         return pygame.Rect(x, screen_height - y - gs, gs, gs)
 
-    def draw(screen, col, row, value, gs, outline=0):
-        color = Block.value_to_color(value) if isinstance(value, int) else value
-        rect = Block.rect(col, row, gs, screen.get_height())
-        pygame.draw.rect(screen, color, rect, outline)
+    def draw(self, screen, gs, outline=0):
+        height = screen.get_height() 
+        rect = self.rect(gs, height)
+        pygame.draw.rect(screen, self.color, rect, outline)
+
+        # draw door number
+        if self.value > 0:
+            text_font = font.Font(font.get_default_font(), 16)
+            text = text_font.render(str(self.value), False, (0, 0, 0))
+            screen.blit(text, ((self.col + 0.5) * gs, height - (self.row + 0.5) * gs))
 
 
     # CHECK COLLISIONS 
     # the -1 ensures checking bellow the block
     #
 
-    def collides(self, rect):
-        return self.rect.colliderect(rect)
+    def collides(rect_a, rect_b):
+        return rect_a.colliderect(rect_b)
     
-    def on_top(self, rect):
-        diff_top = rect.bottom - self.rect.top
-        diff_bot = self.rect.bottom - rect.top
+    def on_top(rect_block, rect_top):
+        diff_top = rect_top.bottom - rect_block.top
+        diff_bot = rect_block.bottom - rect_top.top
 
-        if diff_top > 0 and diff_top < self.BLOCK_TOP_THRESHOLD:
-            return self.Side.TOP
+        if diff_top > 0 and diff_top < Block.BLOCK_TOP_THRESHOLD:
+            return Block.Side.TOP
     
-        elif diff_bot > 0 and diff_bot < self.BLOCK_BOT_THRESHOLD:
-            return self.Side.BOTTOM
+        elif diff_bot > 0 and diff_bot < Block.BLOCK_BOT_THRESHOLD:
+            return Block.Side.BOTTOM
 
         return None
 
-    def on_side(self, rect):
-        diff_left = rect.right - self.rect.left
-        diff_right = self.rect.right - rect.left
+    def on_side(rect_block, rect_side):
+        diff_left = rect_side.right - rect_block.left
+        diff_right = rect_block.right - rect_side.left
 
-        if diff_left > 0 and diff_left < self.BLOCK_SIDE_THRESHOLD:
-            return self.Side.LEFT
+        if diff_left > 0 and diff_left < Block.BLOCK_SIDE_THRESHOLD:
+            return Block.Side.LEFT
 
-        elif diff_right > 0 and diff_right < self.BLOCK_SIDE_THRESHOLD:
-            return self.Side.RIGHT
+        elif diff_right > 0 and diff_right < Block.BLOCK_SIDE_THRESHOLD:
+            return Block.Side.RIGHT
 
         return None
          

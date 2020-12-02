@@ -57,9 +57,17 @@ class Browser:
                     mouse_y = self.screen.get_height()-mouse_y # flip y
                     col = int(mouse_x/self.level.grid_size)
                     row = int(mouse_y/self.level.grid_size)
-                    block = event.button-1
 
-                    if self.editor: # button 1: primary
+                    # add the right block to the level
+                    if self.editor:
+                        if event.button == 1:
+                            block = 0
+                        elif event.button == 2:
+                            self.level.door_count += 1
+                            block = self.level.door_count
+                        else:
+                            block = -1
+                        
                         self.editor.add_block(block, col, row)
                
 
@@ -106,19 +114,20 @@ class Browser:
 
             if self.level:
                 zero_rect = pygame.Rect(0, 0, grid_size, grid_size)
-
-                for col_id in range(len(self.level.blocks)):
-                    col = self.level.blocks[col_id]
-
-                    for row_id in range(len(col)):
-                        block = self.level.blocks[col_id][row_id]
-
-                        if block > 0:
+                col_id = 0
+                for col in self.level.blocks:
+                    row_id = 0
+                    for block in col:
+                        if block.value < 0:
                             height = self.screen.get_height()
                             gs = self.grid_size
                             rect = zero_rect.move(col_id*gs, height-row_id*gs - gs)
-                            self.player.collide_with(rect)
+                            self.player.collide_with(block, height)
+                        
+                        row_id += 1
 
+                    #> done
+                    col_id += 1
             
             # TICK
             # 
