@@ -37,8 +37,15 @@ class Block:
     def rect(self, gs, screen_height):
         x = self.col * gs
         y = self.row * gs
+        height = gs
+
+        # special case for doors # TODO: this is bad code :)
+        if self.value > 0:
+            height += gs
+            y += gs
+
         # render with flipped y-axis
-        return pygame.Rect(x, screen_height - y - gs, gs, gs)
+        return pygame.Rect(x, screen_height - y - gs, gs, height)
 
     def draw(self, screen, gs, outline=0):
         height = screen.get_height() 
@@ -47,9 +54,10 @@ class Block:
 
         # draw door number
         if self.value > 0:
-            text_font = font.Font(font.get_default_font(), 16)
-            text = text_font.render(self.text, False, (0, 0, 0))
-            screen.blit(text, ((self.col + 0.5) * gs, height - (self.row + 0.5) * gs))
+            text_font = font.Font(font.get_default_font(), 10)
+            text = text_font.render(f"{self.value} {self.text}", True, (0, 0, 0))
+            text = pygame.transform.rotate(text, 90)
+            screen.blit(text, (self.col * gs, height - self.row * gs - text.get_height()))
 
 
     # CHECK COLLISIONS 

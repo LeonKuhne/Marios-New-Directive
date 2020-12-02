@@ -24,8 +24,11 @@ class Editor:
         while row_idx >= len(self.blocks[col_idx]):
             self.blocks[col_idx].append(Block(col_idx, row_idx, 0))
 
+        # add on doorway text if applicable
+        text = self.level.files[value-1] if value > 0 and value < len(self.level.files) else ""
+
         # replace block
-        self.blocks[col_idx][row_idx] = Block(col_idx, row_idx, value)
+        self.blocks[col_idx][row_idx] = Block(col_idx, row_idx, value, text)
         
     def draw(self):
         gs = self.grid_size

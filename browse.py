@@ -118,15 +118,15 @@ class Browser:
                 for col in self.level.blocks:
                     row_id = 0
                     for block in col:
-                        if block.value < 0:
+                        if block.value != 0:
                             height = self.screen.get_height()
                             gs = self.grid_size
                             rect = zero_rect.move(col_id*gs, height-row_id*gs - gs)
-                            self.player.collide_with(block, height)
+                            collided = self.player.collide_with(block, height)
 
-                        elif block.value > 0:
-                            # change the level
-                            self.level.navigate(block.value)
+                            if block.value > 0 and collided:
+                                # change the level
+                                self.level.navigate(block.value)
                         
                         row_id += 1
 
@@ -157,7 +157,7 @@ class Browser:
 
         
 if __name__ == '__main__':
-    grid_size = 30
+    grid_size = 35
     project_dir = "/home/id/Projects/MND"
     level = Level(project_dir, grid_size)
 

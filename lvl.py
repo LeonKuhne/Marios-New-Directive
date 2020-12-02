@@ -1,6 +1,7 @@
 import pygame
 import os.path
 import os
+from pygame import font
 from block import Block
 
 
@@ -14,8 +15,9 @@ class Level:
         self.grid_size = grid_size
         self.door_count = 0
         
+        self.files = []
         self.dir = dir_path
-        self.navigate()
+        self.start()
    
     def compress_vertical(self, column):
         line = ""
@@ -124,13 +126,13 @@ class Level:
         return grid
 
     # load a .mario file into a usable 2D array (that uses x, y coordinates)
-    def load(self, files):
+    def load(self):
         lines = []
 
         # read in file
         with open(f"{self.dir}/{Level.FILE_EXT}") as f:
             self.name = f.readline().strip()
-            print(f"loading {self.name}...")
+            print(f"loading '{self.name}' from {self.dir}/{Level.FILE_EXT}...")
             
             for line in f:
                 lines.append(line.strip())
@@ -147,8 +149,8 @@ class Level:
             cols = []
             for row_id in range(len(col_vals)):
                 val = col_vals[row_id]
-                text = files[val]
-                block = Block(col_id, row_id, val)
+                text = self.files[val-1] if val > 0 and val < len(self.files) else ""
+                block = Block(col_id, row_id, val, text)
                 cols.append(block)
 
                 # count doors
@@ -156,19 +158,42 @@ class Level:
 
             self.blocks.append(cols)
 
+    def get_files(self):
+        files = os.listdir(self.dir)
+        files.append("..")
+        return files
+
+    def start(self):
+        self.files = self.get_files()
+        self.navigate()
 
     def navigate(self, selection=0):
-        # update files
-        files = os.listdir(self.dir)
-
         # select the file
-        if selection in range(1, len(files)+1):
-            self.dir += f"/{files[selection]}"
+        new_dir = self.dir
 
-        if os.path.exists(f"{self.dir}/{Level.FILE_EXT}"):
-            self.load(files)
-        else:
-            self.save()
+        file_name = ""
+        if selection in range(1, len(self.files)+1):
+            file_name = self.files[selection-1]
+            new_dir += f"/{file_name}"
+
+        # open file
+        if os.path.isfile(new_dir):
+            print(f"Opening file {new_dir}")
+
+        # open directory
+        elif os.path.isdir(f"{new_dir}"):
+            # update location
+            self.name = file_name
+            self.dir = new_dir
+
+            if not os.path.exists(f"{self.dir}/{Level.FILE_EXT}"):
+                self.blocks = []                # clear the current level
+                self.save()                     # create a new save file
+                self.files = self.get_files()   # find new files
+            
+            # load the level
+            self.load()
+
 
     # save and overwrite file
     def save(self):
@@ -186,6 +211,18 @@ class Level:
                 f.write(line + "\n")
     
     def draw(self, screen):
+        # draw the level name at the top
+        text_font = font.Font(font.get_default_font(), 24)
+        text = text_font.render(self.name, True, (255, 255, 255))
+        screen.blit(text, (20, 20))
+
+        # draw the options bellow (debug)
+        subtext_font = font.Font(font.get_default_font(), 14)
+        for i in range(len(self.files)):
+            subtext = subtext_font.render(f"{i+1} {self.files[i]}", True, (255, 255, 0))
+            screen.blit(subtext, (20, 50+20*i))
+
+        # draw the blocks
         for col_idx in range(0, len(self.blocks)):
             col = self.blocks[col_idx]
             for row_idx in range(0, len(col)):

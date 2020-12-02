@@ -34,6 +34,7 @@ class Player:
     def reset(self):
         self.rect.x = 0
         self.rect.y = 0
+        self.vel = {'x': 0, 'y': 0}
 
     def jump(self):
         self.vel['y'] = self.F_JUMP
