@@ -33,7 +33,6 @@ class Browser:
 
     def set_level(self, level):
         self.level = level
-        self.level.grid_size = self.grid_size
 
     def run(self):
         running = True
@@ -145,9 +144,9 @@ class Browser:
 
         
 if __name__ == '__main__':
-    grid_size = 50
-    project_dir = "/home/device/Projects/MND"
-    level = Level(project_dir)
+    grid_size = 30
+    project_dir = "/home/id/Projects/MND"
+    level = Level(project_dir, grid_size)
 
     game = Browser(grid_size)
     game.set_level(level)

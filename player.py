@@ -11,13 +11,13 @@ class Player:
 
     WIDTH = 30
     HEIGHT = 50
-    MAX_SPEED = 0.05
+    MAX_SPEED = 0.09
     COLOR = pygame.Color("#ff33cc")
 
-    F_GRAVITY = 0.0019
+    F_GRAVITY = 0.0032
     F_FRICTION = 0.002
-    F_AIR_FRICTION = 0.01
-    F_JUMP = 0.09
+    F_AIR_FRICTION = 0.02
+    F_JUMP = 0.18
     F_MOVE = 0.005
 
     def __init__(self, grid_size):
@@ -26,6 +26,10 @@ class Player:
         self.on_ground = False
         self.rect = pygame.Rect(0, 0, self.WIDTH, self.HEIGHT)
         self.grid_size = grid_size
+
+        # load sprite image
+        self.mario = pygame.image.load('/home/id/Projects/MND/mario.gif').convert()
+        self.mario = pygame.transform.scale(self.mario, (self.WIDTH, self.HEIGHT))
 
     def reset(self):
         self.rect.x = 0
@@ -126,5 +130,8 @@ class Player:
 
     def draw(self, screen):
         # flip y-axis
-        pygame.draw.rect(screen, self.COLOR, self.rect)
-                
+        #pygame.draw.rect(screen, self.COLOR, self.rect)
+
+        # draw using the png
+        screen.blit(self.mario, self.rect)
+

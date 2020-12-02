@@ -6,11 +6,11 @@ FILE_EXT = ".mario"
 
 class Level:
 
-    blocks = []
-    name = ""
-    grid_size = 20 # default grid size
+    def __init__(self, dir_path, grid_size=20):
+        self.blocks = []
+        self.name = ""
+        self.grid_size = grid_size
 
-    def __init__(self, dir_path):
         self.path = f"{dir_path}/{FILE_EXT}"
         if os.path.exists(self.path):
             self.load()
@@ -163,6 +163,6 @@ class Level:
            
 
 if __name__ == '__main__':
-    project_dir = "/home/device/Projects/MND"
+    project_dir = "/home/id/Projects/MND"
     level = Level(project_dir)
     print(level.toString())
