@@ -28,7 +28,7 @@ class Player:
         self.grid_size = grid_size
 
         # load sprite image
-        self.mario = pygame.image.load('/home/id/Projects/MND/mario.gif').convert()
+        self.mario = pygame.image.load('/Users/leonk/Desktop/personal/MND/mario.gif').convert()
         self.mario = pygame.transform.scale(self.mario, (self.WIDTH, self.HEIGHT))
 
     def reset(self):
@@ -37,7 +37,6 @@ class Player:
 
     def jump(self):
         self.vel['y'] = self.F_JUMP
-        pass
 
     def crouch(self):
         pass

@@ -15,6 +15,8 @@ class Editor:
         self.paused_text = font.render("PAUSED", True, (255, 255, 255)) # 2nd param is antialiasing
     
     def add_block(self, value, col_idx, row_idx):
+        # create the new block
+        block = Block(col_idx, row_idx, value)
 
         # extend columns
         while col_idx >= len(self.blocks):
@@ -22,10 +24,11 @@ class Editor:
 
         # extend rows
         while row_idx >= len(self.blocks[col_idx]):
-            self.blocks[col_idx].append(0)
+            step_idx = len(self.blocks[col_idx])
+            self.blocks[col_idx].append(Block(col_idx, step_idx, 0))
 
         # replace block
-        self.blocks[col_idx][row_idx] = value
+        self.blocks[col_idx][row_idx] = block
         
     def draw(self):
         gs = self.grid_size
@@ -43,14 +46,15 @@ class Editor:
         cursor_surface = pygame.Surface((gs*3, gs*3), pygame.SRCALPHA)
 
         # draw neighbors
-        for col_offset in range(0, 3, 2):
-            Block.draw(cursor_surface, col_offset, 1, -1, gs, 1)
-        for row_offset in range(0, 3, 2):
-            Block.draw(cursor_surface, 1, row_offset, -1, gs, 1)
+        #for col_offset in range(-1, 1, 2):
+        #    Block(col+col_offset, row, -2).draw(cursor_surface, gs, 1)
+        #for row_offset in range(-1, 1, 2):
+        #    Block(col, row+row_offset, -1).draw(cursor_surface, gs, 1)
         
         # draw cursor block
-        Block.draw(cursor_surface, 1, 1, 1, gs, 5)
-        Block.draw(cursor_surface, 1, 1, -2, gs)
+        Block(col, row, -2).draw(cursor_surface, gs, 5)
+        #Block(col, row, 0).draw(cursor_surface, gs)
+        #Block(col, row, -1).draw(cursor_surface, gs)
 
         # calculate positions
         x = row * gs + gs/2
@@ -63,21 +67,4 @@ class Editor:
         # render
         self.screen.blit(cursor_surface, (cursor_x, cursor_y))
         self.screen.blit(self.paused_text, (text_x, text_y))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

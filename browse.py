@@ -111,7 +111,7 @@ class Browser:
 
             # CHECK COLLISIONS
             #
-
+            
             if self.level:
                 zero_rect = pygame.Rect(0, 0, grid_size, grid_size)
                 col_id = 0
@@ -154,7 +154,7 @@ class Browser:
         
 if __name__ == '__main__':
     grid_size = 30
-    project_dir = "/home/id/Projects/MND"
+    project_dir = "/Users/leonk/Desktop/personal/MND"
     level = Level(project_dir, grid_size)
 
     game = Browser(grid_size)

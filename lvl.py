@@ -51,13 +51,14 @@ class Level:
     def compress_horizontal(self, grid):
         lines = []
 
-        if len(grid) == 1:
+        if len(list(grid)) == 1:
 
             # add one
-            line = self.compress_vertical(grid[0])
+            values = list(map(lambda block: block.value, grid[0]))
+            line = self.compress_vertical(values)
             lines.append(line)
 
-        elif len(grid) > 1:
+        elif len(list(grid)) > 1:
             count = 1
             last_line = self.compress_vertical(grid[0])
 
@@ -161,7 +162,7 @@ class Level:
     # save and overwrite file
     def save(self):
         print("saving...")
-        values = map(lambda x: map(lambda y: y.value, x), self.blocks)
+        values = list(map(lambda x: list(map(lambda y: y.value, x)), self.blocks))
 
         lines = self.compress_horizontal(values)
 
@@ -185,6 +186,6 @@ class Level:
            
 
 if __name__ == '__main__':
-    project_dir = "/home/id/Projects/MND"
+    project_dir = "/home/id/Desktop/Personal/MND"
     level = Level(project_dir)
     print(level.toString())
