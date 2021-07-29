@@ -1,2 +1,4 @@
-__pycache__/*
 .mario
+target/
+*.md.html
+.DS_Store

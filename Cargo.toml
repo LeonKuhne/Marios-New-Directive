@@ -1,0 +1,19 @@
+[package]
+name = "mariovichs_new_directive"
+version = "0.1.0"
+edition = "2018"
+authors = [ "leonkuhne.com" ]
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.dev]
+opt-level = 1
+
+[dependencies]
+bevy = { version = "0.5.0", features = ["dynamic"] }
+bevy_rapier2d = { version = "0.10.2", features = ["simd-nightly"] }
+bevy_wgpu = "0.5.0"
+bevy_winit = { version = "0.5.0", features = [ "x11" ] }
+parry2d = "0.6.0"
+rand = "0.8.4"
