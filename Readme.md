@@ -2,7 +2,7 @@
 ```
 cargo run
 ```
-- Before you start coding, check out the [Progress](#Progress) and [Lessons Learned](#Lessons Learned) sections
+- Before you start coding, check out the [Progress](#Progress) and [Lessons Learned](#Lessons-Learned) sections
 
 # Tech Stack
 - Rendering engine: [bevy](https://bevyengine.org/)
