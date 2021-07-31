@@ -2,7 +2,7 @@
 ```
 cargo run
 ```
-- Before you start coding, check out the [Progress][] and [Lessons Learned][] sections
+- Before you start coding, check out the [Progress](#Progress) and [Lessons Learned](#Lessons-Learned) sections
 
 # Tech Stack
 - Rendering engine: [bevy](https://bevyengine.org/)
@@ -16,14 +16,17 @@ Release For Web
 # Progress
 
 ## Todo
-- Keep reading the bevy book
+- Bundle up player
 
 ## Done
-- Find the best rendering engine
+- Bundle up blocks
+- Generate blocks
+- Connect engines
 - Find the best physics engine
+- Find the best rendering engine
 
 ## Nice to haves
-- hot reloading
+- hmm...
 
 # Lessons Learned
 ```
