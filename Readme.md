@@ -17,16 +17,20 @@ Release For Web
 
 ## Todo
 - Bundle up player
+- Research fetching directory contents
+- Add open file block
+- Research bevy scene changes
+- Add navigate directory door
 
 ## Done
 - Bundle up blocks
 - Generate blocks
-- Connect engines
-- Find the best physics engine
-- Find the best rendering engine
+- Setup engines
+- Research best physics engine
+- Research best rendering engine
 
 ## Nice to haves
-- hmm...
+- Randomize level generation
 
 # Lessons Learned
 ```
