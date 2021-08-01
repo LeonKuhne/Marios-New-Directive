@@ -9,9 +9,13 @@ cargo run
 - Physics engine: [rapier](https://rapier.rs/)
 
 # To Release
-- remove `dynamic` feature flag from bevy's dependency in Cargo (smaller bin)
+- Remove `dynamic` feature flag from bevy's dependency in Cargo (smaller bin)
+```
+cargo build --release
+```
 Release For Web
-- add `wasm-bindgen` feature flag to rapiers dependency 
+- Research how to run on web
+- Add `wasm-bindgen` feature flag to rapiers dependency
 
 # Progress
 
@@ -21,10 +25,12 @@ Release For Web
 - Add open file block
 - Research bevy scene changes
 - Add navigate directory door
-- Research building a release version
+- Improve level generation
+- Remove bumps when sliding
 
 ### Nice to haves
-- Randomize level generation
+- Show framerate
+- Research building a release version
 
 ### Done
 - Bundle up player
@@ -52,3 +58,8 @@ export RUST_BACKTRACE=1
 // for performance install a lld llvm
 brew install michaeleisel/zld/zld // on mac (might require prereq lib)
 ```
+
+# Level Building Ideas
+- seed levels off of things in the current directory for level consistency
+- randomly modify the level every time its visited
+- save the level in a compressed .mario file in the current directory
