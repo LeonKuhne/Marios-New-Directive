@@ -15,22 +15,23 @@ Release For Web
 
 # Progress
 
-## Todo
+### Todo
 - Bundle up player
 - Research fetching directory contents
 - Add open file block
 - Research bevy scene changes
 - Add navigate directory door
+- Research building a release version
 
-## Done
+### Nice to haves
+- Randomize level generation
+
+### Done
 - Bundle up blocks
 - Generate blocks
 - Setup engines
 - Research best physics engine
 - Research best rendering engine
-
-## Nice to haves
-- Randomize level generation
 
 # Lessons Learned
 ```
