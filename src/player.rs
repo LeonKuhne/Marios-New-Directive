@@ -1,10 +1,11 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-static BLOCK_SIZE: u8 = 40;
+static PLAYER_WIDTH: u8 = 50;
+static PLAYER_HEIGHT: u8 = 80;
 
 #[derive(Bundle)]
-pub struct BlockBundle {
+pub struct PlayerBundle {
     pub scale: f32,
     #[bundle]
     pub sprite: SpriteBundle,
@@ -14,20 +15,18 @@ pub struct BlockBundle {
     pub collider: ColliderBundle,
 }
 
-impl Default for BlockBundle {
+impl Default for PlayerBundle {
     fn default() -> Self {
         Self {
             sprite: SpriteBundle {
-                sprite: Sprite::new(Vec2::new(BLOCK_SIZE as f32, BLOCK_SIZE as f32)),
+                sprite: Sprite::new(Vec2::new(PLAYER_WIDTH as f32, PLAYER_HEIGHT as f32)),
                 ..Default::default()
             },
-            body: RigidBodyBundle {
-                body_type: RigidBodyType::Static,
-                ..Default::default()
-            },
+            body: RigidBodyBundle::default(),
             collider: ColliderBundle {
                 material: ColliderMaterial {
-                    friction: 0.0,
+                    restitution: 0.7,
+                    //friction: 0.0, TODO; test this out :)
                     ..Default::default()
                 },
                 ..Default::default()
@@ -37,14 +36,15 @@ impl Default for BlockBundle {
     }
 }
 
-impl BlockBundle {
+// TODO remove redundancy; combine methods with similar methods in block.rs
+impl PlayerBundle {
     /// @brief Max size of 255
-    pub fn new(material: Handle<ColorMaterial>, pos: Vec2, size: u8, scale: f32) -> Self {
-        let mut block = Self { scale, ..Default::default() };
-        block.set_pos(pos);
-        block.set_size(size);
-        block.set_texture(material);
-        return block;
+    pub fn new(material: Handle<ColorMaterial>, pos: Vec2, size: Vec2, scale: f32) -> Self {
+        let mut player = Self { scale, ..Default::default() };
+        player.set_pos(pos);
+        player.set_size(size);
+        player.set_texture(material);
+        return player;
     }
     
     pub fn to_string(&self) -> String {
@@ -63,12 +63,10 @@ impl BlockBundle {
     }
 
     // TODO fix this; it only resizes the collision box, not the sprite
-    /// @brief Max size of 255
-    fn set_size(&mut self, size: u8) {
-        let dim = Vec2::new(size as f32, size as f32);
-        let collide_dim = dim / self.scale / 2.0;
+    fn set_size(&mut self, size: Vec2) {
+        let collide_dim = size / self.scale / 2.0;
         self.collider.shape = ColliderShape::cuboid(collide_dim.x, collide_dim.y);
-        self.sprite.sprite.size = dim;
+        self.sprite.sprite.size = size;
     }
 
     fn set_texture(&mut self, material: Handle<ColorMaterial>) {

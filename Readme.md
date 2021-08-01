@@ -16,7 +16,7 @@ Release For Web
 # Progress
 
 ### Todo
-- Bundle up player
+- Move spawn world from setup
 - Research fetching directory contents
 - Add open file block
 - Research bevy scene changes
@@ -27,6 +27,7 @@ Release For Web
 - Randomize level generation
 
 ### Done
+- Bundle up player
 - Bundle up blocks
 - Generate blocks
 - Setup engines
