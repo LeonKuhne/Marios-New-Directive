@@ -50,10 +50,6 @@ fn setup(
     let player_size = Vec2::new(50.0, 80.0);
     let player_material = materials.add(
         asset_server.load("mario2.png").into());
-    
-    /*
-    // Create the World
-    */
 
     // Create the camera
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
