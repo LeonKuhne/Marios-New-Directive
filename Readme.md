@@ -31,6 +31,7 @@ Release For Web
 ### Nice to haves
 - Show framerate
 - Research building a release version
+- Do something with this: life =(scrambled)> file
 
 ### Done
 - Bundle up player
