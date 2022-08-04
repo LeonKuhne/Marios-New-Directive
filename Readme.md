@@ -21,12 +21,13 @@ Release For Web
 
 ### Todo
 - Move spawn world from setup
-- Research fetching directory contents
-- Add open file block
 - Research bevy scene changes
 - Add navigate directory door
 - Improve level generation
 - Remove bumps when sliding
+
+### Doing
+- Add open file block
 
 ### Nice to haves
 - Show framerate
@@ -34,6 +35,7 @@ Release For Web
 - Do something with this: life =(scrambled)> file
 
 ### Done
+- Research fetching directory contents
 - Bundle up player
 - Bundle up blocks
 - Generate blocks

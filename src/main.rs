@@ -26,6 +26,7 @@ fn main() {
         //.add_plugin(bevy_wgpu::WgpuPlugin::default())
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
         .add_startup_system(setup.system())
+        .add_startup_system(spawn_blocks.system())
         .add_system(move_mario.system())
         .run();
 }
@@ -56,26 +57,6 @@ fn setup(
  
     // Spawn some blocks
     let grid_size: u8 = 50;
-    let width_range = 15;
-    let height_range = 6;
-    let height_offset= -8;
-    for x in -width_range..width_range{
-        for y in height_offset..(height_offset + height_range){
-            let rand_height = thread_rng().gen_range(0..height_range);
-            if y >= rand_height + height_offset {
-                // TODO remove redundancy; block_material should only be declared once
-                let block_material = materials.add(
-                    asset_server.load("block.png").into());
-                let pos = Vec2::new(x as f32 * grid_size as f32, y as f32 * grid_size as f32);
-                // TODO eliminate random bumps during movement and to remove +1 on gridsize
-                // -> idealy combine static blocks to create smooth polygon
-                let block = BlockBundle::new(block_material, pos, grid_size+1, config.scale);
-                commands.spawn_bundle(block)
-                    .insert(ColliderPositionSync::Discrete); // link the physics to sprite
-                    //.insert(ColliderDebugRender::with_id(0));
-            }
-        }
-    }
     
     // Spawn the Player
     let player = PlayerBundle::new(player_material, player_pos, player_size, config.scale);
@@ -91,6 +72,35 @@ fn setup(
     commands.spawn_bundle(block)
         .insert(ColliderPositionSync::Discrete); // link the physics to sprite
         //.insert(ColliderDebugRender::with_id(0));
+}
+
+fn spawn_blocks(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut config: ResMut<RapierConfiguration>,
+) {
+    let grid_size: u8 = 50;
+
+    let width_range = 15;
+    let height_range = 6;
+    let height_offset: i8 = -8;
+    for x in -width_range..width_range{
+        for y in height_offset..(height_offset + height_range){
+            let rand_height: i8 = thread_rng().gen_range(0..height_range);
+            if y >= rand_height + height_offset {
+                // TODO remove redundancy; block_material should only be declared once
+                let block_material = materials.add(asset_server.load("block.png").into());
+                let pos = Vec2::new(x as f32 * grid_size as f32, y as f32 * grid_size as f32);
+                // TODO eliminate random bumps during movement and to remove +1 on gridsize
+                // -> idealy combine static blocks to create smooth polygon
+                let block = BlockBundle::new(block_material, pos, grid_size+1, config.scale);
+                commands.spawn_bundle(block)
+                    .insert(ColliderPositionSync::Discrete); // link the physics to sprite
+                    //.insert(ColliderDebugRender::with_id(0));
+            }
+        }
+    }
 }
 
 fn move_mario(
