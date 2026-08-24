@@ -1,0 +1,5 @@
+clear
+header "Marios New Directive"
+debug '"the best file manager ever made"'
+git status
+

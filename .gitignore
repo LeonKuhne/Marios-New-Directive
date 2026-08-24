@@ -1,4 +1,2 @@
-.mario
-target/
-*.md.html
-.DS_Store
+build/
+*.md
