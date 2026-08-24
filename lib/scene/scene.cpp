@@ -1,6 +1,5 @@
 #include "scene.h"
 
-#include "lib/engine/knife.h"
 #include "lib/engine/config.h"
 
 Scene::Scene(bool &running, Mouse &mouse)
@@ -13,7 +12,6 @@ Scene::Scene(bool &running, Mouse &mouse)
       data_points(ctx.gpu),
       frame(Frame(window, camera, data_points.vertex_buffer)),
       shapes(ShapeManager(ctx)),
-      line_pipeline(LinePipeline(ctx)),
       running(running)
 {
   // setup gravity
@@ -35,21 +33,12 @@ Scene::Scene(bool &running, Mouse &mouse)
   ctx.world->addRigidBody(player.body);
 }
 
-void Scene::setup(Knife &knife, Mouse &mouse)
+void Scene::setup(Mouse &mouse)
 {
   // setup render passes
-  frame.addPass([this, &mouse, &knife](Frame &frame, SDL_GPURenderPass *pass)
+  frame.addPass([this, &mouse](Frame &frame, SDL_GPURenderPass *pass)
     {
-      // draw shapes
       shapes.render(frame, pass);
-
-      // draw slice line
-      if (mouse.dragging && knife.isEnabled()) {
-        line_pipeline.start(pass);
-        glm::vec3 start = camera.screenToWorld(mouse.start.x, mouse.start.y);
-        glm::vec3 end = camera.screenToWorld(mouse.pos.x, mouse.pos.y);
-        line_pipeline.render(frame, start, end);
-      } 
     }
   );
 }
@@ -80,9 +69,6 @@ Shape *Scene::spawnAsteroid()
   Shape *shape = new Shape(shape_data);
   shapes.add(shape);
   shapes.select(shape);
-#if DRAW_GIZMOS
-  shapes.addVertexGizmos(shape);
-#endif
   return shape;
 }
 

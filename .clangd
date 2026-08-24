@@ -1,0 +1,18 @@
+CompileFlags:
+  Compiler: /usr/bin/g++
+
+Diagnostics:
+  ClangTidy:
+    Add:
+      - bugprone-*
+      - performance-*
+      - modernize-*
+      - portability-*
+    Remove:
+      - modernize-use-trailing-return-type
+      - modernize-use-nodiscard
+      - modernize-use-auto
+      - modernize-loop-convert
+      - modernize-avoid-c-arrays
+      - readability-magic-numbers
+      - readability-identifier-length

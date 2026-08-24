@@ -22,14 +22,4 @@ public:
   void remove(Shape *shape);
   void select(Shape *shape);
   void render(Frame &frame, SDL_GPURenderPass *pass);
-
-#ifdef DRAW_GIZMOS
-  Shape *gizmo;
-  std::vector<std::function<btVector3()>> gizmo_positions;
-  void addVertexGizmos(Shape *shape);
-  void addGizmo(std::function<btVector3()> getPosition)
-  {
-    gizmo_positions.push_back(getPosition);
-  }
-#endif
 };

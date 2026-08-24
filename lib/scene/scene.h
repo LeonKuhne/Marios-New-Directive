@@ -11,7 +11,6 @@
 #include "lib/gpu/transfer_vec.h"
 #include "lib/render/frame.h"
 #include "lib/render/window.h"
-#include "lib/line/line_pipeline.h"
 #include "lib/controls/mouse.h"
 #include "player.h"
 
@@ -27,14 +26,13 @@ public:
   Camera camera;
   Frame frame;
   ShapeManager shapes;
-  LinePipeline line_pipeline;
   bool &running;
   float sim_speed = 1.0f;
   ulong ticks = 0;
 
   Scene(bool &running, Mouse &mouse);
 
-  void setup(Knife &knife, Mouse &mouse);
+  void setup(Mouse &mouse);
   void tick();
   void render() { frame.run(); }
   Shape *spawnAsteroid();

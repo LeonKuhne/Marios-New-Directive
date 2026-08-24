@@ -3,8 +3,6 @@
 #include <sys/types.h>
 #include "lib/shapes/shape_data.h"
 
-//#define DRAW_GIZMOS 1
-
 enum ShapeType
 {
   GRAVITON = 1,
@@ -34,7 +32,6 @@ struct Config
   static const ShapeData graviton;
   static const ShapeData asteroid;
   static const ShapeData floor;
-  static const ShapeData gizmo;
 };
 
 inline const ShapeData Config::graviton = {
@@ -58,9 +55,4 @@ inline const ShapeData Config::floor = {
     .scale = {30.0f, 1.0f, 30.0f},
     .density = 1000.0f,
     .color = {0.0f, 0.0f, 1.0f, 1.0f},
-};
-
-inline const ShapeData Config::gizmo = {
-    .scale = glm::vec3(0.1f),
-    .color = {0.0f, 1.0f, 0.0f, 1.0f},
 };

@@ -1,10 +1,8 @@
 #include "keyboard.h"
 
 #include "lib/scene/scene.h"
-#include "lib/engine/knife.h"
-#include "lib/engine/config.h"
 
-void Keyboard::setup(Scene &scene, Knife &knife)
+void Keyboard::setup(Scene &scene)
 {
   // exit (escape)
   bindKey(SDLK_ESCAPE, DOWN, [&]() { scene.running = false; });
@@ -30,11 +28,4 @@ void Keyboard::setup(Scene &scene, Knife &knife)
   // adjust sim speed (<, >)
   bindKey(SDLK_W, HELD, [&]() { scene.sim_speed = std::max(0.0001f, scene.sim_speed * 0.95f); });
   bindKey(SDLK_V, HELD, [&]() { scene.sim_speed = std::min(1.0f, scene.sim_speed * 1.05f); });
-
-  // toggle knife (c)
-  bindKey(SDLK_J, DOWN, [&]() {
-    knife.toggle();
-    if (knife.isEnabled()) { SDL_Log("Knife disabled"); }
-    else                   { SDL_Log("Knife enabled"); }
-  });
 }

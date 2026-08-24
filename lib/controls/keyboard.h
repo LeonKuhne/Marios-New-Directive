@@ -8,7 +8,7 @@
 class Scene;
 class Knife;
 
-enum KeyState
+enum KeyState : uint8_t
 {
   UP,
   DOWN,
@@ -21,7 +21,7 @@ class Keyboard
   std::vector<SDL_Keycode> held_keys;
 
 public:
-  void setup(Scene &scene, Knife &knife);
+  void setup(Scene &scene);
 
   void toggle(SDL_Keycode key, KeyState state)
   {
@@ -63,7 +63,7 @@ private:
     return state_hash ^ (key_hash << 1);
   }
 
-  void bindKey(SDL_Keycode key, KeyState state, std::function<void()> action)
+  void bindKey(SDL_Keycode key, KeyState state, const std::function<void()>& action)
   {
     const size_t hash = makeHash(key, state);
     for (auto &binding : bindings)

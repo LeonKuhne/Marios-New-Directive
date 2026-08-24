@@ -4,9 +4,6 @@ ShapeManager::~ShapeManager()
 {
   for (Shape *shape : shapes)
     delete shape;
-#ifdef DRAW_GIZMOS
-  delete gizmo;
-#endif
 }
 
 void ShapeManager::add(Shape *shape)
@@ -49,29 +46,6 @@ void ShapeManager::select(Shape *shape)
   selected = shape;
 }
 
-#ifdef DRAW_GIZMOS
-void ShapeManager::addVertexGizmos(Shape *shape)
-{
-  btCollisionShape *collisionShape = shape->body->getCollisionShape();
-  // ignore if no collider
-  if (!collisionShape)
-    return;
-
-  // render gizmos at convex hull vertices
-  btConvexHullShape *convex = (btConvexHullShape *)collisionShape;
-  int num_points = convex->getNumPoints();
-  for (int v = 0; v < num_points; v++)
-  {
-    addGizmo([convex, shape, v]()
-             {
-        btVector3 origin = shape->body->getWorldTransform().getOrigin();
-        btTransform world_transform = shape->body->getWorldTransform();
-        btVector3 vertex; convex->getVertex(v, vertex);
-        return origin + world_transform.getBasis() * vertex; });
-  }
-}
-#endif
-
 void ShapeManager::render(Frame &frame, SDL_GPURenderPass *pass)
 {
   shape_pipeline.start(pass);
@@ -80,12 +54,4 @@ void ShapeManager::render(Frame &frame, SDL_GPURenderPass *pass)
   {
     shape_pipeline.render(frame, shape);
   }
-
-#ifdef DRAW_GIZMOS
-  for (auto &getPosition : gizmo_positions)
-  {
-    gizmo->setPosition(getPosition());
-    shape_pipeline.render(frame, gizmo);
-  }
-#endif
 }

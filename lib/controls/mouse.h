@@ -1,7 +1,6 @@
 #pragma once
 
 #include <functional>
-#include <map>
 #include "lib/util/callback_list.h"
 
 class Mouse

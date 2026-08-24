@@ -4,8 +4,6 @@
 #include "keyboard.h"
 #include "lib/scene/scene.h"
 
-class Knife;
-
 class Controls
 {
 
@@ -14,9 +12,9 @@ public:
   Mouse mouse;
   Scene *scene;
 
-  void setup(Scene &scene, Knife &knife) {
+  void setup(Scene &scene) {
     this->scene = &scene;
-    keyboard.setup(scene, knife);
+    keyboard.setup(scene);
   };
 
   void handle() {
@@ -39,20 +37,23 @@ public:
 
         case SDL_EVENT_MOUSE_BUTTON_DOWN:
           if (event.button.button == SDL_BUTTON_LEFT)
-            mouse.down(event.button.x, event.button.y);
+            mouse.down((int) event.button.x, (int) event.button.y);
           break;
 
         case SDL_EVENT_MOUSE_MOTION:
-          mouse.move(event.motion.x, event.motion.y, event.motion.xrel, event.motion.yrel);
+          mouse.move((int) event.motion.x, (int) event.motion.y, (int) event.motion.xrel, (int) event.motion.yrel);
           break;
 
         case SDL_EVENT_MOUSE_BUTTON_UP:
           if (event.button.button == SDL_BUTTON_LEFT)
-            mouse.up(event.button.x, event.button.y);
+            mouse.up((int) event.button.x, (int) event.button.y);
           break;
 
         case SDL_EVENT_WINDOW_RESIZED:
           scene->window.resize(event.window.data1, event.window.data2);
+          break;
+        
+        default:
           break;
       }
     }
