@@ -30,6 +30,7 @@ public:
   float eye_height = 1.6f;
   glm::vec2 move_dir = glm::vec2(0.0f, 0.0f);
 
+
   Player(PlayerInfo info); 
 
   // hooks
@@ -46,5 +47,9 @@ public:
   void jump();
 
 private:
-  void setupGroundedListener();
+  static void setupGroundedListener();
+  inline static bool init = []() { setupGroundedListener(); return true; }();
+public:
+  static Player *isPlayerCollidingWithGround(const btCollisionObject *a, const btCollisionObject *b);
+  static Player *isPlayerGravitonCollision(const btCollisionObject *a, const btCollisionObject *b);
 };

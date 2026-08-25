@@ -16,3 +16,4 @@ Diagnostics:
       - modernize-avoid-c-arrays
       - readability-magic-numbers
       - readability-identifier-length
+      - bugprone-easily-swappable-parameters

@@ -8,7 +8,7 @@ enum ShapeType : uint8_t
   GRAVITON = 1,
   ASTEROID = 2,
   PLAYER = 3,
-  FLOOR = 4,
+  PLANE = 4,
 };
 
 struct Config
@@ -24,6 +24,10 @@ struct Config
 
   static constexpr ushort point_cloud_size = 10000;
   static constexpr float point_cloud_min_radius = 0.5f;
+
+  struct HallwayGenerator {
+    static constexpr float wall_height = 3.0f;
+  };
 
 
   static const ShapeData graviton;
@@ -47,9 +51,9 @@ inline const ShapeData Config::asteroid = {
 };
 
 inline const ShapeData Config::floor = {
-    .type = ShapeType::FLOOR,
-    .pos = {0.0f, -2.0f, 0.0f},
-    .rotation = glm::angleAxis(glm::radians(15.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+    .type = ShapeType::PLANE,
+    .pos = {0.0f, 0.0f, 0.0f},
+    //.rotation = glm::angleAxis(glm::radians(15.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
     .scale = {10.0f, 0.0f, 10.0f},
     .density = 1000.0f,
     .color = {0.0f, 0.0f, 1.0f, 1.0f},

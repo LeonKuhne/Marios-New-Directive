@@ -5,6 +5,7 @@
             "label": "CMake Build",
             "type": "cmake",
             "group": "build",
+            "args": ["--clean-first"],
             "problemMatcher": []
         }
     ]

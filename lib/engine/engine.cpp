@@ -1,14 +1,16 @@
 #include "engine.h"
-#include "lib/mesh/cube.h"
+#include "lib/procgen/hallways.h"
 
 void Engine::run()
 {
   SDL_Log("Running");
 
-  //scene.shapes.add(new Shape(scene.data_points.finishCube(Config::floor)));
-
   // floor
-  scene.shapes.add(new Shape(scene.data_points.finishPlane(Config::floor)));
+  ShapeData floor = scene.data_points.finishPlane(Config::floor);
+  scene.shapes.add(new Shape(floor));
+
+  // hallways
+  generateHallways(scene, floor);
 
   while (running)
   {

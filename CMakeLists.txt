@@ -9,12 +9,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(SDL3 REQUIRED)
 find_package(Bullet REQUIRED)
 
-# remove build dir
-add_custom_target(clean_build
-    COMMAND ${CMAKE_COMMAND} -E remove_directory
-            ${CMAKE_BINARY_DIR}
-)
-
 # Compile shaders
 set(SHADER_OUTPUT_DIR "${CMAKE_BINARY_DIR}/shaders")
 file(MAKE_DIRECTORY "${SHADER_OUTPUT_DIR}")
