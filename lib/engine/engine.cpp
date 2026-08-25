@@ -6,7 +6,7 @@ void Engine::run()
   SDL_Log("Running");
 
   // hallways
-  HallwayGenerator::generate(scene, glm::vec3(0.0f, 0.0f, 0.0f));
+  HallwayGenerator::generate(scene);
 
   while (running)
   {

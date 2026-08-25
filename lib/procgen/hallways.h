@@ -15,9 +15,10 @@ struct Edge
 class HallwayGenerator
 {
 public:
-    static void generate(Scene& scene, glm::vec3 pos);
+    static void generate(Scene& scene);
 private:
-    static void generateWalls(Scene& scene, ShapeData& plane, float height);
+    static void generateRoom(Scene& scene, std::pair<int, int> cell, int max_depth, std::vector<std::pair<int, int>> visited);
+    static void generateWalls(Scene& scene, ShapeData& base, std::pair<int, int> cell, int max_depth, std::vector<std::pair<int, int>> visited);
     static void eachEdge(ShapeData& plane, std::function<void(Edge)> callback);
     static ShapeData generateFloor(Scene& scene, glm::vec3 position, float width, float length);
     static ShapeData generateCeiling(Scene& scene, glm::vec3 position, float width, float length);

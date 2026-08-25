@@ -17,8 +17,8 @@ struct Config
   {
     static constexpr glm::vec3 spawn_pos = glm::vec3(0.0f, 0.0f, 0.0f);
     static constexpr float walk_accel = 0.5f;
-    static constexpr float sprint_accel = 5.0f;
-    static constexpr float max_speed = 3.0f;
+    static constexpr float sprint_accel = 2.0f;
+    static constexpr float max_speed = 6.0f;
     static constexpr float air_movement_factor = 0.25f;
     static constexpr float height = 1.8f;
     static constexpr float radius = 0.3f;

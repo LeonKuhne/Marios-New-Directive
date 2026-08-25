@@ -5,29 +5,77 @@
 #include <glm/gtx/quaternion.hpp>
 #include "lib/engine/config.h"
 
-void HallwayGenerator::generate(Scene& scene, glm::vec3 position)
+void HallwayGenerator::generate(Scene& scene)
 {
+    int max_depth = 16;
+    std::vector<std::pair<int, int>> visited = {};
+    std::pair<int, int> cell = std::make_pair(0, 0);
+    visited.push_back(cell);
+    generateRoom(scene, cell, max_depth, visited);
+}
+
+/*
+
+
+    NOTE
+
+    i cant just mark cells as visited i need to mark edges
+    otherwise you cant tell if a cell that is visited has an open or closed path, so placing walls doesnt make sense
+
+
+*/
+
+void HallwayGenerator::generateRoom(Scene& scene, std::pair<int, int> cell, int max_depth, std::vector<std::pair<int, int>> visited)
+{
+    if (max_depth <= 0)
+        return;
+
     const float width = 5.0f;
-    const float length = 20.0f;
+    const float length = 5.0f;
+    glm::vec3 pos = glm::vec3(cell.first * width, 0.0f, cell.second * length);
 
     // create floor
-    ShapeData floor = generateFloor(scene, position, width, length);
+    ShapeData floor = generateFloor(scene, pos, width, length);
     scene.shapes.add(floor);
 
     // create ceiling
-    ShapeData ceiling = generateCeiling(scene, position, width, length);
+    ShapeData ceiling = generateCeiling(scene, pos, width, length);
     scene.shapes.add(ceiling);
 
-    generateWalls(scene, floor, Config::HallwaySettings::wall_height);
+    generateWalls(scene, floor, cell, max_depth, visited);
 }
 
-void HallwayGenerator::generateWalls(Scene& scene, ShapeData& base, float height)
+void HallwayGenerator::generateWalls(Scene& scene, ShapeData& base, std::pair<int, int> cell, int max_depth, std::vector<std::pair<int, int>> visited)
 {
     glm::vec3 base_normal = base.rotation * glm::vec3(0.0f, 1.0f, 0.0f);
+    std::vector<std::pair<int, int>> next_cells = {};
 
     // for each edge of plane
-    eachEdge(base, [&base, &scene, height, &base_normal](Edge edge){
+    eachEdge(base, [&base, &scene, cell, max_depth, &visited, &next_cells](Edge edge){
+        std::pair<int, int> cell_delta = std::make_pair(0, 0);
+        if (edge.idx % 2 == 0) cell_delta.first = 1;
+        else cell_delta.second = 1;
+        if (edge.idx > 1) {
+            cell_delta.first = -cell_delta.first;
+            cell_delta.second = -cell_delta.second;
+        }
+        std::pair<int, int> next_cell = std::make_pair(cell.first + cell_delta.first, cell.second + cell_delta.second);
+
+        bool is_visited = std::find(visited.begin(), visited.end(), next_cell) != visited.end();
+        if (is_visited)
+            return;
+
+        // chance to generate room instead of wall
+        if (rand() % 2 == 0)
+        {
+            visited.push_back(next_cell);
+            next_cells.push_back(next_cell);
+            return;
+        }
+
+        // fill wall
         ShapeData wall = Config::floor;
+        const float height = Config::HallwaySettings::wall_height;
         if (edge.idx % 2 == 0)
             wall.scale = glm::vec3(height, 0.0f, edge.size);
         else
@@ -41,6 +89,9 @@ void HallwayGenerator::generateWalls(Scene& scene, ShapeData& base, float height
         scene.data_points.finishPlane(wall);
         scene.shapes.add(wall);
     });
+
+    for (auto& next_cell : next_cells)
+        HallwayGenerator::generateRoom(scene, next_cell, max_depth - 1, visited);
 }
 
 void HallwayGenerator::eachEdge(ShapeData& plane, std::function<void(Edge)> callback)
