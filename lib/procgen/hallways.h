@@ -12,6 +12,13 @@ struct Edge
     float size;
 };
 
-void generateHallways(Scene& scene, ShapeData& plane);
-void generateWalls(Scene& scene, ShapeData& plane, float height);
-void eachEdge(ShapeData& plane, std::function<void(Edge)> callback);
+class HallwayGenerator
+{
+public:
+    static void generate(Scene& scene, glm::vec3 pos);
+private:
+    static void generateWalls(Scene& scene, ShapeData& plane, float height);
+    static void eachEdge(ShapeData& plane, std::function<void(Edge)> callback);
+    static ShapeData generateFloor(Scene& scene, glm::vec3 position, float width, float length);
+    static ShapeData generateCeiling(Scene& scene, glm::vec3 position, float width, float length);
+};

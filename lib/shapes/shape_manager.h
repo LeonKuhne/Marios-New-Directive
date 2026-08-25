@@ -19,6 +19,7 @@ public:
   ~ShapeManager();
 
   void add(Shape *shape);
+  void add(ShapeData& data);
   void remove(Shape *shape);
   void select(Shape *shape);
   void render(Frame &frame, SDL_GPURenderPass *pass);

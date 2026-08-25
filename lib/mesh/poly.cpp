@@ -36,5 +36,6 @@ ShapeData polyCreate(PolyInfo info)
     poly_index_buffer = vecToGPU<ushort>({pts.gpu, pass, SDL_GPU_BUFFERUSAGE_INDEX, &poly_indices});
     return false;
   });
-  return pts.finishShape(info.base, poly_indices, poly_index_buffer);
+  pts.finishShape(info.base, poly_indices, poly_index_buffer);
+  return info.base;
 }

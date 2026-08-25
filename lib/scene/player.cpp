@@ -1,23 +1,24 @@
 #include "player.h"
 #include <glm/ext/vector_float3.hpp>
+#include <glm/fwd.hpp>
 
 Player::Player(PlayerInfo info)
 {
   btVector3 localInertia;
-  btScalar capsule_height = info.height - 2.0f * info.radius;
-  btCollisionShape *capsule_collider = new btCapsuleShape(info.radius, capsule_height);
+  btScalar capsule_height = Config::PlayerSettings::height - 2.0f * Config::PlayerSettings::radius;
+  btCollisionShape *capsule_collider = new btCapsuleShape(Config::PlayerSettings::radius, capsule_height);
   capsule_collider->calculateLocalInertia(info.mass, localInertia);
 
   auto *player_collider = new btCompoundShape();
   btTransform offset;
   offset.setIdentity();
-  offset.setOrigin(btVector3(0.0f, info.height * 0.5f, 0.0f));
+  offset.setOrigin(btVector3(0.0f, Config::PlayerSettings::height * 0.5f, 0.0f));
   player_collider->addChildShape(offset, capsule_collider);
 
   btTransform transform;
   transform.setIdentity();
   transform.setRotation(asBtQuaternion(info.rotation));
-  transform.setOrigin(asBtVector3(info.pos));
+  transform.setOrigin(asBtVector3(info.pos - glm::vec3(0.0f, Config::PlayerSettings::height * 0.5f, 0.0f)));
 
   btDefaultMotionState *motionState = new btDefaultMotionState(transform);
   btRigidBody::btRigidBodyConstructionInfo rbInfo(info.mass, motionState, player_collider, localInertia);
@@ -25,7 +26,7 @@ Player::Player(PlayerInfo info)
   body->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
   body->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
   body->setDamping(info.linear_damping, info.angular_damping);
-  body->setFriction(Config::player_friction);
+  body->setFriction(1.0f);
   body->setRollingFriction(0.0f);
   body->setRestitution(0.0f);
   body->setUserPointer(this);
@@ -44,12 +45,12 @@ void Player::move(const glm::vec2 &direction)
 
   // add delta
   glm::vec3 delta = forward_dir * direction.x + right_dir * direction.y;
-  float move_accel = isSprinting ? Config::player_sprint_accel : Config::player_walk_accel;
+  float move_accel = isSprinting ? Config::PlayerSettings::sprint_accel : Config::PlayerSettings::walk_accel;
   if (!isGrounded)
-    move_accel *= 0.5f; // reduce move speed when in the air
+    move_accel *= Config::PlayerSettings::air_movement_factor; 
 
   // limit move speed
-  if (glm::length(velocity_xy) < Config::player_max_speed)
+  if (glm::length(velocity_xy) < Config::PlayerSettings::max_speed)
     velocity_xy += glm::normalize(glm::vec2(delta.x, delta.z)) * move_accel;
 
   // update velocity
@@ -61,14 +62,16 @@ void Player::move(const glm::vec2 &direction)
 
 void Player::jump()
 {
-  if (!isGrounded)
+  int current_time = SDL_GetTicks();
+  if (!isGrounded || current_time - last_jump_time < Config::PlayerSettings::jump_cooldown)
     return;
+  last_jump_time = current_time;
 
   glm::vec3 up_axis = glm::dot(up, up) > 1e-6f
                           ? glm::normalize(up)
                           : glm::vec3(0.0f, 1.0f, 0.0f);
   body->activate(true);
-  body->applyCentralImpulse(asBtVector3(up_axis * Config::player_jump_strength * body->getMass()));
+  body->applyCentralImpulse(asBtVector3(up_axis * Config::PlayerSettings::jump_strength * body->getMass()));
 }
 
 void Player::setupGroundedListener()

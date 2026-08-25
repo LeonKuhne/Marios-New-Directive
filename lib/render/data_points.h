@@ -56,21 +56,20 @@ public:
       vertex_buffer = vecToGPU<glm::vec3>({gpu, pass, SDL_GPU_BUFFERUSAGE_VERTEX, &all_vertices}); });
   }
 
-  ShapeData finishShape(ShapeData info, std::vector<ushort> indices, SDL_GPUBuffer *index_buffer)
+  void finishShape(ShapeData& info, std::vector<ushort> indices, SDL_GPUBuffer *index_buffer)
   {
     info.mesh.indices = indices;
     info.mesh.index_buffer = index_buffer;
     info.mesh.all_vertices = &all_vertices;
-    return info;
   }
 
-  ShapeData finishCube(ShapeData cube)
+  void finishCube(ShapeData& cube)
   {
-    return finishShape(cube, cube_indices, cube_index_buffer);
+    finishShape(cube, cube_indices, cube_index_buffer);
   }
 
-  ShapeData finishPlane(ShapeData plane)
+  void finishPlane(ShapeData& plane)
   {
-    return finishShape(plane, plane_indices, plane_index_buffer);
+    finishShape(plane, plane_indices, plane_index_buffer);
   }
 };

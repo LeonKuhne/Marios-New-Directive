@@ -12,6 +12,13 @@ void ShapeManager::add(Shape *shape)
   shapes.push_back(shape);
 }
 
+void ShapeManager::add(ShapeData& data)
+{
+  Shape *shape = new Shape(data);
+  shape->assignToWorld(ctx.world);
+  shapes.push_back(shape);
+}
+
 void ShapeManager::remove(Shape *shape)
 {
   auto it = std::find(shapes.begin(), shapes.end(), shape);

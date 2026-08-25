@@ -6,7 +6,7 @@
 Scene::Scene(bool &running, Mouse &mouse)
     : window(Window(ctx)),
       player(Player({
-        .pos = Config::player_spawn_pos,
+        .pos = Config::PlayerSettings::spawn_pos,
       })),
       camera(Camera(window, player, mouse)),
       data_points(ctx.gpu),

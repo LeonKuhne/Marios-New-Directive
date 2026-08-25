@@ -5,12 +5,8 @@ void Engine::run()
 {
   SDL_Log("Running");
 
-  // floor
-  ShapeData floor = scene.data_points.finishPlane(Config::floor);
-  scene.shapes.add(new Shape(floor));
-
   // hallways
-  generateHallways(scene, floor);
+  HallwayGenerator::generate(scene, glm::vec3(0.0f, 0.0f, 0.0f));
 
   while (running)
   {

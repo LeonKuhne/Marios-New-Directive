@@ -14,9 +14,6 @@ struct PlayerInfo
   float linear_damping = 0.0f;
   float angular_damping = 1.0f;
   float mass = 70.0f;
-  float height = 1.6f;
-  float radius = 0.3f;
-  float eye_height = 1.6f;
 };
 
 class Player : public ShapeBase
@@ -27,9 +24,9 @@ public:
   bool isSprinting = false;
   glm::vec3 forward = glm::vec3(0.0f, 0.0f, -1.0f);
   glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-  float eye_height = 1.6f;
+  float eye_height = Config::PlayerSettings::eye_height;
   glm::vec2 move_dir = glm::vec2(0.0f, 0.0f);
-
+  uint64_t last_jump_time = 0;
 
   Player(PlayerInfo info); 
 
