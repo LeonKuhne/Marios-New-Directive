@@ -22,39 +22,9 @@ function clean() {
   rm -rf build
 }
 
-function compile() {
-  # compile shaders
-  mkdir -p build/shaders
-  for file_path in assets/shaders/*; do
-    file_name=$(basename "$file_path")
-    shader_variant="${file_name##*.}"
-    shader_name="${file_name%.*}"
-    shader_type="${shader_name##*.}"
-
-    # compile hlsl
-    if [ "$shader_variant" = "hlsl" ]; then
-      if   [ "$shader_type" = "vert" ]; then format="vs_6_2"
-      elif [ "$shader_type" = "frag" ]; then format="ps_6_2"
-      elif [ "$shader_type" = "comp" ]; then format="cs_6_2"
-      else err "Unknown shader extension: $extension_name"; return 1; fi
-      dxc -spirv -T $format -E main "$file_path" -Fo build/shaders/${shader_name}.spv
-
-    # compile glsl
-    elif [ "$shader_variant" = "glsl" ]; then
-      glslc -fshader-stage=$shader_type "$file_path" -o "build/shaders/${shader_name}.spv"
-
-    # fail
-    else err "Unknown shader variant: $shader_variant"; return 1; fi
-
-    # check for errors
-    if ! [ $? -eq 0 ]; then err "Failed to compile shader: $file_path"; return 1; fi
-  done
-}
-
 function build() {
   clear
   mkdir -p build
-  compile
   (
     cd build
     cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON $@ 

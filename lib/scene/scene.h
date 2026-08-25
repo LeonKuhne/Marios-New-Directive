@@ -29,15 +29,16 @@ public:
   bool &running;
   float sim_speed = 1.0f;
   ulong ticks = 0;
+  Uint64 last_game_time = SDL_GetPerformanceCounter();
 
   Scene(bool &running, Mouse &mouse);
 
   void setup(Mouse &mouse);
   void tick();
   void render() { frame.run(); }
-  Shape *spawnAsteroid();
 
 private:
+  float getDeltaTime();
   void gravityTick(btScalar timeStep);
   void checkCollision(btPersistentManifold *const &manifold);
 };

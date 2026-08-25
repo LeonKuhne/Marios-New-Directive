@@ -1,12 +1,12 @@
 #include "scene.h"
 
 #include "lib/engine/config.h"
+#include <iostream>
 
 Scene::Scene(bool &running, Mouse &mouse)
     : window(Window(ctx)),
       player(Player({
         .pos = Config::player_spawn_pos,
-        .linear_damping = Config::player_air_friction,
       })),
       camera(Camera(window, player, mouse)),
       data_points(ctx.gpu),
@@ -45,88 +45,95 @@ void Scene::setup(Mouse &mouse)
 
 void Scene::tick()
 {
-  float fps = 60.0f;
-  float delta = 1.0f / fps;
+  const float fps = 60.0f;
+  const float delta = 1.0f / fps;
   ctx.world->stepSimulation(delta * sim_speed, 1);
-  camera.update();
-
-  // spawn an asteroid every spawn interval ticks
-  if (ticks % Config::asteroid_tick_spawn_interval == 0)
-    if (shapes.shapes.size() < Config::num_asteroids)
-    {
-      spawnAsteroid();
-      SDL_Log("Spawned asteroid, total shapes: %zu", shapes.shapes.size());
-    }
-
+  player.tick();
+  camera.tick();
   ticks++;
-}
-
-Shape *Scene::spawnAsteroid()
-{
-  ShapeData shape_data = polyCreate({Config::asteroid, 20, data_points});
-  shape_data.linear_velocity = random_vertex() * Config::asteroid_spawn_velocity;
-  shape_data.pos = glm::normalize(random_vertex()) * Config::asteroid_spawn_distance;
-  Shape *shape = new Shape(shape_data);
-  shapes.add(shape);
-  shapes.select(shape);
-  return shape;
 }
 
 void Scene::gravityTick(btScalar timeStep)
 {
-  static float angle = 0.0f;
-  angle += timeStep * 0.5f; // rotate gravity direction over time
-  float strength = 9.8f;
+  constexpr btScalar gravity_strength = 9.8f;
+  const btVector3 gravity_dir(0.0f, -1.0f, 0.0f);
 
-  // attract to 0, 0
   for (Shape *shape : shapes.shapes)
   {
-    if (shape->is_static)
+    if (shape->is_static || !shape->body)
       continue;
-
-    btRigidBody *body = shape->body;
-    if (!body)
-      continue;
-
-    // respawn asteroid if inactive
-    /*
-    if (!(body->isActive()))
-    {
-      shapes.remove(shape);
-      spawnAsteroid();
-    }
-    */
-
-    // simulate asteroid physics
-    btVector3 pos = body->getCenterOfMassPosition();
-    btVector3 gravity_dir = -pos.normalized(); // direction towards the center
-    body->setGravity(gravity_dir * strength);
+    shape->body->setGravity(gravity_dir * gravity_strength);
   }
 
-  // simulate physics on player
-  btVector3 player_pos = player.body->getCenterOfMassPosition();
-  btVector3 player_gravity_dir = -player_pos.normalized();
-  float player_gravity_factor = player.isGrounded ? Config::player_ground_gravity_factor : 1.0f;
-  player.body->setGravity(player_gravity_dir * strength * player_gravity_factor);
+  btScalar gravity = gravity_strength;
+  player.body->setGravity(gravity_dir * gravity);
 }
 
 void Scene::checkCollision(btPersistentManifold *const &manifold)
 {
   // get the two colliding bodies
-  ShapeBase *shape_a = static_cast<ShapeBase *>(manifold->getBody0()->getUserPointer());
-  ShapeBase *shape_b = static_cast<ShapeBase *>(manifold->getBody1()->getUserPointer());
+  const btCollisionObject *body_a = manifold->getBody0();
+  const btCollisionObject *body_b = manifold->getBody1();
+  ShapeBase *shape_a = static_cast<ShapeBase *>(body_a->getUserPointer());
+  ShapeBase *shape_b = static_cast<ShapeBase *>(body_b->getUserPointer());
+
+  if (!shape_a || !shape_b)
+    return;
+
   ushort type_a = shape_a->getType();
   ushort type_b = shape_b->getType();
 
-  // check if one graviton
-  if (!(type_a == ShapeType::GRAVITON xor type_b == ShapeType::GRAVITON))
-    return;
+  // Graviton collision.
+  if (type_a == ShapeType::GRAVITON || type_b == ShapeType::GRAVITON)
+  {
+    if (type_a == ShapeType::GRAVITON)
+    {
+      if (type_b == ShapeType::ASTEROID)
+        shapes.remove(static_cast<Shape *>(shape_b));
+    }
+    else
+    {
+      if (type_a == ShapeType::ASTEROID)
+        shapes.remove(static_cast<Shape *>(shape_a));
+    }
+  }
 
-  // reorder so that shapeA is the graviton
-  ShapeBase *grav = type_a == ShapeType::GRAVITON ? shape_a : shape_b;
-  ShapeBase *other = grav == shape_a ? shape_b : shape_a;
+  // Player grounding.
+  if (body_a == player.body || body_b == player.body)
+  {
+    const btCollisionObject *other = body_a == player.body ? body_b : body_a;
 
-  // despawn asteroid
-  if (other->getType() == ShapeType::ASTEROID)
-    shapes.remove(static_cast<Shape *>(other));
+    for (int i = 0; i < manifold->getNumContacts(); ++i)
+    {
+      const btManifoldPoint &contact = manifold->getContactPoint(i);
+
+      if (contact.getDistance() > 0.05f)
+        continue;
+
+      btVector3 normal = contact.m_normalWorldOnB;
+
+      if (other == body_a)
+        normal = -normal;
+
+      // Player's local "up" is away from the planet.
+      btVector3 player_pos =
+        player.body->getCenterOfMassPosition();
+
+      btVector3 player_up = player_pos.normalized();
+
+      // Contact is floor if its normal points approximately upward.
+      if (normal.dot(player_up) > 0.5f)
+      {
+        player.isGrounded = true;
+
+        btVector3 velocity = player.body->getLinearVelocity();
+
+        // Remove velocity into/out of the floor.
+        velocity -= normal * velocity.dot(normal);
+
+        player.body->setLinearVelocity(velocity);
+        break;
+      }
+    }
+  }
 }

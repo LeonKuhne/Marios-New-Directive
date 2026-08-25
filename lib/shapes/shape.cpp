@@ -59,6 +59,8 @@ Shape::Shape(const ShapeData info)
   body->setLinearVelocity(asBtVector3(info.linear_velocity));
   body->setAngularVelocity(asBtVector3(info.angular_velocity));
   body->setUserPointer(this);
+  body->setRestitution(0.0f);
+  body->setFriction(Config::ground_friction);
 
   // disable collisions
   if (!has_collider)

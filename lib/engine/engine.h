@@ -2,7 +2,6 @@
 
 #include <SDL3/SDL.h>
 #include "lib/scene/scene.h"
-#include "lib/mesh/poly.h"
 #include "lib/controls/controls.h"
 
 class Engine

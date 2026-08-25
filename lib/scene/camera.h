@@ -84,7 +84,7 @@ public:
     player.forward = glm::normalize(glm::mat3_cast(pitch_rotation) * yawed_forward);
   }
 
-  void update()
+  void tick()
   {
     pos = player.getPosition();
     glm::vec3 previous_up = player.up;
@@ -122,7 +122,8 @@ public:
     if (glm::dot(player.forward, player.forward) <= 1e-6f)
       player.forward = glm::normalize(glm::cross(glm::vec3(1.0f, 0.0f, 0.0f), player.up));
 
-    glm::mat4 view = glm::lookAt(pos, pos + player.forward, player.up);
+    glm::vec3 camera_pos(pos.x, pos.y + player.eye_height, pos.z);
+    glm::mat4 view = glm::lookAt(camera_pos, camera_pos + player.forward, player.up);
     view_projection = projection * view;
   }
 

@@ -1,11 +1,19 @@
 #include "player.h"
+#include <glm/ext/vector_float3.hpp>
+#include <iostream>
 
 Player::Player(PlayerInfo info)
 {
   btVector3 localInertia;
-  btCollisionShape *collider = new btSphereShape(1.0f);
-  collider->setLocalScaling(asBtVector3(info.scale));
-  collider->calculateLocalInertia(info.mass, localInertia);
+  btScalar capsule_height = info.height - 2.0f * info.radius;
+  btCollisionShape *capsule_collider = new btCapsuleShape(info.radius, capsule_height);
+  capsule_collider->calculateLocalInertia(info.mass, localInertia);
+
+  auto *player_collider = new btCompoundShape();
+  btTransform offset;
+  offset.setIdentity();
+  offset.setOrigin(btVector3(0.0f, info.height * 0.5f, 0.0f));
+  player_collider->addChildShape(offset, capsule_collider);
 
   btTransform transform;
   transform.setIdentity();
@@ -13,17 +21,37 @@ Player::Player(PlayerInfo info)
   transform.setOrigin(asBtVector3(info.pos));
 
   btDefaultMotionState *motionState = new btDefaultMotionState(transform);
-  btRigidBody::btRigidBodyConstructionInfo rbInfo(info.mass, motionState, collider, localInertia);
+  btRigidBody::btRigidBodyConstructionInfo rbInfo(info.mass, motionState, player_collider, localInertia);
   body = new btRigidBody(rbInfo);
-  body->setLinearVelocity(asBtVector3(info.linear_velocity));
-  body->setAngularVelocity(asBtVector3(info.angular_velocity));
+  body->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
+  body->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
   body->setDamping(info.linear_damping, info.angular_damping);
-  body->setFriction(Config::player_ground_friction);
-  body->setRollingFriction(Config::player_ground_rolling_friction);
+  body->setFriction(Config::player_friction);
+  body->setRollingFriction(0.0f);
+  body->setRestitution(0.0f);
   body->setUserPointer(this);
   body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 
   setupGroundedListener();
+}
+
+static Player *isPlayerFloorCollision(
+    const btCollisionObject *a,
+    const btCollisionObject *b)
+{
+    if (!a->getUserPointer() || !b->getUserPointer())
+        return nullptr;
+
+    auto *shape_a = static_cast<ShapeBase *>(a->getUserPointer());
+    auto *shape_b = static_cast<ShapeBase *>(b->getUserPointer());
+
+    if (shape_a->getType() == ShapeType::FLOOR && shape_b->getType() == ShapeType::PLAYER)
+        return static_cast<Player *>(b->getUserPointer());
+
+    if (shape_a->getType() == ShapeType::PLAYER && shape_b->getType() == ShapeType::FLOOR)
+        return static_cast<Player *>(a->getUserPointer());
+
+    return nullptr;
 }
 
 static Player *isPlayerGravitonCollision(const btCollisionObject *a, const btCollisionObject *b)
@@ -44,50 +72,58 @@ static Player *isPlayerGravitonCollision(const btCollisionObject *a, const btCol
 
 void Player::setupGroundedListener()
 {
-  gContactAddedCallback = [](btManifoldPoint &cp,
-                             const btCollisionObjectWrapper *a, int partId0, int index0,
-                             const btCollisionObjectWrapper *b, int partId1, int index1)
-  {
-    static Player *player = isPlayerGravitonCollision(a->getCollisionObject(), b->getCollisionObject());
-    if (player)
-      player->isGrounded = true;
-    return true;
-  };
+    gContactAddedCallback = [](btManifoldPoint &cp,
+                               const btCollisionObjectWrapper *a,
+                               int partId0, int index0,
+                               const btCollisionObjectWrapper *b,
+                               int partId1, int index1)
+    {
+        Player *player = isPlayerFloorCollision(
+            a->getCollisionObject(),
+            b->getCollisionObject());
 
-  gContactEndedCallback = [](btPersistentManifold *const &manifold)
-  {
-    static Player *player = isPlayerGravitonCollision(manifold->getBody0(), manifold->getBody1());
-    if (player)
-      player->isGrounded = false;
-  };
+        if (player)
+            player->isGrounded = true;
+
+        return true;
+    };
+
+    gContactEndedCallback = [](btPersistentManifold *const &manifold)
+    {
+        Player *player = isPlayerFloorCollision(
+            manifold->getBody0(),
+            manifold->getBody1());
+
+        if (player)
+            player->isGrounded = false;
+    };
 }
+
+void Player::tick() {}
 
 void Player::move(const glm::vec2 &direction)
 {
+  btVector3 velocity = body->getLinearVelocity();
+  glm::vec2 velocity_xy = glm::vec2(velocity.getX(), velocity.getZ());
+
+  glm::vec3 forward_dir = glm::normalize(glm::vec3(forward.x, 0.0f, forward.z));
+  glm::vec3 right_dir = glm::vec3(forward_dir.z, 0.0f, -forward_dir.x);
+
+  // add delta
+  glm::vec3 delta = forward_dir * direction.x + right_dir * direction.y;
+  float move_accel = isSprinting ? Config::player_sprint_accel : Config::player_walk_accel;
   if (!isGrounded)
-    return;
+    move_accel *= 0.5f; // reduce move speed when in the air
 
+  // limit move speed
+  if (glm::length(velocity_xy) < Config::player_max_speed)
+    velocity_xy += glm::normalize(glm::vec2(delta.x, delta.z)) * move_accel;
+
+  // update velocity
+  velocity.setX(velocity_xy.x);
+  velocity.setZ(velocity_xy.y);
   body->activate(true);
-  glm::vec3 up_axis = glm::dot(up, up) > 1e-6f
-                          ? glm::normalize(up)
-                          : glm::vec3(0.0f, 1.0f, 0.0f);
-
-  glm::vec3 forward_axis = forward - glm::dot(forward, up_axis) * up_axis;
-  if (glm::dot(forward_axis, forward_axis) <= 1e-6f)
-    forward_axis = glm::vec3(0.0f, 0.0f, -1.0f);
-  else
-    forward_axis = glm::normalize(forward_axis);
-
-  glm::vec3 right_axis = glm::cross(forward_axis, up_axis);
-  if (glm::dot(right_axis, right_axis) <= 1e-6f)
-    right_axis = glm::vec3(1.0f, 0.0f, 0.0f);
-  else
-    right_axis = glm::normalize(right_axis);
-
-  glm::vec3 delta = forward_axis * direction.x + right_axis * direction.y;
-  float move_speed = isSprinting ? Config::player_sprint_speed : Config::player_speed;
-  // accelerate in the direction of movement
-  body->applyCentralForce(asBtVector3(delta * move_speed * body->getMass()));
+  body->setLinearVelocity(velocity);
 }
 
 void Player::jump()
@@ -95,9 +131,9 @@ void Player::jump()
   if (!isGrounded)
     return;
 
-  body->activate(true);
   glm::vec3 up_axis = glm::dot(up, up) > 1e-6f
                           ? glm::normalize(up)
                           : glm::vec3(0.0f, 1.0f, 0.0f);
+  body->activate(true);
   body->applyCentralImpulse(asBtVector3(up_axis * Config::player_jump_strength * body->getMass()));
 }

@@ -1,13 +1,15 @@
 #include "engine.h"
+#include "lib/mesh/cube.h"
 
 void Engine::run()
 {
   SDL_Log("Running");
 
-  // add floor
   //scene.shapes.add(new Shape(scene.data_points.finishCube(Config::floor)));
-  ShapeData graviton = polyCreate({Config::graviton, 400, scene.data_points});
-  scene.shapes.add(new Shape(graviton));
+
+  // floor
+  scene.shapes.add(new Shape(scene.data_points.finishPlane(Config::floor)));
+
   while (running)
   {
     scene.tick();

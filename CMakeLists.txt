@@ -7,6 +7,76 @@ add_compile_options(-Wno-c99-designator)
 find_package(SDL3 REQUIRED)
 find_package(Bullet REQUIRED)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Compile shaders
+set(SHADER_OUTPUT_DIR "${CMAKE_BINARY_DIR}/shaders")
+file(MAKE_DIRECTORY "${SHADER_OUTPUT_DIR}")
+
+file(GLOB SHADERS
+    "${CMAKE_SOURCE_DIR}/assets/shaders/*"
+)
+
+foreach(SHADER ${SHADERS})
+    get_filename_component(NAME "${SHADER}" NAME)
+
+    if(NAME MATCHES "\\.([^.]+)\\.hlsl$")
+        set(STAGE "${CMAKE_MATCH_1}")
+
+        if(STAGE STREQUAL "vert")
+            set(TARGET "vs_6_2")
+        elseif(STAGE STREQUAL "frag")
+            set(TARGET "ps_6_2")
+        elseif(STAGE STREQUAL "comp")
+            set(TARGET "cs_6_2")
+        else()
+            message(FATAL_ERROR "Unknown HLSL shader stage: ${NAME}")
+        endif()
+
+        string(REGEX REPLACE "\\.(hlsl|glsl)$" "" SHADER_NAME "${NAME}")
+        set(OUTPUT "${SHADER_OUTPUT_DIR}/${SHADER_NAME}.spv")
+
+        add_custom_command(
+            OUTPUT "${OUTPUT}"
+            COMMAND dxc
+                -spirv
+                -T ${TARGET}
+                -E main
+                "${SHADER}"
+                -Fo "${OUTPUT}"
+            DEPENDS "${SHADER}"
+            COMMENT "Compiling HLSL shader ${NAME}"
+        )
+
+    elseif(NAME MATCHES "\\.([^.]+)\\.glsl$")
+        set(STAGE "${CMAKE_MATCH_1}")
+
+        if(NOT STAGE MATCHES "^(vert|frag|comp)$")
+            message(FATAL_ERROR "Unknown GLSL shader stage: ${NAME}")
+        endif()
+
+        set(OUTPUT "${SHADER_OUTPUT_DIR}/${NAME}.spv")
+
+        add_custom_command(
+            OUTPUT "${OUTPUT}"
+            COMMAND glslc
+                -fshader-stage=${STAGE}
+                "${SHADER}"
+                -o "${OUTPUT}"
+            DEPENDS "${SHADER}"
+            COMMENT "Compiling GLSL shader ${NAME}"
+        )
+
+    else()
+        message(FATAL_ERROR "Unknown shader format: ${NAME}")
+    endif()
+
+    list(APPEND COMPILED_SHADERS "${OUTPUT}")
+endforeach()
+
+add_custom_target(Shaders ALL DEPENDS ${COMPILED_SHADERS})
+
+
 # Collect all your source files
 file(GLOB_RECURSE SOURCES
     "main.cpp"
