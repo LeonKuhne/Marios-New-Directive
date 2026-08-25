@@ -1,20 +1,25 @@
+
 cmake_minimum_required(VERSION 3.15)
 project(Engine)
 
 set(CMAKE_CXX_STANDARD 17)
 add_compile_options(-Wno-c99-designator)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(SDL3 REQUIRED)
 find_package(Bullet REQUIRED)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# remove build dir
+add_custom_target(clean_build
+    COMMAND ${CMAKE_COMMAND} -E remove_directory
+            ${CMAKE_BINARY_DIR}
+)
 
 # Compile shaders
 set(SHADER_OUTPUT_DIR "${CMAKE_BINARY_DIR}/shaders")
 file(MAKE_DIRECTORY "${SHADER_OUTPUT_DIR}")
 
-file(GLOB SHADERS
-    "${CMAKE_SOURCE_DIR}/assets/shaders/*"
+file(GLOB SHADERS "${CMAKE_SOURCE_DIR}/assets/shaders/*"
 )
 
 foreach(SHADER ${SHADERS})

@@ -3,7 +3,7 @@
 #include <sys/types.h>
 #include "lib/shapes/shape_data.h"
 
-enum ShapeType
+enum ShapeType : uint8_t
 {
   GRAVITON = 1,
   ASTEROID = 2,
@@ -15,7 +15,7 @@ struct Config
 {
   static constexpr glm::vec3 player_spawn_pos = glm::vec3(0.0f, 20.0f, 0.0f);
   static constexpr float player_walk_accel = 0.5f;
-  static constexpr float player_sprint_accel = 0.9f;
+  static constexpr float player_sprint_accel = 5.0f;
   static constexpr float player_max_speed = 3.0f;
   static constexpr float player_jump_strength = 3.0f;
 
@@ -49,6 +49,7 @@ inline const ShapeData Config::asteroid = {
 inline const ShapeData Config::floor = {
     .type = ShapeType::FLOOR,
     .pos = {0.0f, -2.0f, 0.0f},
+    .rotation = glm::angleAxis(glm::radians(15.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
     .scale = {10.0f, 0.0f, 10.0f},
     .density = 1000.0f,
     .color = {0.0f, 0.0f, 1.0f, 1.0f},
