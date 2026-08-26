@@ -27,8 +27,6 @@ public:
   Frame frame;
   ShapeManager shapes;
   bool &running;
-  float sim_speed = 1.0f;
-  ulong ticks = 0;
   Uint64 last_game_time = SDL_GetPerformanceCounter();
 
   Scene(bool &running, Mouse &mouse);

@@ -1,11 +1,11 @@
 #include "engine.h"
 #include "lib/procgen/hallways.h"
+#include "lib/debug/timer.h"
 
 void Engine::run()
 {
   SDL_Log("Running");
 
-  // hallways
   HallwayGenerator::generate(scene);
 
   while (running)

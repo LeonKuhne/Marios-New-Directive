@@ -15,7 +15,7 @@ struct Config
 {
   struct PlayerSettings
   {
-    static constexpr glm::vec3 spawn_pos = glm::vec3(0.0f, 0.0f, 0.0f);
+    static constexpr glm::vec3 spawn_pos = glm::vec3(0.0f, 0.5f, 0.0f);
     static constexpr float walk_accel = 0.5f;
     static constexpr float sprint_accel = 2.0f;
     static constexpr float max_speed = 6.0f;

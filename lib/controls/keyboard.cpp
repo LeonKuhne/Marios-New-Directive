@@ -21,8 +21,4 @@ void Keyboard::setup(Scene &scene)
   bindKey(SDLK_A, HELD, [&]() { scene.player.move({0.0f, 1.0f}); });
   bindKey(SDLK_S, HELD, [&]() { scene.player.move({-1.0f, 0.0f}); });
   bindKey(SDLK_D, HELD, [&]() { scene.player.move({0.0f, -1.0f}); });
-
-  // adjust sim speed (<, >)
-  bindKey(SDLK_E, HELD, [&]() { scene.sim_speed = std::max(0.0001f, scene.sim_speed * 0.95f); });
-  bindKey(SDLK_Q, HELD, [&]() { scene.sim_speed = std::min(1.0f, scene.sim_speed * 1.05f); });
 }

@@ -47,10 +47,9 @@ void Scene::tick()
 {
   const float fps = 60.0f;
   const float delta = 1.0f / fps;
-  ctx.world->stepSimulation(delta * sim_speed, 1);
+  ctx.world->stepSimulation(delta, 1);
   player.tick();
   camera.tick();
-  ticks++;
 }
 
 void Scene::gravityTick(btScalar timeStep)

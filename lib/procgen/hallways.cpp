@@ -5,114 +5,114 @@
 #include <glm/gtx/quaternion.hpp>
 #include "lib/engine/config.h"
 
-void HallwayGenerator::generate(Scene& scene)
-{
-    int max_depth = 16;
-    std::vector<std::pair<int, int>> visited = {};
-    std::pair<int, int> cell = std::make_pair(0, 0);
-    visited.push_back(cell);
-    generateRoom(scene, cell, max_depth, visited);
+static std::pair<int, int> getRoomCellInDirection(std::pair<int, int> cell, int i) {
+    switch (i) {
+        case 0: return std::make_pair(cell.first + 1, cell.second);
+        case 1: return std::make_pair(cell.first, cell.second + 1);
+        case 2: return std::make_pair(cell.first - 1, cell.second);
+        case 3: return std::make_pair(cell.first, cell.second - 1);
+        default: break;
+    }
 }
 
-/*
-
-
-    NOTE
-
-    i cant just mark cells as visited i need to mark edges
-    otherwise you cant tell if a cell that is visited has an open or closed path, so placing walls doesnt make sense
-
-
-*/
-
-void HallwayGenerator::generateRoom(Scene& scene, std::pair<int, int> cell, int max_depth, std::vector<std::pair<int, int>> visited)
+void HallwayGenerator::generate(Scene& scene)
 {
-    if (max_depth <= 0)
-        return;
+    int max_rooms = 1000;
+    float spawn_room_chance = 0.5f;
 
-    const float width = 5.0f;
-    const float length = 5.0f;
-    glm::vec3 pos = glm::vec3(cell.first * width, 0.0f, cell.second * length);
+    std::map<std::pair<int, int>, ShapeData> visited = {};
+    std::vector<std::pair<int, int>> unvisited = {};
+    unvisited.emplace_back(0, 0);
+
+    while (!unvisited.empty() && max_rooms > 0)
+    {
+        // basic depth first search algo
+        std::pair<int, int> cell = unvisited.back();
+        unvisited.pop_back();
+
+        // generate a room
+        visited[cell] = generateRoom(scene, cell);
+        max_rooms--;
+
+        for (int i = 0; i < 4; i++)
+        {
+            std::pair<int, int> room_cell = getRoomCellInDirection(cell, i);
+            bool is_room_visited = visited.find(room_cell) != visited.end();
+            if (is_room_visited)
+                continue;
+
+            // chance to create new room
+            if (static_cast<float>(rand()) / RAND_MAX < spawn_room_chance)
+                unvisited.push_back(room_cell);
+        }
+    }
+
+    for (auto& [cell, floor] : visited)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            // if there isnt a room in this direction, generate a wall
+            std::pair<int, int> room_cell = getRoomCellInDirection(cell, i);
+            bool is_room_visited = visited.find(room_cell) != visited.end();
+            if (is_room_visited)
+                continue;
+            generateWall(scene, floor, i);
+        }
+
+    }
+}
+
+ShapeData HallwayGenerator::generateRoom(Scene& scene, std::pair<int, int>& cell)
+{
+    const float room_size = 3.0f;
+    glm::vec3 pos = glm::vec3(cell.first * room_size, 0.0f, cell.second * room_size);
 
     // create floor
-    ShapeData floor = generateFloor(scene, pos, width, length);
+    ShapeData floor = generateFloor(scene, pos, room_size, room_size);
     scene.shapes.add(floor);
 
     // create ceiling
-    ShapeData ceiling = generateCeiling(scene, pos, width, length);
+    ShapeData ceiling = generateCeiling(scene, pos, room_size, room_size);
     scene.shapes.add(ceiling);
 
-    generateWalls(scene, floor, cell, max_depth, visited);
+    return floor;
 }
 
-void HallwayGenerator::generateWalls(Scene& scene, ShapeData& base, std::pair<int, int> cell, int max_depth, std::vector<std::pair<int, int>> visited)
+void HallwayGenerator::generateWall(Scene& scene, ShapeData& base, int idx)
 {
-    glm::vec3 base_normal = base.rotation * glm::vec3(0.0f, 1.0f, 0.0f);
-    std::vector<std::pair<int, int>> next_cells = {};
-
-    // for each edge of plane
-    eachEdge(base, [&base, &scene, cell, max_depth, &visited, &next_cells](Edge edge){
-        std::pair<int, int> cell_delta = std::make_pair(0, 0);
-        if (edge.idx % 2 == 0) cell_delta.first = 1;
-        else cell_delta.second = 1;
-        if (edge.idx > 1) {
-            cell_delta.first = -cell_delta.first;
-            cell_delta.second = -cell_delta.second;
-        }
-        std::pair<int, int> next_cell = std::make_pair(cell.first + cell_delta.first, cell.second + cell_delta.second);
-
-        bool is_visited = std::find(visited.begin(), visited.end(), next_cell) != visited.end();
-        if (is_visited)
-            return;
-
-        // chance to generate room instead of wall
-        if (rand() % 2 == 0)
-        {
-            visited.push_back(next_cell);
-            next_cells.push_back(next_cell);
-            return;
-        }
-
-        // fill wall
-        ShapeData wall = Config::floor;
-        const float height = Config::HallwaySettings::wall_height;
-        if (edge.idx % 2 == 0)
-            wall.scale = glm::vec3(height, 0.0f, edge.size);
-        else
-            wall.scale = glm::vec3(edge.size, 0.0f, height);
-        glm::vec3 world_offset = base.rotation * (edge.offset + glm::vec3(0, height / 2.0f, 0));
-        wall.pos = base.pos + world_offset;
-        wall.rotation = base.rotation * glm::rotation(
-            glm::vec3(0.0f, 1.0f, 0.0f),
-            glm::normalize(-edge.offset)
-        );
-        scene.data_points.finishPlane(wall);
-        scene.shapes.add(wall);
-    });
-
-    for (auto& next_cell : next_cells)
-        HallwayGenerator::generateRoom(scene, next_cell, max_depth - 1, visited);
+    Edge edge = getEdge(base, idx);
+    ShapeData wall = Config::floor;
+    const float height = Config::HallwaySettings::wall_height;
+    if (idx % 2 == 0)
+        wall.scale = glm::vec3(height, 0.0f, edge.size);
+    else
+        wall.scale = glm::vec3(edge.size, 0.0f, height);
+    glm::vec3 world_offset = base.rotation * (edge.offset + glm::vec3(0, height / 2.0f, 0));
+    wall.pos = base.pos + world_offset;
+    wall.rotation = base.rotation * glm::rotation(
+        glm::vec3(0.0f, 1.0f, 0.0f),
+        glm::normalize(-edge.offset)
+    );
+    scene.data_points.finishPlane(wall);
+    scene.shapes.add(wall);
 }
 
-void HallwayGenerator::eachEdge(ShapeData& plane, std::function<void(Edge)> callback)
+Edge HallwayGenerator::getEdge(ShapeData& plane, int idx)
 {
-    for (int i = 0; i < 4; ++i) // x, z, -x, -z
-    {
-        glm::vec3 offset = glm::vec3(0.0f);
-        float size;
-        // along x
-        if (i % 2 == 0) {
-            offset.x = plane.scale.x / 2.0f;
-            size = plane.scale.z;
-        // along z
-        } else {
-            offset.z = plane.scale.z / 2.0f;
-            size = plane.scale.x;
-        // negative direction
-        } if (i > 1) 
-            offset = -offset;
-        callback(Edge{i, offset, size});
-    }
+    glm::vec3 offset = glm::vec3(0.0f);
+    float size;
+    // along x
+    if (idx % 2 == 0) {
+        offset.x = plane.scale.x / 2.0f;
+        size = plane.scale.z;
+    // along z
+    } else {
+        offset.z = plane.scale.z / 2.0f;
+        size = plane.scale.x;
+    // negative direction
+    } if (idx > 1) 
+        offset = -offset;
+    return Edge{idx, offset, size};
 }
 
 ShapeData HallwayGenerator::generateFloor(Scene& scene, glm::vec3 position, float width, float length)
