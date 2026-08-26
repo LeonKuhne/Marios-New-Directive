@@ -1,1 +1,2 @@
-# switching to cpp+sdl
+## dev notes
+- using sasha willems spv shaders

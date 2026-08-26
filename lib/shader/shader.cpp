@@ -14,13 +14,13 @@ static uint8_t* shader_read_file(const char* path, size_t* out_code_size) {
   uint8_t* buffer = (uint8_t*) file_read(full_path, &byte_size);
   if (byte_size <= 0 || byte_size % 4 != 0) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Invalid file size for %s: %zu, %s\n", path, byte_size, strerror(errno));
-    return NULL;
+    return nullptr;
   }
 
   // assert
   if (!buffer) {
     *out_code_size = 0;
-    return NULL;
+    return nullptr;
   }
 
   // submit
@@ -50,7 +50,7 @@ SDL_GPUShader* shader_load(const char* path, SDL_GPUDevice* gpu, SDL_GPUShaderSt
   // validate
   if (!shader) {
     SDL_Log("Failed to load shader: %s\n", SDL_GetError());
-    return NULL;
+    return nullptr;
   }
 
   return shader;

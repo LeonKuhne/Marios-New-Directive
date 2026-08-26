@@ -13,8 +13,8 @@ Frame::~Frame() {
 void Frame::run() {
   // start frame
   cmd = SDL_AcquireGPUCommandBuffer(ctx.gpu);
-  SDL_AcquireGPUSwapchainTexture(cmd, ctx.window, &pass_info.texture, NULL, NULL);
-  if (pass_info.texture == NULL) {
+  SDL_AcquireGPUSwapchainTexture(cmd, ctx.window, &pass_info.texture, nullptr, nullptr);
+  if (pass_info.texture == nullptr) {
     failed_swaps++;
     return;
   }
@@ -26,7 +26,7 @@ void Frame::run() {
 }
 
 void Frame::addPass(std::function<void(Frame &, SDL_GPURenderPass *)> render) {
-  passes.push_back([this, render]() {
+  passes.emplace_back([this, render]() {
     SDL_GPURenderPass *pass = SDL_BeginGPURenderPass(cmd, &pass_info, 1, depth_target);
     render(*this, pass);
     SDL_EndGPURenderPass(pass);

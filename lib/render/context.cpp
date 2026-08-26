@@ -26,11 +26,11 @@ Context::ErrorCode Context::initSDL()
     return INIT_ERROR;
 
   window = SDL_CreateWindow("Engine", 800, 600, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
-  if (window == NULL)
+  if (window == nullptr)
     return WINDOW_ERROR;
 
-  renderer = SDL_CreateRenderer(window, NULL);
-  if (renderer == NULL)
+  renderer = SDL_CreateRenderer(window, nullptr);
+  if (renderer == nullptr)
     return RENDERER_ERROR;
 
   gpu = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV, false, NULL);
