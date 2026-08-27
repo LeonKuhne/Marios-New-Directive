@@ -18,6 +18,8 @@ infos COMMANDS
 help .cd | indent "- "
 echo
 
+project_name="Engine"
+
 function clean() {
   rm -rf build
 }

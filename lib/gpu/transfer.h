@@ -13,8 +13,26 @@ struct TransferInfo
   uint32_t size;
 };
 
-template <typename T>
-SDL_GPUBuffer *toGPU(TransferInfo<T> info)
+struct TextureTransferInfo
+{
+  SDL_GPUDevice *gpu;
+  SDL_GPUCopyPass *pass;
+  const void *data;
+  uint32_t width;
+  uint32_t height;
+};
+
+struct TextureCubeTransferInfo
+{
+  SDL_GPUDevice *gpu;
+  SDL_GPUCopyPass *pass;
+  const void *data;
+  uint32_t size;
+};
+
+void transfer(SDL_GPUDevice *gpu, std::function<void(SDL_GPUCopyPass*)> callback);
+
+template <typename T> SDL_GPUBuffer *toGPU(TransferInfo<T> info)
 {
   SDL_GPUBufferCreateInfo create_info{info.usage, info.size};
   SDL_GPUBuffer *buffer = SDL_CreateGPUBuffer(info.gpu, &create_info);
@@ -32,4 +50,5 @@ SDL_GPUBuffer *toGPU(TransferInfo<T> info)
   return buffer;
 }
 
-void transfer(SDL_GPUDevice *gpu, std::function<void(SDL_GPUCopyPass*)> callback);
+SDL_GPUTexture *textureToGPU(TextureTransferInfo info);
+SDL_GPUTexture *textureCubeToGPU(TextureCubeTransferInfo info);

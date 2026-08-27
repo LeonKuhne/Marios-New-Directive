@@ -35,9 +35,9 @@ layout(std430, set = 0, binding = 0) readonly buffer SSBO
    MeshShaderDataBlock meshData[];
 };
 
-layout (push_constant) uniform PushConstants {
-	int meshIndex;
-	int materialIndex;
+layout (set = 1, binding = 1) uniform PushConstants {
+    int meshIndex;
+    int materialIndex;
 } pushConstants;
 
 layout (location = 0) out vec3 outWorldPos;
@@ -66,8 +66,18 @@ void main()
 		outNormal = normalize(transpose(inverse(mat3(ubo.model * meshData[pushConstants.meshIndex].matrix))) * inNormal);
 	}
 	locPos.y = -locPos.y;
+	/* actual pbr code
 	outWorldPos = locPos.xyz / locPos.w;
 	outUV0 = inUV0;
 	outUV1 = inUV1;
 	gl_Position =  ubo.projection * ubo.view * vec4(outWorldPos, 1.0);
+	*/
+
+	// debug
+	outWorldPos = locPos.xyz / locPos.w;
+	outUV0 = inUV0;
+	outUV1 = inUV1;
+	outColor0 = vec4(1.0);
+
+	gl_Position = ubo.projection * ubo.view * vec4(outWorldPos, 1.0);
 }

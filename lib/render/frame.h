@@ -23,13 +23,13 @@ class Frame
 
 public:
   SDL_GPUCommandBuffer *cmd;
-  glm::mat4 &view_projection;
-  SDL_GPUBuffer *&vertices;
+  Camera &camera;
+  DataPoints &data_points;
 
-  Frame(Window &window, Camera &camera, SDL_GPUBuffer *&vertices)
+  Frame(Window &window, Camera &camera, DataPoints &data_points)
       : ctx(window.ctx),
-        view_projection(camera.view_projection), 
-        vertices(vertices)
+        camera(camera),
+        data_points(data_points)
   {
     window.addListener([this, &window](uint w, uint h) {
       updateDepthTexture(w, h);

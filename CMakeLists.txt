@@ -17,7 +17,13 @@ file(GLOB SHADERS "${CMAKE_SOURCE_DIR}/assets/shaders/*"
 )
 
 foreach(SHADER ${SHADERS})
+    if(IS_DIRECTORY "${SHADER}")
+        continue()
+    endif()
     get_filename_component(NAME "${SHADER}" NAME)
+
+    string(REGEX REPLACE "\\.(hlsl|glsl)$" "" SHADER_NAME "${NAME}")
+    set(OUTPUT "${SHADER_OUTPUT_DIR}/${SHADER_NAME}.spv")
 
     if(NAME MATCHES "\\.([^.]+)\\.hlsl$")
         set(STAGE "${CMAKE_MATCH_1}")
@@ -31,9 +37,6 @@ foreach(SHADER ${SHADERS})
         else()
             message(FATAL_ERROR "Unknown HLSL shader stage: ${NAME}")
         endif()
-
-        string(REGEX REPLACE "\\.(hlsl|glsl)$" "" SHADER_NAME "${NAME}")
-        set(OUTPUT "${SHADER_OUTPUT_DIR}/${SHADER_NAME}.spv")
 
         add_custom_command(
             OUTPUT "${OUTPUT}"
@@ -53,8 +56,6 @@ foreach(SHADER ${SHADERS})
         if(NOT STAGE MATCHES "^(vert|frag|comp)$")
             message(FATAL_ERROR "Unknown GLSL shader stage: ${NAME}")
         endif()
-
-        set(OUTPUT "${SHADER_OUTPUT_DIR}/${NAME}.spv")
 
         add_custom_command(
             OUTPUT "${OUTPUT}"

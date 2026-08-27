@@ -10,7 +10,7 @@ Scene::Scene(bool &running, Mouse &mouse)
       })),
       camera(Camera(window, player, mouse)),
       data_points(ctx.gpu),
-      frame(Frame(window, camera, data_points.vertex_buffer)),
+      frame(Frame(window, camera, data_points)),
       shapes(ShapeManager(ctx)),
       running(running)
 {

@@ -11,7 +11,7 @@ static std::pair<int, int> getRoomCellInDirection(std::pair<int, int> cell, int 
         case 1: return std::make_pair(cell.first, cell.second + 1);
         case 2: return std::make_pair(cell.first - 1, cell.second);
         case 3: return std::make_pair(cell.first, cell.second - 1);
-        default: break;
+        default: return cell;
     }
 }
 
@@ -47,6 +47,7 @@ void HallwayGenerator::generate(Scene& scene)
         }
     }
 
+    /*
     for (auto& [cell, floor] : visited)
     {
         for (int i = 0; i < 4; i++)
@@ -58,8 +59,8 @@ void HallwayGenerator::generate(Scene& scene)
                 continue;
             generateWall(scene, floor, i);
         }
-
     }
+    */
 }
 
 ShapeData HallwayGenerator::generateRoom(Scene& scene, std::pair<int, int>& cell)
@@ -72,8 +73,8 @@ ShapeData HallwayGenerator::generateRoom(Scene& scene, std::pair<int, int>& cell
     scene.shapes.add(floor);
 
     // create ceiling
-    ShapeData ceiling = generateCeiling(scene, pos, room_size, room_size);
-    scene.shapes.add(ceiling);
+    //ShapeData ceiling = generateCeiling(scene, pos, room_size, room_size);
+    //scene.shapes.add(ceiling);
 
     return floor;
 }

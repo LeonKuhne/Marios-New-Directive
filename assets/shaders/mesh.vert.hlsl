@@ -1,6 +1,6 @@
 cbuffer BufferData : register(b0, space1) { 
-  column_major float4x4 view_projection  : packoffset(c0);
-  column_major float4x4 transform_matrix : packoffset(c4);
+  column_major float4x4 projection       : packoffset(c0);
+  column_major float4x4 model            : packoffset(c4);
   float3 center_offset                   : packoffset(c8);
   float3 scale                           : packoffset(c9);
 };
@@ -18,8 +18,8 @@ struct VSInput {
 VSOutput main(VSInput input) {
   VSOutput output;
   float3 localPos = input.pos - center_offset;
-  float4 worldPos = mul(transform_matrix, float4(localPos * scale, 1.0f));
-  output.position = mul(view_projection, worldPos);
+  float4 worldPos = mul(model, float4(localPos * scale, 1.0f));
+  output.position = mul(projection, worldPos);
   output.texcoord = input.pos.xz * 0.5f + 0.5f; // Simple UV mapping based on world position
   output.world_pos = worldPos.xyz;
   return output;

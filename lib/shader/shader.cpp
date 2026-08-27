@@ -28,9 +28,10 @@ static uint8_t* shader_read_file(const char* path, size_t* out_code_size) {
   return buffer;
 }
 
-SDL_GPUShader* shader_load(const char* path, SDL_GPUDevice* gpu, SDL_GPUShaderStage stage, uint8_t num_uniforms) {
+SDL_GPUShader* shader_load(SDL_GPUDevice* gpu, const ShaderInfo info)
+{
   size_t code_word_count = 0;
-  uint8_t* code = shader_read_file(path, &code_word_count);
+  uint8_t* code = shader_read_file(info.path, &code_word_count);
 
   // create gpu shader
   const SDL_GPUShaderCreateInfo shader_info = {
@@ -38,11 +39,11 @@ SDL_GPUShader* shader_load(const char* path, SDL_GPUDevice* gpu, SDL_GPUShaderSt
     .code = (const Uint8*) code,            
     .entrypoint = "main",
     .format = SDL_GPU_SHADERFORMAT_SPIRV,
-    .stage = stage,
-    .num_samplers = 0,
+    .stage = info.stage,
+    .num_samplers = info.num_samplers,
     .num_storage_textures = 0,
-    .num_storage_buffers = 0,
-    .num_uniform_buffers = num_uniforms,
+    .num_storage_buffers = info.num_storage_buffers,
+    .num_uniform_buffers = info.num_uniforms,
   };
   SDL_GPUShader* shader = SDL_CreateGPUShader(gpu, &shader_info);
   free(code);

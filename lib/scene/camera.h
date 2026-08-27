@@ -9,23 +9,25 @@
 
 class Camera
 {
-  glm::mat4 projection;
   float fov_radians;
   Window &window;
   Mouse &mouse;
   Player &player;
   int mouse_look_callback_id = -1;
+  glm::vec3 player_pos;
+  glm::mat4 view_projection;
 
 public:
-  glm::vec3 pos;
-  glm::mat4 view_projection;
+  glm::vec3 camera_pos;
+  glm::mat4 projection;
+  glm::mat4 view;
 
   Camera(Window &window, Player &player, Mouse &mouse, float fov = 75.0f)
       : fov_radians(glm::radians(fov)),
         window(window),
         mouse(mouse),
         player(player),
-        pos(player.getPosition())
+        player_pos(player.getPosition())
   {
     window.addListener([this](uint w, uint h) { setAspect((float)w / (float)h); });
     enable();
@@ -86,7 +88,7 @@ public:
 
   void tick()
   {
-    pos = player.getPosition();
+    player_pos = player.getPosition();
     glm::vec3 previous_up = player.up;
     glm::vec3 gravity = player.getGravity();
     if (glm::dot(gravity, gravity) > 1e-6f)
@@ -122,8 +124,8 @@ public:
     if (glm::dot(player.forward, player.forward) <= 1e-6f)
       player.forward = glm::normalize(glm::cross(glm::vec3(1.0f, 0.0f, 0.0f), player.up));
 
-    glm::vec3 camera_pos(pos.x, pos.y + player.eye_height, pos.z);
-    glm::mat4 view = glm::lookAt(camera_pos, camera_pos + player.forward, player.up);
+    camera_pos = glm::vec3(player_pos.x, player_pos.y + player.eye_height, player_pos.z);
+    view = glm::lookAt(camera_pos, camera_pos + player.forward, player.up);
     view_projection = projection * view;
   }
 

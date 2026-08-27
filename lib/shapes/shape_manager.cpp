@@ -1,4 +1,5 @@
 #include "shape_manager.h"
+#include <algorithm>
 
 ShapeManager::~ShapeManager()
 {
@@ -55,10 +56,9 @@ void ShapeManager::select(Shape *shape)
 
 void ShapeManager::render(Frame &frame, SDL_GPURenderPass *pass)
 {
-  shape_pipeline.start(pass);
-
+  pbr_pipeline.start(pass);
   for (Shape *shape : shapes)
   {
-    shape_pipeline.render(frame, shape);
+    pbr_pipeline.render(frame, shape);
   }
 }
