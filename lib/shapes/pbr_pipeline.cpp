@@ -25,6 +25,7 @@ void PBRPipeline::render(Frame &frame, Shape *shape)
   SDL_PushGPUFragmentUniformData(frame.cmd, 2, &indices, sizeof(indices));
 
   // submit vertex buffers
+  // TODO switch to pbr
   //SDL_GPUBufferBinding vertexBinding{frame.data_points.pbr_vertex_buffer, 0};
   SDL_GPUBufferBinding vertexBinding{
     frame.data_points.vertex_buffer,

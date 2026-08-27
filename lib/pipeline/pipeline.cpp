@@ -3,6 +3,7 @@
 
 Pipeline::Pipeline(Context &ctx, PipelineInfo info)
 {
+  // TODO switch to pbr
   //SDL_GPUVertexAttribute vertexAttributes[7] = {};
   SDL_GPUVertexAttribute vertexAttributes[1] = {};
   SDL_GPUVertexBufferDescription vertexBufferDesc = {};
@@ -66,6 +67,7 @@ Pipeline::Pipeline(Context &ctx, PipelineInfo info)
       .vertex_buffer_descriptions = info.has_vertex_input ? &vertexBufferDesc : nullptr,
       .num_vertex_buffers = info.has_vertex_input ? 1u : 0u,
       .vertex_attributes = info.has_vertex_input ? vertexAttributes : nullptr,
+      // TODO switch to pbr
       //.num_vertex_attributes = info.has_vertex_input ? 7u : 0u,
       .num_vertex_attributes = info.has_vertex_input ? 1u : 0u,
     },
