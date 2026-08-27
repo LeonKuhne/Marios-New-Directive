@@ -2,13 +2,13 @@
 
 void PBRPipeline::render(Frame &frame, Shape *shape)
 {
-  // setup push constants
+  // setup push constants uniform data
   struct PushConstants
   {
       int32_t meshIndex = 0;
       int32_t materialIndex = 0;
   };
-  PushConstants indices;
+  PushConstants constants;
 
   // setup ubo uniform data
   memcpy(ubo_uniform_data.projection, &frame.camera.projection, sizeof(glm::mat4));
@@ -16,14 +16,17 @@ void PBRPipeline::render(Frame &frame, Shape *shape)
   memcpy(ubo_uniform_data.view, &frame.camera.view, sizeof(glm::mat4));
   memcpy(ubo_uniform_data.camPos, &frame.camera.camera_pos, sizeof(glm::vec3));
 
+  // setup ubo params uniform data
+  ubo_params_uniform_data.lightCount = frame.data_points.lights.size();
+
   // submit vertex uniforms
   SDL_PushGPUVertexUniformData(frame.cmd, 0, &ubo_uniform_data, sizeof(ubo_uniform_data));
-  SDL_PushGPUVertexUniformData(frame.cmd, 1, &indices, sizeof(indices));
+  SDL_PushGPUVertexUniformData(frame.cmd, 1, &constants, sizeof(constants));
 
   // submit fragment uniforms
   SDL_PushGPUFragmentUniformData(frame.cmd, 0, &ubo_uniform_data, sizeof(ubo_uniform_data));
   SDL_PushGPUFragmentUniformData(frame.cmd, 1, &ubo_params_uniform_data, sizeof(ubo_params_uniform_data));
-  SDL_PushGPUFragmentUniformData(frame.cmd, 2, &indices, sizeof(indices));
+  SDL_PushGPUFragmentUniformData(frame.cmd, 2, &constants, sizeof(constants));
 
   // submit vertex buffers
   SDL_GPUBufferBinding vertexBinding{frame.data_points.pbr_vertex_buffer, 0};
@@ -36,6 +39,7 @@ void PBRPipeline::render(Frame &frame, Shape *shape)
   // bind storage buffers
   SDL_BindGPUVertexStorageBuffers(pass, 0, &frame.data_points.mesh_shader_data_buffer, 1);
   SDL_BindGPUFragmentStorageBuffers(pass, 0, &frame.data_points.material_buffer, 1);
+  SDL_BindGPUFragmentStorageBuffers(pass, 1, &frame.data_points.light_buffer, 1);
 
   // bind texture
   SDL_GPUTextureSamplerBinding texture_bindings[5] = {

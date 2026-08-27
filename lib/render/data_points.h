@@ -41,6 +41,13 @@ struct ShaderMaterial
   float emissiveStrength = 1.0f;
 };
 
+struct Light
+{
+    glm::vec4 position;
+    glm::vec4 color = glm::vec4(1.0f);
+    float intensity = 1000.0f;
+};
+
 struct PBRVertex
 {
   glm::vec3 pos;
@@ -64,17 +71,39 @@ public:
   SDL_GPUBuffer *plane_index_buffer;
   std::vector<ushort> plane_indices;
 
-  // pbr buffers
+  // pbr data
   std::vector<PBRVertex> pbr_vertices;
+  std::vector<Light> lights;
+
+  // pbr buffers
   SDL_GPUBuffer *pbr_vertex_buffer;
   SDL_GPUBuffer *mesh_shader_data_buffer;
   SDL_GPUBuffer *material_buffer;
+  SDL_GPUBuffer *light_buffer;
   SDL_GPUTexture *default_texture;
   SDL_GPUTexture *default_cube_texture;
   SDL_GPUTexture *default_brdf_lut;
 
   DataPoints(SDL_GPUDevice *gpu) : gpu(gpu)
   {
+    // just some sample lights 
+    lights.push_back(Light{.position = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f),   .color = glm::vec4(1.0f), .intensity = 1000.0f});
+    float scale = 3.0f;
+    int range = 3;
+    for (int x = -range; x <= range; x++)
+    {
+      for (int z = -range; z <= range; z++)
+      {
+        float r = static_cast<float>(x)/static_cast<float>(range);
+        float g = static_cast<float>(z)/static_cast<float>(range);
+        float b = static_cast<float>(x+z)/static_cast<float>(range+range);
+        lights.push_back(Light{
+          .position = glm::vec4(static_cast<float>(x) * scale, 1.0f, static_cast<float>(z) * scale, 0.0f), 
+          .color = glm::vec4(r, g, b, 1.0f),
+          .intensity = 1000.0f});
+      }
+    }
+
     // load shapes to gpu
     load([this](SDL_GPUCopyPass *pass) {
       // insert vertices
@@ -90,42 +119,22 @@ public:
       {
           pbr_vertices[i].pos = all_vertices[i];
       }
-      pbr_vertex_buffer = vecToGPU<PBRVertex>({
-          this->gpu,
-          pass,
-          SDL_GPU_BUFFERUSAGE_VERTEX,
-          &pbr_vertices
-      });
+      pbr_vertex_buffer = vecToGPU<PBRVertex>({this->gpu, pass, SDL_GPU_BUFFERUSAGE_VERTEX, &pbr_vertices});
 
       // pbr animations
       MeshShaderDataBlock mesh_data{};
-      mesh_shader_data_buffer = toGPU<MeshShaderDataBlock>({
-        this->gpu,
-        pass,
-        SDL_GPU_BUFFERUSAGE_GRAPHICS_STORAGE_READ,
-        &mesh_data,
-        sizeof(mesh_data)
-      });
+      mesh_shader_data_buffer = toGPU<MeshShaderDataBlock>({this->gpu, pass, SDL_GPU_BUFFERUSAGE_GRAPHICS_STORAGE_READ, &mesh_data, sizeof(mesh_data)});
 
       // pbr materials
       ShaderMaterial material{};
-      material_buffer = toGPU<ShaderMaterial>({
-        this->gpu,
-        pass,
-        SDL_GPU_BUFFERUSAGE_GRAPHICS_STORAGE_READ,
-        &material,
-        sizeof(material)
-      });
+      material_buffer = toGPU<ShaderMaterial>({this->gpu, pass, SDL_GPU_BUFFERUSAGE_GRAPHICS_STORAGE_READ, &material, sizeof(material)});
+
+      // pbr lights
+      light_buffer = toGPU<Light>({this->gpu, pass, SDL_GPU_BUFFERUSAGE_GRAPHICS_STORAGE_READ, lights.data(), static_cast<uint32_t>(lights.size() * sizeof(Light))});
 
       // pbr textures
       uint32_t white_pixel = 0xFFFFFFFF;
-      default_texture = textureToGPU({
-        this->gpu,
-        pass,
-        &white_pixel,
-        1,
-        1
-      });
+      default_texture = textureToGPU({this->gpu, pass, &white_pixel, 1, 1});
 
       // pbr cube texture
       uint32_t cube_pixel[6] = {
@@ -136,22 +145,11 @@ public:
         0xFFFFFFFF,
         0xFFFFFFFF
       };
-      default_cube_texture = textureCubeToGPU({
-        this->gpu,
-        pass,
-        cube_pixel,
-        sizeof(cube_pixel)
-      });
+      default_cube_texture = textureCubeToGPU({this->gpu, pass, cube_pixel, sizeof(cube_pixel)});
 
       // pbr brdf lut
       uint32_t brdf_pixel = 0xFFFFFFFF;
-      default_brdf_lut = textureToGPU({
-        this->gpu,
-        pass,
-        &brdf_pixel,
-        1,
-        1
-      });
+      default_brdf_lut = textureToGPU({this->gpu, pass, &brdf_pixel, 1, 1});
 
       return true; 
     });

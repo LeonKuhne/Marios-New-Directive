@@ -24,11 +24,11 @@ private:
 
   struct
   {
-    float lightDir[4] = {0.0f, -1.0f, 0.0f, 0.0f};
+    int lightCount = 0;
     float exposure = 1.0f;
     float gamma = 2.2f;
     float prefilteredCubeMipLevels = 1.0f;
-    float scaleIBLAmbient = 1.0f;
+    float scaleIBLAmbient = 0.025f;
     float debugViewInputs = 0.0f;
     float debugViewEquation = 0.0f;
   } ubo_params_uniform_data;
@@ -44,13 +44,13 @@ private:
 public:
   using Pipeline::Pipeline;
   PBRPipeline(Context &ctx) : Pipeline(ctx, {
-    "pbr.vert", 
-    "material_pbr.frag", 
-    2, // projection/model/view/camPos + indices
-    3, // UBO + UBOparams + indices 
-    1, 
-    8, 
-    1
+    .vertex_path="pbr.vert", 
+    .fragment_path="material_pbr.frag", 
+    .num_vert_uniforms=2, // projection/model/view/camPos + indices
+    .num_frag_uniforms=3, // UBO + UBOparams + indices 
+    .num_vert_storage_buffers=1, 
+    .num_frag_samplers=8, 
+    .num_frag_storage_buffers=2
   }) 
   {
     SDL_GPUSamplerCreateInfo sampler_info{};
