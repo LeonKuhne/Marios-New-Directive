@@ -34,6 +34,7 @@ public:
     window.addListener([this, &window](uint w, uint h) {
       updateDepthTexture(w, h);
     });
+    updateDepthTexture(window.width, window.height);
   };
   ~Frame();
 

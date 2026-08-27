@@ -77,8 +77,12 @@ public:
   {
     // load shapes to gpu
     load([this](SDL_GPUCopyPass *pass) {
-      // create poly point cloud
+      // insert vertices
       cloudAddPoints(all_vertices, Config::point_cloud_size, Config::point_cloud_min_radius);
+      cubeGetIndices(&cube_indices, all_vertices.size());
+      cube_index_buffer = cubeUpload(this->gpu, pass, all_vertices);
+      planeGetIndices(&plane_indices, all_vertices.size());
+      plane_index_buffer = planeUpload(this->gpu, pass, all_vertices);
 
       // pbr vertices
       pbr_vertices.resize(all_vertices.size());
@@ -92,14 +96,6 @@ public:
           SDL_GPU_BUFFERUSAGE_VERTEX,
           &pbr_vertices
       });
-
-      // add cube
-      cubeGetIndices(&cube_indices, all_vertices.size());
-      cube_index_buffer = cubeUpload(this->gpu, pass, all_vertices);
-
-      // add plane
-      planeGetIndices(&plane_indices, all_vertices.size());
-      plane_index_buffer = planeUpload(this->gpu, pass, all_vertices);
 
       // pbr animations
       MeshShaderDataBlock mesh_data{};

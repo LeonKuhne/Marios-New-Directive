@@ -3,20 +3,11 @@
 
 Pipeline::Pipeline(Context &ctx, PipelineInfo info)
 {
-  // TODO switch to pbr
-  //SDL_GPUVertexAttribute vertexAttributes[7] = {};
-  SDL_GPUVertexAttribute vertexAttributes[1] = {};
+  SDL_GPUVertexAttribute vertexAttributes[7] = {};
   SDL_GPUVertexBufferDescription vertexBufferDesc = {};
 
   if (info.has_vertex_input) {
     // submit vertex buffer to pipeline
-    vertexAttributes[0] = {
-      0,
-      0,
-      SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3,
-      0
-    };
-    /*
     vertexAttributes[0] = {0, 0, SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3, offsetof(PBRVertex, pos)};
     vertexAttributes[1] = {1, 0, SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3, offsetof(PBRVertex, normal)};
     vertexAttributes[2] = {2, 0, SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2, offsetof(PBRVertex, uv0)};
@@ -27,10 +18,6 @@ Pipeline::Pipeline(Context &ctx, PipelineInfo info)
 
     vertexBufferDesc.slot = 0;
     vertexBufferDesc.pitch = sizeof(PBRVertex);
-    vertexBufferDesc.input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX;
-    */
-    vertexBufferDesc.slot = 0;
-    vertexBufferDesc.pitch = sizeof(float) * 3;
     vertexBufferDesc.input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX;
   }
 
@@ -67,9 +54,7 @@ Pipeline::Pipeline(Context &ctx, PipelineInfo info)
       .vertex_buffer_descriptions = info.has_vertex_input ? &vertexBufferDesc : nullptr,
       .num_vertex_buffers = info.has_vertex_input ? 1u : 0u,
       .vertex_attributes = info.has_vertex_input ? vertexAttributes : nullptr,
-      // TODO switch to pbr
-      //.num_vertex_attributes = info.has_vertex_input ? 7u : 0u,
-      .num_vertex_attributes = info.has_vertex_input ? 1u : 0u,
+      .num_vertex_attributes = info.has_vertex_input ? 7u : 0u,
     },
     .primitive_type = info.primitive_type,
     .rasterizer_state = {

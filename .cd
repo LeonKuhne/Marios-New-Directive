@@ -19,6 +19,9 @@ help .cd | indent "- "
 echo
 
 project_name="Engine"
+GLFW_ACCESS_TOKEN=1
+GLFW_PLATFORM=x11
+SDL_VIDEODRIVER=x11
 
 function clean() {
   rm -rf build
@@ -39,6 +42,15 @@ function run() {
   (
     cd build
     ./$project_name
+  )
+}
+
+function validate() {
+  build $@
+  (
+    cd build
+    #VK_INSTANCE_LAYERS=VK_LAYER_KHRONOS_validation ./$project_name
+    QT_QPA_PLATFORM=xcb qrenderdoc
   )
 }
 

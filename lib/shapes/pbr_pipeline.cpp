@@ -18,6 +18,7 @@ void PBRPipeline::render(Frame &frame, Shape *shape)
 
   // submit vertex uniforms
   SDL_PushGPUVertexUniformData(frame.cmd, 0, &ubo_uniform_data, sizeof(ubo_uniform_data));
+  SDL_PushGPUVertexUniformData(frame.cmd, 1, &indices, sizeof(indices));
 
   // submit fragment uniforms
   SDL_PushGPUFragmentUniformData(frame.cmd, 0, &ubo_uniform_data, sizeof(ubo_uniform_data));
@@ -25,17 +26,8 @@ void PBRPipeline::render(Frame &frame, Shape *shape)
   SDL_PushGPUFragmentUniformData(frame.cmd, 2, &indices, sizeof(indices));
 
   // submit vertex buffers
-  // TODO switch to pbr
-  //SDL_GPUBufferBinding vertexBinding{frame.data_points.pbr_vertex_buffer, 0};
-  SDL_GPUBufferBinding vertexBinding{
-    frame.data_points.vertex_buffer,
-    0
-  };
+  SDL_GPUBufferBinding vertexBinding{frame.data_points.pbr_vertex_buffer, 0};
   SDL_BindGPUVertexBuffers(pass, 0, &vertexBinding, 1);
-  SDL_PushGPUVertexUniformData(frame.cmd, 1, &indices, sizeof(indices));
-
-
-SDL_BindGPUVertexBuffers(pass, 0, &vertexBinding, 1);
 
   // submit index buffers
   SDL_GPUBufferBinding indexBinding{shape->mesh.index_buffer, 0};
@@ -43,7 +35,7 @@ SDL_BindGPUVertexBuffers(pass, 0, &vertexBinding, 1);
 
   // bind storage buffers
   SDL_BindGPUVertexStorageBuffers(pass, 0, &frame.data_points.mesh_shader_data_buffer, 1);
-  SDL_BindGPUFragmentStorageBuffers(pass, 8, &frame.data_points.material_buffer, 1);
+  SDL_BindGPUFragmentStorageBuffers(pass, 0, &frame.data_points.material_buffer, 1);
 
   // bind texture
   SDL_GPUTextureSamplerBinding texture_bindings[5] = {
@@ -53,18 +45,14 @@ SDL_BindGPUVertexBuffers(pass, 0, &vertexBinding, 1);
     {frame.data_points.default_texture, sampler},
     {frame.data_points.default_texture, sampler}
   };
-  SDL_BindGPUFragmentSamplers(pass, 0, texture_bindings, 5);
-
-  // bind cube texture
-  SDL_GPUTextureSamplerBinding cube_bindings[3] = {
+  SDL_GPUTextureSamplerBinding cube_bindings[2] = {
     {frame.data_points.default_cube_texture, sampler},
     {frame.data_points.default_cube_texture, sampler},
-    {frame.data_points.default_cube_texture, sampler}
   };
-  SDL_BindGPUFragmentSamplers(pass, 5, cube_bindings, 3);
-
-  // bind brdf lut texture
   SDL_GPUTextureSamplerBinding brdf_binding{frame.data_points.default_brdf_lut, sampler};
+
+  SDL_BindGPUFragmentSamplers(pass, 0, texture_bindings, 5);
+  SDL_BindGPUFragmentSamplers(pass, 5, cube_bindings, 2);
   SDL_BindGPUFragmentSamplers(pass, 7, &brdf_binding, 1);
 
   // draw

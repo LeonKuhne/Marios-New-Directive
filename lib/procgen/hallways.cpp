@@ -47,7 +47,6 @@ void HallwayGenerator::generate(Scene& scene)
         }
     }
 
-    /*
     for (auto& [cell, floor] : visited)
     {
         for (int i = 0; i < 4; i++)
@@ -60,7 +59,6 @@ void HallwayGenerator::generate(Scene& scene)
             generateWall(scene, floor, i);
         }
     }
-    */
 }
 
 ShapeData HallwayGenerator::generateRoom(Scene& scene, std::pair<int, int>& cell)

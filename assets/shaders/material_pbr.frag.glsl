@@ -1,9 +1,3 @@
-/* Copyright (c) 2018-2024, Sascha Willems
- *
- * SPDX-License-Identifier: MIT
- *
- */
-
 // PBR shader based on the Khronos WebGL PBR implementation
 // See https://github.com/KhronosGroup/glTF-WebGL-PBR
 // Supports both metallic roughness and specular glossiness inputs

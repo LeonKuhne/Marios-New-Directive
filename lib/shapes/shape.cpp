@@ -86,9 +86,17 @@ Shape::~Shape()
 
 void Shape::getTransform(btScalar *transform_matrix)
 {
-  btTransform transform;
-  body->getMotionState()->getWorldTransform(transform);
-  transform.getOpenGLMatrix(transform_matrix);
+    btTransform transform;
+    body->getMotionState()->getWorldTransform(transform);
+    transform.getOpenGLMatrix(transform_matrix);
+
+    // Apply shape scale to the model matrix
+    for (int i = 0; i < 3; i++)
+    {
+        transform_matrix[i * 4 + 0] *= scale[i];
+        transform_matrix[i * 4 + 1] *= scale[i];
+        transform_matrix[i * 4 + 2] *= scale[i];
+    }
 }
 
 void Shape::setPosition(btVector3 pos)

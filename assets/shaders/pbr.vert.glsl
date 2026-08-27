@@ -1,9 +1,3 @@
-/* Copyright (c) 2018-2025, Sascha Willems
- *
- * SPDX-License-Identifier: MIT
- *
- */
-
 #version 450
 
 layout (location = 0) in vec3 inPos;
@@ -65,19 +59,9 @@ void main()
 		locPos = ubo.model * meshData[pushConstants.meshIndex].matrix * vec4(inPos, 1.0);
 		outNormal = normalize(transpose(inverse(mat3(ubo.model * meshData[pushConstants.meshIndex].matrix))) * inNormal);
 	}
-	locPos.y = -locPos.y;
-	/* actual pbr code
+
 	outWorldPos = locPos.xyz / locPos.w;
 	outUV0 = inUV0;
 	outUV1 = inUV1;
 	gl_Position =  ubo.projection * ubo.view * vec4(outWorldPos, 1.0);
-	*/
-
-	// debug
-	outWorldPos = locPos.xyz / locPos.w;
-	outUV0 = inUV0;
-	outUV1 = inUV1;
-	outColor0 = vec4(1.0);
-
-	gl_Position = ubo.projection * ubo.view * vec4(outWorldPos, 1.0);
 }
