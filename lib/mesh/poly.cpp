@@ -32,7 +32,7 @@ ShapeData polyCreate(PolyInfo info)
   std::vector<ushort> poly_indices;
   sampleCloud({&poly_indices, info.max_vertices, 0, Config::point_cloud_size, &pts.all_vertices});
   SDL_GPUBuffer* poly_index_buffer;
-  pts.load([&pts, poly_indices, &poly_index_buffer](SDL_GPUCopyPass *pass) {
+  transfer(pts.gpu, [&pts, poly_indices, &poly_index_buffer](SDL_GPUCopyPass *pass) {
     poly_index_buffer = vecToGPU<ushort>({pts.gpu, pass, SDL_GPU_BUFFERUSAGE_INDEX, &poly_indices});
     return false;
   });

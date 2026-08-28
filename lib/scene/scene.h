@@ -1,14 +1,10 @@
 #pragma once
 
 #include <btBulletDynamicsCommon.h>
-#include <vector>
 #include "camera.h"
+#include "lib/lights/light_manager.h"
 #include "lib/render/context.h"
-#include "lib/shapes/shape.h"
-#include "lib/mesh/poly.h"
-#include "lib/shapes/shape_data.h"
 #include "lib/shapes/shape_manager.h"
-#include "lib/gpu/transfer_vec.h"
 #include "lib/render/frame.h"
 #include "lib/render/window.h"
 #include "lib/controls/mouse.h"
@@ -26,6 +22,7 @@ public:
   Camera camera;
   Frame frame;
   ShapeManager shapes;
+  LightManager light_manager;
   bool &running;
   Uint64 last_game_time = SDL_GetPerformanceCounter();
 

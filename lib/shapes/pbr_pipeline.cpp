@@ -17,7 +17,7 @@ void PBRPipeline::render(Frame &frame, Shape *shape)
   memcpy(ubo_uniform_data.camPos, &frame.camera.camera_pos, sizeof(glm::vec3));
 
   // setup ubo params uniform data
-  ubo_params_uniform_data.lightCount = frame.data_points.lights.size();
+  ubo_params_uniform_data.lightCount = frame.light_manager.lights.size();
 
   // submit vertex uniforms
   SDL_PushGPUVertexUniformData(frame.cmd, 0, &ubo_uniform_data, sizeof(ubo_uniform_data));
@@ -39,7 +39,7 @@ void PBRPipeline::render(Frame &frame, Shape *shape)
   // bind storage buffers
   SDL_BindGPUVertexStorageBuffers(pass, 0, &frame.data_points.mesh_shader_data_buffer, 1);
   SDL_BindGPUFragmentStorageBuffers(pass, 0, &frame.data_points.material_buffer, 1);
-  SDL_BindGPUFragmentStorageBuffers(pass, 1, &frame.data_points.light_buffer, 1);
+  SDL_BindGPUFragmentStorageBuffers(pass, 1, &frame.light_manager.light_buffer, 1);
 
   // bind texture
   SDL_GPUTextureSamplerBinding texture_bindings[5] = {

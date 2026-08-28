@@ -1,6 +1,6 @@
 struct Light
 {
-    vec4 position;
+    vec4 pos;
     vec4 color;
     float intensity;
 };

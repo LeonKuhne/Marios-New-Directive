@@ -1,7 +1,6 @@
 #include "scene.h"
 
 #include "lib/engine/config.h"
-#include <iostream>
 
 Scene::Scene(bool &running, Mouse &mouse)
     : window(Window(ctx)),
@@ -10,8 +9,9 @@ Scene::Scene(bool &running, Mouse &mouse)
       })),
       camera(Camera(window, player, mouse)),
       data_points(ctx.gpu),
-      frame(Frame(window, camera, data_points)),
       shapes(ShapeManager(ctx)),
+      light_manager(LightManager(ctx.gpu)),
+      frame(Frame(window, camera, data_points, light_manager)),
       running(running)
 {
   // setup gravity

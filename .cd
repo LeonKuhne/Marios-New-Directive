@@ -46,8 +46,8 @@ function validate() {
   build $@
   (
     cd build
-    #VK_INSTANCE_LAYERS=VK_LAYER_KHRONOS_validation ./$project_name
-    QT_QPA_PLATFORM=xcb qrenderdoc
+    SDL_VIDEODRIVER=x11 VK_INSTANCE_LAYERS=VK_LAYER_KHRONOS_validation ./$project_name
+    #QT_QPA_PLATFORM=xcb qrenderdoc
   )
 }
 
