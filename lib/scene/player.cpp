@@ -61,8 +61,10 @@ void Player::applyMove() {
     move_accel *= Config::PlayerSettings::air_movement_factor; 
 
   // limit move speed
-  if (glm::length(velocity_xy) < Config::PlayerSettings::max_speed)
-    velocity_xy += glm::normalize(glm::vec2(delta.x, delta.z)) * move_accel;
+  if (glm::length(velocity_xy) > Config::PlayerSettings::max_speed)
+    return;
+
+  velocity_xy += glm::normalize(glm::vec2(delta.x, delta.z)) * move_accel;
 
   // update velocity
   velocity.setX(velocity_xy.x);

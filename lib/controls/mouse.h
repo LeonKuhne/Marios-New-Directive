@@ -28,7 +28,6 @@ public:
 
   void move(float x, float y, float dx, float dy)
   {
-    SDL_Log("Mouse moved to (%f, %f) with delta (%f, %f)", x, y, dx, dy);
     delta = {dx, dy};
     entry(x, y, pos, onMove);
   }

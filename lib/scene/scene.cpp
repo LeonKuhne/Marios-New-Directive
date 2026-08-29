@@ -45,9 +45,11 @@ void Scene::setup(Mouse &mouse)
 
 void Scene::tick()
 {
-  const float fps = 60.0f;
-  const float delta = 1.0f / fps;
-  ctx.world->stepSimulation(delta, 1);
+  Uint64 current_time = SDL_GetPerformanceCounter();
+  float delta_time = (current_time - last_game_time) / static_cast<float>(SDL_GetPerformanceFrequency());
+  last_game_time = current_time;
+
+  ctx.world->stepSimulation(delta_time, 5, 1.0f / 60.0f);
   player.tick();
   camera.tick();
 }

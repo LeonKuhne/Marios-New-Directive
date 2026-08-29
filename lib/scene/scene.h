@@ -33,7 +33,6 @@ public:
   void render() { frame.run(); }
 
 private:
-  float getDeltaTime();
   void gravityTick(btScalar timeStep);
   void checkCollision(btPersistentManifold *const &manifold);
 };
