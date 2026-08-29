@@ -44,6 +44,7 @@ public:
   void jump();
 
 private:
+  void apply_move();
   static void setupGroundedListener();
   inline static bool init = []() { setupGroundedListener(); return true; }();
 public:

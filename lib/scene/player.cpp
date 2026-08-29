@@ -33,10 +33,21 @@ Player::Player(PlayerInfo info)
   body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 }
 
-void Player::tick() {}
+void Player::tick() {
+  apply_move();
+}
 
 void Player::move(const glm::vec2 &direction)
 {
+  move_dir.x += direction.x;
+  move_dir.y += direction.y;
+}
+
+void Player::apply_move()
+{
+  if (move_dir.x == 0.0f && move_dir.y == 0.0f)
+    return;
+
   btVector3 velocity = body->getLinearVelocity();
   glm::vec2 velocity_xy = glm::vec2(velocity.getX(), velocity.getZ());
 
@@ -44,7 +55,9 @@ void Player::move(const glm::vec2 &direction)
   glm::vec3 right_dir = glm::vec3(forward_dir.z, 0.0f, -forward_dir.x);
 
   // add delta
-  glm::vec3 delta = forward_dir * direction.x + right_dir * direction.y;
+  glm::vec3 delta = forward_dir * move_dir.x + right_dir * move_dir.y;
+  move_dir = glm::vec2(0.0f, 0.0f);
+
   float move_accel = isSprinting ? Config::PlayerSettings::sprint_accel : Config::PlayerSettings::walk_accel;
   if (!isGrounded)
     move_accel *= Config::PlayerSettings::air_movement_factor; 
