@@ -36,7 +36,7 @@ public:
   ~Shape();
 
   void assignToWorld(btDiscreteDynamicsWorld *world) { world->addRigidBody(body); }
-  void getTransform(btScalar *transform_matrix);
+  void getTransform(glm::mat4 &transform_matrix);
   void setPosition(btVector3 pos);
   glm::vec3 inLocalSpace(const glm::vec3 global_pos);
   glm::vec3 inGlobalSpace(const glm::vec3 local_pos);

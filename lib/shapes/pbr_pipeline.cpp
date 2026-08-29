@@ -11,10 +11,10 @@ void PBRPipeline::render(Frame &frame, Shape *shape)
   PushConstants constants;
 
   // setup ubo uniform data
-  memcpy(ubo_uniform_data.projection, &frame.camera.projection, sizeof(glm::mat4));
+  ubo_uniform_data.projection = frame.camera.projection;
   shape->getTransform(ubo_uniform_data.model);
-  memcpy(ubo_uniform_data.view, &frame.camera.view, sizeof(glm::mat4));
-  memcpy(ubo_uniform_data.camPos, &frame.camera.camera_pos, sizeof(glm::vec3));
+  ubo_uniform_data.view = frame.camera.view;
+  ubo_uniform_data.camPos = frame.camera.camera_pos;
 
   // setup ubo params uniform data
   ubo_params_uniform_data.lightCount = frame.light_manager.lights.size();

@@ -1,4 +1,5 @@
 #include "shape.h"
+#include <glm/gtc/type_ptr.hpp>
 
 Shape::Shape(const ShapeData info)
     : color(info.color),
@@ -84,19 +85,16 @@ Shape::~Shape()
   body = nullptr;
 }
 
-void Shape::getTransform(btScalar *transform_matrix)
+void Shape::getTransform(glm::mat4 &transform_matrix)
 {
     btTransform transform;
     body->getMotionState()->getWorldTransform(transform);
-    transform.getOpenGLMatrix(transform_matrix);
+    transform.getOpenGLMatrix(glm::value_ptr(transform_matrix));
 
     // Apply shape scale to the model matrix
-    for (int i = 0; i < 3; i++)
-    {
-        transform_matrix[i * 4 + 0] *= scale[i];
-        transform_matrix[i * 4 + 1] *= scale[i];
-        transform_matrix[i * 4 + 2] *= scale[i];
-    }
+    transform_matrix[0] *= scale.x;
+    transform_matrix[1] *= scale.y;
+    transform_matrix[2] *= scale.z;
 }
 
 void Shape::setPosition(btVector3 pos)

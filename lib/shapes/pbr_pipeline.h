@@ -15,10 +15,10 @@ private:
 
   struct
   {
-    float projection[16];
-    float model[16];
-    float view[16];
-    float camPos[3];
+    glm::mat4 projection;
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::vec3 camPos;
     float _pad0;
   } ubo_uniform_data;
 
