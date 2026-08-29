@@ -13,7 +13,7 @@ public:
   int add(Callback callback)
   {
     int id = uniqueId();
-    callbacks[id] = callback;
+    callbacks.emplace(id, callback);
     return id;
   }
 
