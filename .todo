@@ -1,1 +1,3 @@
-[ ] fix validation error memory leaks
+[ ] fix mouse not working sometimes (might be a wayland issue)
+[ ] cull lights using radius
+[ ] try to get shader to output smooth lights (might be quantized in shader, might also just by my shitty monitor quantizing)
