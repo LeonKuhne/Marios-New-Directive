@@ -25,9 +25,11 @@ public:
   glm::vec3 forward = glm::vec3(0.0f, 0.0f, -1.0f);
   glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
   float eye_height = Config::PlayerSettings::eye_height;
+  Uint64 last_jump_time = 0;
+private:
   glm::vec2 move_dir = glm::vec2(0.0f, 0.0f);
-  uint64_t last_jump_time = 0;
 
+public:
   Player(PlayerInfo info); 
 
   // hooks
@@ -44,7 +46,7 @@ public:
   void jump();
 
 private:
-  void apply_move();
+  void applyMove();
   static void setupGroundedListener();
   inline static bool init = []() { setupGroundedListener(); return true; }();
 public:

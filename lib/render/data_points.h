@@ -121,6 +121,20 @@ public:
     });
   }
 
+  ~DataPoints()
+  {
+    /* TODO enable this
+    SDL_ReleaseGPUBuffer(gpu, cube_index_buffer);
+    SDL_ReleaseGPUBuffer(gpu, plane_index_buffer);
+    SDL_ReleaseGPUBuffer(gpu, pbr_vertex_buffer);
+    SDL_ReleaseGPUBuffer(gpu, mesh_shader_data_buffer);
+    SDL_ReleaseGPUBuffer(gpu, material_buffer);
+    SDL_ReleaseGPUTexture(gpu, default_texture);
+    SDL_ReleaseGPUTexture(gpu, default_cube_texture);
+    SDL_ReleaseGPUTexture(gpu, default_brdf_lut);
+    */
+  }
+
   void finishShape(ShapeData& info, std::vector<ushort>& indices, SDL_GPUBuffer *index_buffer)
   {
     info.mesh.indices = indices;

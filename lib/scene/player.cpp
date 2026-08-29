@@ -34,17 +34,15 @@ Player::Player(PlayerInfo info)
 }
 
 void Player::tick() {
-  apply_move();
+  applyMove();
 }
 
 void Player::move(const glm::vec2 &direction)
 {
-  move_dir.x += direction.x;
-  move_dir.y += direction.y;
+  move_dir += direction;
 }
 
-void Player::apply_move()
-{
+void Player::applyMove() {
   if (move_dir.x == 0.0f && move_dir.y == 0.0f)
     return;
 
@@ -73,9 +71,10 @@ void Player::apply_move()
   body->setLinearVelocity(velocity);
 }
 
+
 void Player::jump()
 {
-  int current_time = SDL_GetTicks();
+  Uint64 current_time = SDL_GetTicks();
   if (!isGrounded || current_time - last_jump_time < Config::PlayerSettings::jump_cooldown)
     return;
   last_jump_time = current_time;

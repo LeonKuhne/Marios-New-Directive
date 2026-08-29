@@ -12,6 +12,8 @@ public:
     std::vector<Light> lights;
 
     LightManager(SDL_GPUDevice *gpu);
+    ~LightManager();
+
     void add(Light light);
     void updateLights();
 };

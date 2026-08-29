@@ -295,9 +295,9 @@ void main()
 	{
 		Light light = lights[i];
 
-		vec3 lightVector = light.pos.xyz - inWorldPos;
+		vec3 lightVector = light.pos - inWorldPos;
 		float lightDistance = max(length(lightVector), 0.001);
-		const vec3 lightColor = light.color.xyz;
+		const vec3 lightColor = light.color;
 
 		vec3 l = lightVector / lightDistance;
 

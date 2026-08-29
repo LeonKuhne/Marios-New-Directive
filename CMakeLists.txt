@@ -5,6 +5,7 @@ project(Engine)
 set(CMAKE_CXX_STANDARD 17)
 add_compile_options(-Wno-c99-designator)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_BUILD_TYPE Debug)
 
 find_package(SDL3 REQUIRED)
 find_package(Bullet REQUIRED)

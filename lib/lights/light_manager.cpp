@@ -4,6 +4,16 @@
 
 LightManager::LightManager(SDL_GPUDevice *gpu) : gpu(gpu) {}
 
+LightManager::~LightManager()
+{
+  /* TODO enable this
+  if (light_buffer) {
+    SDL_ReleaseGPUBuffer(gpu, light_buffer);
+    light_buffer = nullptr;
+  }
+  */
+}
+
 void LightManager::add(Light light) 
 {
   lights.push_back(light);
