@@ -76,10 +76,10 @@ ShapeData HallwayGenerator::generateRoom(Scene& scene, std::pair<int, int>& cell
   scene.shapes.add(ceiling);
 
   // add light
-  const float spawn_light_chance = 0.25f;
+  const float spawn_light_chance = 0.1f;
   if (static_cast<float>(rand()) / RAND_MAX < spawn_light_chance)
   {
-    scene.light_manager.add(Light{.pos = glm::vec3(pos.x, pos.y + 1.0f, pos.z), .intensity = 2000.0f});
+    scene.light_manager.add(Light{.pos = glm::vec3(pos.x, pos.y + 1.0f, pos.z), .intensity = 5000.0f});
   }
 
   return floor;
