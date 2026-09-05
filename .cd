@@ -26,12 +26,8 @@ function clean() {
 
 function build() {
   clear
-  mkdir -p build
-  (
-    cd build
-    cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON $@ 
-    cmake --build .
-  )
+  cmake -S . -B build $@ 
+  cmake --build build -j$(nproc)
 }
 
 function run() {
@@ -40,6 +36,10 @@ function run() {
     cd build
     SDL_VIDEODRIVER=x11 ./$project_name
   )
+}
+
+function release() {
+  run -DCMAKE_BUILD_TYPE=Release
 }
 
 function validate() {

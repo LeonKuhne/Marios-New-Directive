@@ -1,6 +1,6 @@
 #include "scene.h"
-
 #include "lib/engine/config.h"
+#include <tracy/Tracy.hpp>
 
 Scene::Scene(bool &running, Mouse &mouse)
     : window(Window(ctx)),
@@ -45,6 +45,7 @@ void Scene::setup(Mouse &mouse)
 
 void Scene::tick()
 {
+  ZoneScoped;
   Uint64 current_time = SDL_GetPerformanceCounter();
   float delta_time = (current_time - last_game_time) / static_cast<float>(SDL_GetPerformanceFrequency());
   last_game_time = current_time;

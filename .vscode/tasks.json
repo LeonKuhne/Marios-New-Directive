@@ -6,7 +6,11 @@
             "type": "cmake",
             "group": "build",
             "args": ["--clean-first"],
-            "problemMatcher": []
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "never",
+                "focus": false
+            }
         }
     ]
 }

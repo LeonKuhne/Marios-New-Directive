@@ -1,5 +1,5 @@
 #include "frame.h"
-
+#include <tracy/Tracy.hpp>
 
 Frame::~Frame() {
   if (depth_target->texture)
@@ -11,6 +11,7 @@ Frame::~Frame() {
 }
 
 void Frame::run() {
+  ZoneScoped;
   // start frame
   cmd = SDL_AcquireGPUCommandBuffer(ctx.gpu);
   SDL_AcquireGPUSwapchainTexture(cmd, ctx.window, &pass_info.texture, nullptr, nullptr);

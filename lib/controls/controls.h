@@ -3,6 +3,7 @@
 #include "mouse.h"
 #include "keyboard.h"
 #include "lib/scene/scene.h"
+#include <tracy/Tracy.hpp>
 
 class Controls
 {
@@ -18,6 +19,7 @@ public:
   };
 
   void handle() {
+    ZoneScoped;
     SDL_Event event;
 
     while (SDL_PollEvent(&event)) {

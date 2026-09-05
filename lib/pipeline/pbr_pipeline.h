@@ -3,7 +3,7 @@
 #include <SDL3/SDL_gpu.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "shape.h"
+#include "lib/shapes/shape.h"
 #include "lib/render/context.h"
 #include "lib/render/frame.h"
 #include "lib/pipeline/pipeline.h"
