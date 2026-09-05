@@ -1,3 +1,4 @@
-[ ] fix mouse not working sometimes (might be a wayland issue)
-[ ] cull lights using radius
-[ ] try to get shader to output smooth lights (might be quantized in shader, might also just by my shitty monitor quantizing)
+[ ] reduce frame render time by reducing amount of data pushed to gpu during frame render, queue up changes to shapes when they are modified/dirty and push on render frame, storing all render data on gpu (including materials)
+[ ] multithread tick and render
+[ ] fix mouse locking in some conditions (might be a wayland issue)
+[ ] cull on gpu
