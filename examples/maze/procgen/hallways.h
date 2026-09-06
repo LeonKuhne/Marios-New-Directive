@@ -2,7 +2,6 @@
 
 #include "lib/shapes/shape_data.h"
 #include "lib/scene/scene.h"
-#include <functional>
 
 
 struct Edge

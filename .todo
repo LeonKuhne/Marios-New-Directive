@@ -1,3 +1,6 @@
+[ ] add object loading
+[-] create scene for debugging graphics
+[ ] implement clustering culling using meshoptimizer (see bookmarked video)
 [ ] reduce frame render time by reducing amount of data pushed to gpu during frame render, queue up changes to shapes when they are modified/dirty and push on render frame, storing all render data on gpu (including materials)
 [ ] multithread tick and render
 [ ] fix mouse locking in some conditions (might be a wayland issue)

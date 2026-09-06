@@ -6,6 +6,7 @@
 
 class Engine
 {
+private:
   Controls controls;
   Scene scene;
   bool running = false;
@@ -17,4 +18,5 @@ public:
     running = true;
   }
   void run();
+  Scene& getScene() { return scene; }
 };

@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.15)
-project(Engine)
+
+if (NOT DEFINED NAME)
+  message(FATAL_ERROR "NAME is not defined, use -DNAME=<name> to set it")
+endif()
+project(${NAME})
+set(PROJECT_DIR "${CMAKE_SOURCE_DIR}/examples/${NAME}")
 
 #
 # compiler settings
@@ -84,6 +89,7 @@ add_custom_target(Shaders ALL DEPENDS ${COMPILED_SHADERS})
 
 file(GLOB_RECURSE SOURCES
   "lib/*.cpp"
+  "${PROJECT_DIR}/*.cpp"
 )
 
 #
@@ -93,7 +99,7 @@ find_package(SDL3 REQUIRED)
 find_package(Bullet REQUIRED)
 
 add_executable(${PROJECT_NAME}
-  main.cpp
+  ${PROJECT_DIR}/main.cpp
   ${SOURCES}
   external/tracy/public/TracyClient.cpp
 )

@@ -18,7 +18,21 @@ infos COMMANDS
 help .cd | indent "- "
 echo
 
-project_name="Engine"
+default_project="test"
+
+function get_project {
+  if [ -z "$project_name" ]; then
+    project_name=$default_project
+  fi
+  echo $project_name
+}
+
+debug "Active Project: $C_HEADER$(get_project)"
+
+function switch() {
+  project_name=$1
+  echo "Switched to project: $project_name"
+}
 
 function clean() {
   rm -rf build
@@ -26,7 +40,8 @@ function clean() {
 
 function build() {
   clear
-  cmake -S . -B build $@ 
+  find_project
+  cmake -S . -B build -DNAME="$(get_project)" $@ 
   cmake --build build -j$(nproc)
 }
 
@@ -34,7 +49,7 @@ function run() {
   build $@
   (
     cd build
-    SDL_VIDEODRIVER=x11 ./$project_name
+    SDL_VIDEODRIVER=x11 ./$(get_project)
   )
 }
 
@@ -46,7 +61,7 @@ function validate() {
   build $@
   (
     cd build
-    SDL_VIDEODRIVER=x11 VK_INSTANCE_LAYERS=VK_LAYER_KHRONOS_validation ./$project_name
+    SDL_VIDEODRIVER=x11 VK_INSTANCE_LAYERS=VK_LAYER_KHRONOS_validation ./$(get_project)
     #QT_QPA_PLATFORM=xcb qrenderdoc
   )
 }
@@ -55,6 +70,6 @@ function fix() {
   build -DCMAKE_BUILD_TYPE=Debug
   (
     cd build
-    gdb ./$project_name -ex run -ex bt
+    gdb ./$(get_project) -ex run -ex bt
   )
 }

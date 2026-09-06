@@ -5,7 +5,7 @@
             "label": "CMake Build",
             "type": "cmake",
             "group": "build",
-            "args": ["--clean-first"],
+            "args": ["--clean-first", "-DNAME=test"],
             "problemMatcher": [],
             "presentation": {
                 "reveal": "never",

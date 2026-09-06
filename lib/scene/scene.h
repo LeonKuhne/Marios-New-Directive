@@ -10,8 +10,6 @@
 #include "lib/controls/mouse.h"
 #include "player.h"
 
-class Knife;
-
 class Scene
 {
 public:
