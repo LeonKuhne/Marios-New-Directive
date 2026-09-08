@@ -1,7 +1,7 @@
 #pragma once
 
 #include "shape.h"
-#include "lib/pipeline/pbr_pipeline.h"
+#include "lib/pbr/pbr_pipeline.h"
 #include <btBulletDynamicsCommon.h>
 #include <vector>
 

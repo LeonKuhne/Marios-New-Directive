@@ -26,11 +26,13 @@ void PBRPipeline::render(Frame &frame, Shape *shape)
 
   // submit vertex uniforms
   SDL_PushGPUVertexUniformData(frame.cmd, 0, &ubo_uniform_data, sizeof(ubo_uniform_data));
-  SDL_PushGPUVertexUniformData(frame.cmd, 1, &constants, sizeof(constants));
 
   // submit fragment uniforms
   SDL_PushGPUFragmentUniformData(frame.cmd, 0, &ubo_uniform_data, sizeof(ubo_uniform_data));
   SDL_PushGPUFragmentUniformData(frame.cmd, 1, &ubo_params_uniform_data, sizeof(ubo_params_uniform_data));
+
+  // todo read push constants from 
+  SDL_PushGPUVertexUniformData(frame.cmd, 1, &constants, sizeof(constants));
   SDL_PushGPUFragmentUniformData(frame.cmd, 2, &constants, sizeof(constants));
 
   // submit vertex buffers

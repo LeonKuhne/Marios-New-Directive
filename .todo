@@ -1,4 +1,5 @@
 [ ] implement ecs
+[ ] refactor to store objects in an object buffer on the gpu, then execute one draw call to dispatch many vertex shaders to process the objects
 [ ] move shader var loading to gpu buffers
 [ ] add object loading
 [-] create scene for debugging graphics

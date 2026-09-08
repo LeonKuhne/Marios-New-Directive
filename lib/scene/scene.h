@@ -2,6 +2,7 @@
 
 #include <btBulletDynamicsCommon.h>
 #include "camera.h"
+#include "lib/engine/ecs_manager.h"
 #include "lib/lights/light_manager.h"
 #include "lib/render/context.h"
 #include "lib/shapes/shape_manager.h"
@@ -19,8 +20,11 @@ public:
   Player player;
   Camera camera;
   Frame frame;
+
+  ECSManager ecs;
   ShapeManager shapes;
   LightManager light_manager;
+
   bool &running;
   Uint64 last_game_time = SDL_GetPerformanceCounter();
 
