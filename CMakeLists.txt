@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 3.15)
 
 if (NOT DEFINED NAME)
-  message(FATAL_ERROR "NAME is not defined, use -DNAME=<name> to set it")
+  if (DEFINED ENV{NAME})
+    set(NAME "$ENV{NAME}")
+  else()
+    message(FATAL_ERROR "NAME is not defined, use -DNAME=<name> to set it")
+  endif()
 endif()
 project(${NAME})
 # print out project name

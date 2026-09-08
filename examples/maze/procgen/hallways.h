@@ -14,7 +14,7 @@ struct Edge
 class HallwayGenerator
 {
 public:
-    static void generate(Scene& scene);
+    static void generate(Scene& scene, uint seed);
 private:
     static ShapeData generateRoom(Scene& scene, std::pair<int, int>& cell);
     static void generateWall(Scene& scene, ShapeData& base, int idx);

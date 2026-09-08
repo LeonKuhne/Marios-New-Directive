@@ -3,7 +3,6 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_gpu.h>
 #include <btBulletDynamicsCommon.h>
-#include "data_points.h"
 
 class Context
 {

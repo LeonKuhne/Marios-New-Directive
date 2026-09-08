@@ -1,9 +1,13 @@
 #pragma once
 
-#include "shape.h"
 #include "lib/pbr/pbr_pipeline.h"
 #include <btBulletDynamicsCommon.h>
 #include <vector>
+
+class Context;
+class Scene;
+class Shape;
+struct ShapeData;
 
 class ShapeManager
 {
@@ -21,5 +25,5 @@ public:
   void add(ShapeData& data);
   void remove(Shape *shape);
   void select(Shape *shape);
-  void render(Frame &frame, SDL_GPURenderPass *pass);
+  void render(Scene& scene, SDL_GPURenderPass *pass);
 };

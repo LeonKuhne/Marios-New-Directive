@@ -3,8 +3,6 @@
 #include <functional>
 #include <SDL3/SDL_gpu.h>
 #include <glm/glm.hpp>
-#include "lib/lights/light_manager.h"
-#include "lib/scene/camera.h"
 #include "window.h"
 #include "context.h"
 
@@ -24,15 +22,8 @@ class Frame
 
 public:
   SDL_GPUCommandBuffer *cmd;
-  Camera &camera;
-  DataPoints &data_points;
-  LightManager &light_manager;
 
-  Frame(Window &window, Camera &camera, DataPoints &data_points, LightManager &light_manager)
-      : ctx(window.ctx),
-        camera(camera),
-        data_points(data_points),
-        light_manager(light_manager)
+  Frame(Window &window) : ctx(window.ctx)
   {
     window.addListener([this, &window](uint w, uint h) {
       updateDepthTexture(w, h);

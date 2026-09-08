@@ -21,12 +21,12 @@ void LightManager::add(Light light)
 
 void LightManager::updateLights()
 {
-  transfer(this->gpu, [this](SDL_GPUCopyPass *pass) {
+  transfer(gpu, [this](SDL_GPUCopyPass *pass) {
     if (light_buffer) {
-      SDL_ReleaseGPUBuffer(this->gpu, light_buffer);
+      SDL_ReleaseGPUBuffer(gpu, light_buffer);
       light_buffer = nullptr;
     }
-    light_buffer = toGPU<Light>({this->gpu, pass, SDL_GPU_BUFFERUSAGE_GRAPHICS_STORAGE_READ, lights.data(), static_cast<uint32_t>(lights.size() * sizeof(Light))});
+    light_buffer = toGPU<Light>({gpu, pass, SDL_GPU_BUFFERUSAGE_GRAPHICS_STORAGE_READ, lights.data(), static_cast<uint32_t>(lights.size() * sizeof(Light))});
     return true;
   });
 }

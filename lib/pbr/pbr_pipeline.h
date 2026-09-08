@@ -3,10 +3,11 @@
 #include <SDL3/SDL_gpu.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "lib/shapes/shape.h"
 #include "lib/render/context.h"
-#include "lib/render/frame.h"
 #include "lib/pipeline/pipeline.h"
+
+class Scene;
+class Shape;
 
 class PBRPipeline : public Pipeline
 {
@@ -65,7 +66,9 @@ public:
     {
       SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to create GPU sampler");
     }
+
+    // initialize storage buffers
+
   }
-  void pushVars(Frame &frame, Shape *shape);
-  void render(Frame &frame, Shape *shape);
+  void render(Scene &scene, Shape *shape);
 };

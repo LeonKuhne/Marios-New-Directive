@@ -1,10 +1,11 @@
-[ ] implement ecs
 [ ] refactor to store objects in an object buffer on the gpu, then execute one draw call to dispatch many vertex shaders to process the objects
 [ ] move shader var loading to gpu buffers
-[ ] add object loading
+[ ] switch to using mathematical object rendering
+[ ] add object loading, process objects into mathematical models using foyer, compile shaders if needed before runtime
 [-] create scene for debugging graphics
 [ ] implement clustering culling using meshoptimizer (see bookmarked video)
 [ ] reduce frame render time by reducing amount of data pushed to gpu during frame render, queue up changes to shapes when they are modified/dirty and push on render frame, storing all render data on gpu (including materials)
 [ ] multithread tick and render
 [ ] fix mouse locking in some conditions (might be a wayland issue)
 [ ] cull on gpu
+[ ] implement ecs if it makes sense

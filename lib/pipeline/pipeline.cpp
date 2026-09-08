@@ -1,5 +1,5 @@
 #include "pipeline.h"
-#include "lib/render/data_points.h"
+#include "lib/pbr/pbr_vertices.h"
 
 Pipeline::Pipeline(Context &ctx, PipelineInfo info)
 {
@@ -8,16 +8,16 @@ Pipeline::Pipeline(Context &ctx, PipelineInfo info)
 
   if (info.has_vertex_input) {
     // submit vertex buffer to pipeline
-    vertexAttributes[0] = {0, 0, SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3, offsetof(PBRVertex, pos)};
-    vertexAttributes[1] = {1, 0, SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3, offsetof(PBRVertex, normal)};
-    vertexAttributes[2] = {2, 0, SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2, offsetof(PBRVertex, uv0)};
-    vertexAttributes[3] = {3, 0, SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2, offsetof(PBRVertex, uv1)};
-    vertexAttributes[4] = {4, 0, SDL_GPU_VERTEXELEMENTFORMAT_UINT4, offsetof(PBRVertex, joint0)};
-    vertexAttributes[5] = {5, 0, SDL_GPU_VERTEXELEMENTFORMAT_FLOAT4, offsetof(PBRVertex, weight0)};
-    vertexAttributes[6] = {6, 0, SDL_GPU_VERTEXELEMENTFORMAT_FLOAT4, offsetof(PBRVertex, color0)};
+    vertexAttributes[0] = {0, 0, SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3, offsetof(PBRVertices::VertexData, pos)};
+    vertexAttributes[1] = {1, 0, SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3, offsetof(PBRVertices::VertexData, normal)};
+    vertexAttributes[2] = {2, 0, SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2, offsetof(PBRVertices::VertexData, uv0)};
+    vertexAttributes[3] = {3, 0, SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2, offsetof(PBRVertices::VertexData, uv1)};
+    vertexAttributes[4] = {4, 0, SDL_GPU_VERTEXELEMENTFORMAT_UINT4,  offsetof(PBRVertices::VertexData, joint0)};
+    vertexAttributes[5] = {5, 0, SDL_GPU_VERTEXELEMENTFORMAT_FLOAT4, offsetof(PBRVertices::VertexData, weight0)};
+    vertexAttributes[6] = {6, 0, SDL_GPU_VERTEXELEMENTFORMAT_FLOAT4, offsetof(PBRVertices::VertexData, color0)};
 
     vertexBufferDesc.slot = 0;
-    vertexBufferDesc.pitch = sizeof(PBRVertex);
+    vertexBufferDesc.pitch = sizeof(PBRVertices::VertexData);
     vertexBufferDesc.input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX;
   }
 

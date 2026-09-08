@@ -1,5 +1,7 @@
 #include "hallways.h"
 #include "lib/lights/light.h"
+#include <SDL3/SDL_stdinc.h>
+#include <stdexcept>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 #include "lib/engine/config.h"
@@ -14,8 +16,10 @@ static std::pair<int, int> getRoomCellInDirection(std::pair<int, int> cell, int 
   }
 }
 
-void HallwayGenerator::generate(Scene& scene)
+void HallwayGenerator::generate(Scene& scene, uint seed)
 {
+  srand(seed);
+
   int max_rooms = 1000;
   const float spawn_room_chance = 0.5f;
 
@@ -59,13 +63,18 @@ void HallwayGenerator::generate(Scene& scene)
     }
   }
 
+  if (scene.light_manager.lights.empty()) {
+    throw std::runtime_error("Failed hallway generation: no lights");
+  }
   scene.light_manager.updateLights();
+
+  SDL_Log("Generated hallways with %zu lights, and %zu cells", scene.light_manager.lights.size(), visited.size());
 }
 
 ShapeData HallwayGenerator::generateRoom(Scene& scene, std::pair<int, int>& cell)
 {
   const float room_size = 3.0f;
-  glm::vec3 pos = glm::vec3(cell.first * room_size, 0.0f, cell.second * room_size);
+  glm::vec3 pos = glm::vec3(static_cast<float>(cell.first) * room_size, 0.0f, static_cast<float>(cell.second) * room_size);
 
   // create floor
   ShapeData floor = generateFloor(scene, pos, room_size, room_size);
@@ -100,7 +109,7 @@ void HallwayGenerator::generateWall(Scene& scene, ShapeData& base, int idx)
     glm::vec3(0.0f, 1.0f, 0.0f),
     glm::normalize(-edge.offset)
   );
-  scene.data_points.finishPlane(wall);
+  scene.plane_builder.build(wall);
   scene.shapes.add(wall);
 }
 
@@ -125,7 +134,7 @@ Edge HallwayGenerator::getEdge(ShapeData& plane, int idx)
 ShapeData HallwayGenerator::generateFloor(Scene& scene, glm::vec3 position, float width, float length)
 {
   ShapeData floor = Config::floor;
-  scene.data_points.finishPlane(floor);
+  scene.plane_builder.build(floor);
   floor.pos = position;
   floor.scale.x = width;
   floor.scale.z = length;

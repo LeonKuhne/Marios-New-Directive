@@ -1,19 +1,35 @@
 #include "scene.h"
+#include "lib/pbr/gpu_stored_object.h"
+#include "lib/shapes/shape.h"
 #include "lib/engine/config.h"
 #include <tracy/Tracy.hpp>
+#include "lib/gpu/transfer.h"
 
 Scene::Scene(bool &running, Mouse &mouse)
     : window(Window(ctx)),
-      player(Player({
-        .pos = Config::PlayerSettings::spawn_pos,
-      })),
+
+      // game objects
+      player(Player({ .pos = Config::PlayerSettings::spawn_pos })),
       camera(Camera(window, player, mouse)),
-      data_points(ctx.gpu),
+
+      // gpu storage
+      plane_builder(ctx.gpu, all_vertices),
+      pbr_vertices(ctx.gpu, all_vertices),
+      pbr_materials(ctx.gpu),
+
+      // rendering
       shapes(ShapeManager(ctx)),
       light_manager(LightManager(ctx.gpu)),
-      frame(Frame(window, camera, data_points, light_manager)),
+      frame(Frame(window)),
+
+      // game state
       running(running)
 {
+  // upload pending updates
+  transfer(ctx.gpu, [this](SDL_GPUCopyPass *pass) {
+    GPUStoredObject::processPendingUpdates(pass);
+  });
+
   // setup gravity
   ctx.world->setInternalTickCallback([](btDynamicsWorld *world, btScalar timeStep)
     {
@@ -38,7 +54,7 @@ void Scene::setup(Mouse &mouse)
   // setup render passes
   frame.addPass([this, &mouse](Frame &frame, SDL_GPURenderPass *pass)
     {
-      shapes.render(frame, pass);
+      shapes.render(*this, pass);
     }
   );
 }
@@ -47,7 +63,7 @@ void Scene::tick()
 {
   ZoneScoped;
   Uint64 current_time = SDL_GetPerformanceCounter();
-  float delta_time = (current_time - last_game_time) / static_cast<float>(SDL_GetPerformanceFrequency());
+  float delta_time = static_cast<float>(current_time - last_game_time) / static_cast<float>(SDL_GetPerformanceFrequency());
   last_game_time = current_time;
 
   ctx.world->stepSimulation(delta_time, 5, 1.0f / 60.0f);

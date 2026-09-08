@@ -14,7 +14,7 @@ int main() {
   Scene& scene = engine.getScene();
 
   ShapeData floor = FLOOR;
-  scene.data_points.finishPlane(floor);
+  scene.plane_builder.build(floor);
   scene.shapes.add(floor);
 
   scene.light_manager.add(Light{.pos = glm::vec3(0.0f, 1.0f, 0.0f), .intensity = 5000.0f});
