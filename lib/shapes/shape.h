@@ -4,15 +4,8 @@
 #include <btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
 #include <sys/types.h>
-#include <unordered_set>
-#include <set>
-#include <optional>
-#include "lib/render/context.h"
-#include "lib/util/vertex.h"
+#include "lib/shapes/shape_base.h"
 #include "shape_data.h"
-#include "shape_base.h"
-#include "util.h"
-#include "volume.h"
 #include "mesh.h"
 
 class Shape : public ShapeBase
@@ -32,7 +25,7 @@ public:
   float density;
   bool is_static;
 
-  Shape(const ShapeData info);
+  Shape(const ShapeData &info);
   ~Shape();
 
   void assignToWorld(btDiscreteDynamicsWorld *world) { world->addRigidBody(body); }

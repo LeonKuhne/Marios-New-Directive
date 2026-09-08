@@ -1,7 +1,13 @@
 #include "shape.h"
 #include <glm/gtc/type_ptr.hpp>
+#include <unordered_set>
+#include <optional>
+#include "lib/util/vertex.h"
+#include "util.h"
+#include "volume.h"
+#include "lib/engine/config.h"
 
-Shape::Shape(const ShapeData info)
+Shape::Shape(const ShapeData &info)
     : color(info.color),
       mesh(info.mesh),
       scale(info.scale),
@@ -29,7 +35,7 @@ Shape::Shape(const ShapeData info)
   // create collider
   if (has_collider)
   {
-    collider = new btConvexHullShape((btScalar *)centered_vertices.data(), centered_vertices.size(), sizeof(glm::vec3));
+    collider = new btConvexHullShape((btScalar *)centered_vertices.data(), (int) centered_vertices.size(), sizeof(glm::vec3));
     collider->setLocalScaling(asBtVector3(scale));
 
     // calculate mass
