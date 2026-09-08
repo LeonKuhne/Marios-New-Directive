@@ -1,3 +1,5 @@
+[ ] implement ecs
+[ ] move shader var loading to gpu buffers
 [ ] add object loading
 [-] create scene for debugging graphics
 [ ] implement clustering culling using meshoptimizer (see bookmarked video)

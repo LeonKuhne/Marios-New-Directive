@@ -19,20 +19,22 @@ help .cd | indent "- "
 echo
 
 default_project="test"
-
-function get_project {
-  if [ -z "$project_name" ]; then
-    project_name=$default_project
-  fi
-  echo $project_name
-}
-
-debug "Active Project: $C_HEADER$(get_project)"
+engine_dir=$(pwd)
 
 function switch() {
   project_name=$1
   echo "Switched to project: $project_name"
+  echo $project_name > $engine_dir/.project
 }
+
+function get_project {
+  if [ ! -f $engine_dir/.project ]; then
+    echo $default_project > $engine_dir/.project
+  fi
+  cat $engine_dir/.project
+}
+
+debug "Active Project: $C_HEADER$(get_project)"
 
 function clean() {
   rm -rf build
@@ -40,7 +42,6 @@ function clean() {
 
 function build() {
   clear
-  find_project
   cmake -S . -B build -DNAME="$(get_project)" $@ 
   cmake --build build -j$(nproc)
 }

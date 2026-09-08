@@ -54,9 +54,22 @@ void ShapeManager::select(Shape *shape)
   selected = shape;
 }
 
-void ShapeManager::render(Frame &frame, SDL_GPURenderPass *pass)
+/*
+void ShapeManager::updateRenderVars(Frame &frame, SDL_GPUCopyPass *copy_pass)
 {
-  pbr_pipeline.start(pass);
+  // dequeue updates
+  for (Shape *shape : shapes)
+  {
+    pbr_pipeline.pushVars();
+  }
+}
+*/
+
+
+void ShapeManager::render(Frame &frame, SDL_GPURenderPass *render_pass)
+{
+  pbr_pipeline.startRender(render_pass);
+  // render frame
   for (Shape *shape : shapes)
   {
     pbr_pipeline.render(frame, shape);

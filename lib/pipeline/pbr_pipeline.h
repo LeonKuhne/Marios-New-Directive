@@ -66,5 +66,6 @@ public:
       SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to create GPU sampler");
     }
   }
+  void pushVars(Frame &frame, Shape *shape);
   void render(Frame &frame, Shape *shape);
 };

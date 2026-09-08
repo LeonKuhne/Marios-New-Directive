@@ -78,8 +78,8 @@ Pipeline::Pipeline(Context &ctx, PipelineInfo info)
     SDL_Log("Failed to create compute pipeline: %s\n", SDL_GetError());
 }
 
-void Pipeline::start(SDL_GPURenderPass *p)
+void Pipeline::startRender(SDL_GPURenderPass *p)
 {
-  pass = p;
-  SDL_BindGPUGraphicsPipeline(pass, pipeline);
+  render_pass = p;
+  SDL_BindGPUGraphicsPipeline(render_pass, pipeline);
 }

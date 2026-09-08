@@ -41,9 +41,9 @@ Shape::Shape(const ShapeData info)
   }
 
   // set transform
-  btTransform start_transform;
-  start_transform.setIdentity();
-  start_transform.setRotation(asBtQuaternion(info.rotation));
+  btTransform transform;
+  transform.setIdentity();
+  transform.setRotation(asBtQuaternion(info.rotation));
   btVector3 pos = asBtVector3(info.pos);
   if (info.parent_transform.has_value())
   {
@@ -51,10 +51,10 @@ Shape::Shape(const ShapeData info)
     glm::vec3 center_delta = (mesh_center - parent_center) * scale;
     pos = (*info.parent_transform) * asBtVector3(center_delta);
   }
-  start_transform.setOrigin(pos);
+  transform.setOrigin(pos);
 
   // create rigid body from collider
-  btDefaultMotionState *motionState = new btDefaultMotionState(start_transform);
+  btDefaultMotionState *motionState = new btDefaultMotionState(transform);
   btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, collider, localInertia);
   body = new btRigidBody(rbInfo);
   body->setLinearVelocity(asBtVector3(info.linear_velocity));

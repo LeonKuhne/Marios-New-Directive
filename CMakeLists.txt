@@ -4,6 +4,8 @@ if (NOT DEFINED NAME)
   message(FATAL_ERROR "NAME is not defined, use -DNAME=<name> to set it")
 endif()
 project(${NAME})
+# print out project name
+message(STATUS "Building project: ${NAME}")
 set(PROJECT_DIR "${CMAKE_SOURCE_DIR}/examples/${NAME}")
 
 #

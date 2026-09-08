@@ -1,5 +1,10 @@
 #include "pbr_pipeline.h"
 
+void PBRPipeline::pushVars(Frame &frame, Shape *shape)
+{
+
+}
+
 void PBRPipeline::render(Frame &frame, Shape *shape)
 {
   // setup push constants uniform data
@@ -30,16 +35,16 @@ void PBRPipeline::render(Frame &frame, Shape *shape)
 
   // submit vertex buffers
   SDL_GPUBufferBinding vertexBinding{frame.data_points.pbr_vertex_buffer, 0};
-  SDL_BindGPUVertexBuffers(pass, 0, &vertexBinding, 1);
+  SDL_BindGPUVertexBuffers(render_pass, 0, &vertexBinding, 1);
 
   // submit index buffers
   SDL_GPUBufferBinding indexBinding{shape->mesh.index_buffer, 0};
-  SDL_BindGPUIndexBuffer(pass, &indexBinding, SDL_GPU_INDEXELEMENTSIZE_16BIT);
+  SDL_BindGPUIndexBuffer(render_pass, &indexBinding, SDL_GPU_INDEXELEMENTSIZE_16BIT);
 
   // bind storage buffers
-  SDL_BindGPUVertexStorageBuffers(pass, 0, &frame.data_points.mesh_shader_data_buffer, 1);
-  SDL_BindGPUFragmentStorageBuffers(pass, 0, &frame.data_points.material_buffer, 1);
-  SDL_BindGPUFragmentStorageBuffers(pass, 1, &frame.light_manager.light_buffer, 1);
+  SDL_BindGPUVertexStorageBuffers(render_pass, 0, &frame.data_points.mesh_shader_data_buffer, 1);
+  SDL_BindGPUFragmentStorageBuffers(render_pass, 0, &frame.data_points.material_buffer, 1);
+  SDL_BindGPUFragmentStorageBuffers(render_pass, 1, &frame.light_manager.light_buffer, 1);
 
   // bind texture
   SDL_GPUTextureSamplerBinding texture_bindings[5] = {
@@ -55,10 +60,10 @@ void PBRPipeline::render(Frame &frame, Shape *shape)
   };
   SDL_GPUTextureSamplerBinding brdf_binding{frame.data_points.default_brdf_lut, sampler};
 
-  SDL_BindGPUFragmentSamplers(pass, 0, texture_bindings, 5);
-  SDL_BindGPUFragmentSamplers(pass, 5, cube_bindings, 2);
-  SDL_BindGPUFragmentSamplers(pass, 7, &brdf_binding, 1);
+  SDL_BindGPUFragmentSamplers(render_pass, 0, texture_bindings, 5);
+  SDL_BindGPUFragmentSamplers(render_pass, 5, cube_bindings, 2);
+  SDL_BindGPUFragmentSamplers(render_pass, 7, &brdf_binding, 1);
 
   // draw
-  SDL_DrawGPUIndexedPrimitives(pass, shape->mesh.indices.size(), 1, 0, 0, 0);
+  SDL_DrawGPUIndexedPrimitives(render_pass, shape->mesh.indices.size(), 1, 0, 0, 0);
 }

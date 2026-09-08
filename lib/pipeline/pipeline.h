@@ -23,10 +23,10 @@ class Pipeline
 {
 protected:
   SDL_GPUGraphicsPipeline *pipeline;
-  SDL_GPURenderPass *pass;
+  SDL_GPURenderPass *render_pass;
 
 public:
   Pipeline(Context &ctx, PipelineInfo info);
 
-  void start(SDL_GPURenderPass *pass);
+  void startRender(SDL_GPURenderPass *pass);
 };
