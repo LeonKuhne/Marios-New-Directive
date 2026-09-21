@@ -1,8 +1,9 @@
 #pragma once
 
+#include "lib/lights/light_manager.h"
+#include "lib/rooms/room.h"
 #include "lib/shapes/shape_data.h"
 #include "lib/scene/scene.h"
-
 
 struct Edge
 {
@@ -11,14 +12,19 @@ struct Edge
     float size;
 };
 
+using Cell = std::pair<int, int>;
+
 class HallwayGenerator
 {
 public:
     static void generate(Scene& scene, uint seed);
 private:
-    static ShapeData generateRoom(Scene& scene, std::pair<int, int>& cell);
-    static void generateWall(Scene& scene, ShapeData& base, int idx);
+    static void fillCells(std::vector<Cell>& visited, float spawn_chance, int max_cells);
     static Edge getEdge(ShapeData& plane, int idx);
-    static ShapeData generateFloor(Scene& scene, glm::vec3 position, float width, float length);
-    static ShapeData generateCeiling(Scene& scene, glm::vec3 position, float width, float length);
+
+    static void decorateRoom(Room& room, Cell& cell, std::vector<Cell>& visited, LightManager& light_manager);
+
+    static ShapeData createFloor(glm::vec3 position, float width, float length);
+    static ShapeData createCeiling(glm::vec3 position, float width, float length);
+    static ShapeData createWall(ShapeData& base, int idx);
 };

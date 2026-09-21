@@ -1,5 +1,19 @@
 cmake_minimum_required(VERSION 3.15)
 
+#
+# compiler settings
+
+set(CMAKE_CXX_STANDARD 26)
+add_compile_options(-Wno-c99-designator)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+if (NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Debug)
+endif()
+
+#
+# project name
+
 if (NOT DEFINED NAME)
   if (DEFINED ENV{NAME})
     set(NAME "$ENV{NAME}")
@@ -11,17 +25,6 @@ project(${NAME})
 # print out project name
 message(STATUS "Building project: ${NAME}")
 set(PROJECT_DIR "${CMAKE_SOURCE_DIR}/examples/${NAME}")
-
-#
-# compiler settings
-
-set(CMAKE_CXX_STANDARD 17)
-add_compile_options(-Wno-c99-designator)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-if (NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Debug)
-endif()
 
 #
 # compile shaders
