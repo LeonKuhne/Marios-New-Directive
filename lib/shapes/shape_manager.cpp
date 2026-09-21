@@ -35,25 +35,8 @@ void ShapeManager::remove(Shape *shape)
     shape->body->setActivationState(DISABLE_DEACTIVATION);
   }
 
-  if (selected == shape)
-    selected = nullptr;
-
   shapes.erase(it);
   delete shape;
-}
-
-void ShapeManager::select(Shape *shape)
-{
-  // deselect previous
-  if (selected)
-  {
-    selected->selected = false;
-    selected = nullptr;
-  }
-
-  // select shape
-  shape->selected = true;
-  selected = shape;
 }
 
 /*

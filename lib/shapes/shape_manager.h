@@ -16,7 +16,6 @@ class ShapeManager
 
 public:
   std::vector<Shape *> shapes;
-  Shape* selected = nullptr;
 
   ShapeManager(Context &ctx) : ctx(ctx), pbr_pipeline(PBRPipeline(ctx)) {};
   ~ShapeManager();
@@ -24,6 +23,5 @@ public:
   void add(Shape *shape);
   void add(ShapeData& data);
   void remove(Shape *shape);
-  void select(Shape *shape);
   void render(Scene& scene, SDL_GPURenderPass *pass);
 };
