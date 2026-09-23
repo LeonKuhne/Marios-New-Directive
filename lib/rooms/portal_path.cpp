@@ -5,10 +5,12 @@
 #include <iterator>
 
 PortalPath::PortalPath(Portal& first_portal, Portal& last_portal,
+                       Room& current_room,
                        const std::vector<glm::vec3>& source_vertices,
                        const std::vector<glm::vec3>& clipped_vertices)
   : first_portal(first_portal),
     last_portal(last_portal),
+    current_room(current_room),
     source_vertices(source_vertices),
     clipped_vertices(clipped_vertices)
 {
@@ -17,13 +19,15 @@ PortalPath::PortalPath(Portal& first_portal, Portal& last_portal,
 PortalPath PortalPath::transitionTo(Portal& next_portal,
                                     const std::vector<glm::vec3>& next_vertices) const
 {
-  return PortalPath(last_portal, next_portal, clipped_vertices, next_vertices);
+  return PortalPath(last_portal, next_portal, next_portal.otherRoom(current_room),
+                    clipped_vertices, next_vertices);
 }
 
 PortalPath PortalPath::childTo(Portal& next_portal,
                                const std::vector<glm::vec3>& next_vertices) const
 {
-  PortalPath child(first_portal, next_portal, clipped_vertices, next_vertices);
+  PortalPath child(first_portal, next_portal, next_portal.otherRoom(current_room),
+                   clipped_vertices, next_vertices);
   child.clipping_planes = clipping_planes;
   child.visited_rooms = visited_rooms;
   return child;

@@ -20,11 +20,17 @@ Scene::Scene(bool &running, Mouse &mouse)
       // rendering
       light_manager(LightManager(ctx.gpu)),
       frame(Frame(window)),
+      room_manager(ctx),
+      collision_handler(player, room_manager),
 
       // game state
       running(running)
 {
-  static Scene *scene_instance = this;
+  collision_handler.setActiveRoomsCallback([this](const std::vector<Room*>& rooms) {
+    active_rooms = rooms;
+    if (active_rooms_changed)
+      active_rooms_changed(active_rooms);
+  });
 
   // upload pending updates
   transfer(ctx.gpu, [this](SDL_GPUCopyPass *pass) {
@@ -42,11 +48,18 @@ Scene::Scene(bool &running, Mouse &mouse)
 
   ctx.world->addRigidBody(player.body);
 
-  // handle collisions
-  gContactStartedCallback = [](btPersistentManifold *const &manifold)
-  {
-    scene_instance->checkCollision(manifold);
-  };
+}
+
+void Scene::setActiveRoom(Room& room)
+{
+  collision_handler.setCurrentRoom(room);
+  if (active_rooms.size() == 1 && active_rooms.front() == &room)
+    return;
+
+  active_rooms.clear();
+  active_rooms.emplace_back(&room);
+  if (active_rooms_changed)
+    active_rooms_changed(active_rooms);
 }
 
 void Scene::setup(Mouse &mouse)
@@ -56,8 +69,8 @@ void Scene::setup(Mouse &mouse)
     {
       pbr_pipeline.startRender(pass);
 
-      // render active rooms
-      rooms[0].render(*this, pass);
+      for (Room* room : active_rooms)
+        room->render(*this, pass);
     }
   );
 }
@@ -81,58 +94,4 @@ void Scene::gravityTick(btScalar timeStep)
 
   btScalar gravity = gravity_strength;
   player.body->setGravity(gravity_dir * gravity);
-}
-
-void Scene::checkCollision(btPersistentManifold *const &manifold)
-{
-  // get the two colliding bodies
-  const btCollisionObject *body_a = manifold->getBody0();
-  const btCollisionObject *body_b = manifold->getBody1();
-  ShapeBase *shape_a = static_cast<ShapeBase *>(body_a->getUserPointer());
-  ShapeBase *shape_b = static_cast<ShapeBase *>(body_b->getUserPointer());
-
-  if (!shape_a || !shape_b)
-    return;
-
-  ushort type_a = shape_a->getType();
-  ushort type_b = shape_b->getType();
-
-  // Player grounding.
-  if (body_a == player.body || body_b == player.body)
-  {
-    const btCollisionObject *other = body_a == player.body ? body_b : body_a;
-
-    for (int i = 0; i < manifold->getNumContacts(); ++i)
-    {
-      const btManifoldPoint &contact = manifold->getContactPoint(i);
-
-      if (contact.getDistance() > 0.05f)
-        continue;
-
-      btVector3 normal = contact.m_normalWorldOnB;
-
-      if (other == body_a)
-        normal = -normal;
-
-      // Player's local "up" is away from the planet.
-      btVector3 player_pos =
-        player.body->getCenterOfMassPosition();
-
-      btVector3 player_up = player_pos.normalized();
-
-      // Contact is floor if its normal points approximately upward.
-      if (normal.dot(player_up) > 0.5f)
-      {
-        player.isGrounded = true;
-
-        btVector3 velocity = player.body->getLinearVelocity();
-
-        // Remove velocity into/out of the floor.
-        velocity -= normal * velocity.dot(normal);
-
-        player.body->setLinearVelocity(velocity);
-        break;
-      }
-    }
-  }
 }

@@ -10,13 +10,13 @@ private:
   std::set<Room*> visible_rooms;
 
 public:
-  std::vector<Portal> portals;
+  std::vector<Portal*> portals;
   ShapeManager shapes;
 
-  Room(Context& ctx) : shapes(ShapeManager(ctx)) {};
+  Room(Context& ctx) : shapes(ShapeManager(ctx)) { portals.reserve(4); };
 
   void addSurface(ShapeData& shape_data);
-  void addPortal(ShapeData& shape_data, Room& destination);
+  void addPortal(Portal& portal);
   void updateVisibility();
   void render(Scene& scene, SDL_GPURenderPass *pass);
   bool isVisibleFrom(const Room& observer) const;

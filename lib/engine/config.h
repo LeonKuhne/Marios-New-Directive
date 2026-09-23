@@ -9,6 +9,7 @@ enum ShapeType : uint8_t
   ASTEROID = 2,
   PLAYER = 3,
   PLANE = 4,
+  PORTAL = 5,
 };
 
 struct Config
@@ -47,8 +48,9 @@ struct Config
   };
 
   static inline const ShapeData portal = {
-      .type = ShapeType::PLANE,
+      .type = ShapeType::PORTAL,
       .is_visible = false,
+      .is_trigger = true,
       .pos = {0.0f, 0.0f, 0.0f},
       //.rotation = glm::angleAxis(glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
       .scale = {10.0f, 0.0f, 10.0f},

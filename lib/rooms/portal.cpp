@@ -1,9 +1,11 @@
 #include "portal.h"
 #include "room.h"
+#include <algorithm>
 #include <limits>
 #include <unordered_set>
 
-Portal::Portal(Shape* shape, Room& destination) : destination(destination) {
+Portal::Portal(Shape* shape, Room& room_a, Room& room_b)
+  : shape(shape), room_a(room_a), room_b(room_b) {
   // assign vertices and compute center
   center = glm::vec3(0.0f);
   // todo use global coordinates here instead of local
@@ -18,6 +20,23 @@ Portal::Portal(Shape* shape, Room& destination) : destination(destination) {
     center += global_vertex;
   }
   center /= vertices.size();
+  reverse_vertices = vertices;
+  std::reverse(reverse_vertices.begin(), reverse_vertices.end());
+}
+
+glm::vec3 Portal::normal() const
+{
+  return glm::normalize(glm::cross(vertices[1] - vertices[0], vertices[2] - vertices[0]));
+}
+
+Room& Portal::otherRoom(const Room& room) const
+{
+  return &room == &room_a ? room_b : room_a;
+}
+
+const std::vector<glm::vec3>& Portal::verticesFor(const Room& room) const
+{
+  return &room == &room_a ? vertices : reverse_vertices;
 }
 
 void Portal::eachTargetPlane(Portal& destination, const std::vector<glm::vec3>& source_vertices,

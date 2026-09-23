@@ -7,34 +7,32 @@ void Room::addSurface(ShapeData& shape_data) {
   shapes.add(shape_data);
 }
 
-void Room::addPortal(ShapeData& shape_data, Room& destination) {
-  Shape* shape = shapes.add(shape_data);
-  portals.emplace_back(shape, destination);
-
-  // todo
-  // add a callback to an on collision start between player and portal that sets both rooms connected to the portal as active rooms
-  // add a callback to an on collision end between player and portal that removes the room that is on the far side of the portal plane from active rooms
+void Room::addPortal(Portal& portal) {
+  portals.emplace_back(&portal);
 }
 
 void Room::updateVisibility()
 {
   visible_rooms.clear();
   std::vector<PortalPath> paths;
-  for (Portal& starting_portal : portals)
-    for (Portal& target_portal : starting_portal.destination.portals)
+  for (Portal* starting_portal : portals)
+    for (Portal* target_portal : starting_portal->otherRoom(*this).portals)
     {
-      PortalPath& path = paths.emplace_back(starting_portal, target_portal,
-        starting_portal.vertices, target_portal.vertices);
+      PortalPath& path = paths.emplace_back(*starting_portal, *target_portal,
+        target_portal->otherRoom(starting_portal->otherRoom(*this)),
+        starting_portal->verticesFor(*this),
+        target_portal->verticesFor(starting_portal->otherRoom(*this)));
       path.addVisitedRoom(*this);
-      path.addVisitedRoom(starting_portal.destination);
-      path.addVisitedRoom(target_portal.destination);
+      path.addVisitedRoom(path.current_room);
+      path.addVisitedRoom(target_portal->otherRoom(path.current_room));
       PortalClipper::eachPlane(path, [&](const glm::mat3& plane) {
         path.addClippingPlane(plane);
       }, false);
-      if (&starting_portal.destination != this)
-        visible_rooms.emplace(&starting_portal.destination);
-      if (&target_portal.destination != this)
-        visible_rooms.emplace(&target_portal.destination);
+      if (&path.current_room != this)
+        visible_rooms.emplace(&path.current_room);
+      Room& target_room = target_portal->otherRoom(path.current_room);
+      if (&target_room != this)
+        visible_rooms.emplace(&target_room);
     }
 
   // recurse clipping planes
@@ -44,12 +42,12 @@ void Room::updateVisibility()
     paths.pop_back();
 
     std::vector<std::pair<Portal&, std::vector<glm::vec3>>> portals_to_check;
-    for (Portal& target : path.last_portal.destination.portals)
+    for (Portal* target : path.current_room.portals)
     {
       // ignore visited rooms
-      if (path.hasVisitedRoom(target.destination))
+      if (path.hasVisitedRoom(target->otherRoom(path.current_room)))
         continue;
-      portals_to_check.emplace_back(target, target.vertices);
+      portals_to_check.emplace_back(*target, target->verticesFor(path.current_room));
     }
 
     // clip the destination portals against the complete portal frustum
@@ -79,7 +77,7 @@ void Room::updateVisibility()
       // forward-facing half plus its boundary plane from the reverse set.
       transition_planes.resize(transition_planes.size() / 2);
       PortalPath next_path = path.childTo(next_portal, clipped_vertices);
-      Room& visible_room = next_portal.destination;
+      Room& visible_room = next_portal.otherRoom(path.current_room);
       next_path.appendClippingPlanes(std::move(transition_planes));
       next_path.addVisitedRoom(visible_room);
       paths.emplace_back(std::move(next_path));

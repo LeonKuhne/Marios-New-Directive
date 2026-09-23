@@ -20,7 +20,7 @@ struct Bounds
   int max_y;
 };
 
-Bounds getBounds(const std::map<const Cell, Room&>& rooms)
+Bounds getBounds(const std::map<const Cell, Room*>& rooms)
 {
   Bounds bounds{
     rooms.begin()->first.first,
@@ -39,39 +39,60 @@ Bounds getBounds(const std::map<const Cell, Room&>& rooms)
   return bounds;
 }
 
-std::set<const Room*> getDirectNeighbors(const Room& active_room)
+std::set<const Room*> getDirectNeighbors(const std::vector<Room*>& active_rooms)
 {
   std::set<const Room*> direct_neighbors;
-  for (const Portal& portal : active_room.portals)
-    direct_neighbors.emplace(&portal.destination);
+  for (const Room* active_room : active_rooms)
+    for (const Portal* portal : active_room->portals)
+      direct_neighbors.emplace(&portal->otherRoom(*active_room));
   return direct_neighbors;
 }
 
-char cellSymbol(const std::map<const Cell, Room&>& rooms, Room& active_room, const Cell& cell,
+bool isActive(const std::vector<Room*>& active_rooms, const Room& room)
+{
+  return std::ranges::contains(active_rooms, &room);
+}
+
+size_t activeIndex(const std::vector<Room*>& active_rooms, const Room& room)
+{
+  auto active_room = std::ranges::find(active_rooms, &room);
+  return active_room == active_rooms.end()
+    ? active_rooms.size()
+    : static_cast<size_t>(active_room - active_rooms.begin());
+}
+
+bool isVisible(const std::vector<Room*>& active_rooms, const Room& room)
+{
+  return isActive(active_rooms, room) || std::ranges::any_of(active_rooms,
+    [&](const Room* active_room) { return room.isVisibleFrom(*active_room); });
+}
+
+std::string cellSymbol(const std::map<const Cell, Room*>& rooms, const std::vector<Room*>& active_rooms,
+                const Cell& cell,
                 const std::set<const Room*>& direct_neighbors, size_t& visible_count,
                 size_t& missing_direct_count)
 {
   auto room = rooms.find(cell);
   if (room == rooms.end())
-    return ' ';
+    return "  ";
 
-  if (&room->second == &active_room)
-    return 'A';
+  if (isActive(active_rooms, *room->second))
+    return "██";
 
-  bool direct_neighbor = direct_neighbors.contains(&room->second);
-  if (direct_neighbor && !room->second.isVisibleFrom(active_room))
+  bool direct_neighbor = direct_neighbors.contains(room->second);
+    if (direct_neighbor && !isVisible(active_rooms, *room->second))
   {
     missing_direct_count++;
-    return 'N';
+    return "▓▓";
   }
 
-  if (room->second.isVisibleFrom(active_room))
+  if (isVisible(active_rooms, *room->second))
   {
     visible_count++;
-    return 'V';
+    return "▒▒";
   }
 
-  return '.';
+  return "░░";
 }
 
 void writeBigEndian(std::vector<std::uint8_t>& output, std::uint32_t value)
@@ -114,29 +135,33 @@ void setPixel(std::vector<std::uint8_t>& pixels, int width, int x, int y,
 }
 }
 
-void VisibilityMap::renderAscii(const std::map<const Cell, Room&>& rooms, Room& active_room)
+void VisibilityMap::renderAscii(const std::map<const Cell, Room*>& rooms,
+                                const std::vector<Room*>& active_rooms)
 {
   if (rooms.empty())
     return;
 
   Bounds bounds = getBounds(rooms);
-  std::set<const Room*> direct_neighbors = getDirectNeighbors(active_room);
+  std::set<const Room*> direct_neighbors = getDirectNeighbors(active_rooms);
   size_t visible_count = 0;
   size_t missing_direct_count = 0;
-  SDL_Log("Visibility map for active cell (0, 0):");
+  SDL_Log("Visibility map for %zu active rooms:", active_rooms.size());
+  for (const auto& [cell, room] : rooms)
+    if (isActive(active_rooms, *room))
+      SDL_Log("Active cell: (%d, %d)", cell.first, cell.second);
   for (int y = bounds.max_y; y >= bounds.min_y; --y)
   {
     std::string row;
     for (int x = bounds.min_x; x <= bounds.max_x; ++x)
-      row += cellSymbol(rooms, active_room, {x, y}, direct_neighbors,
-                        visible_count, missing_direct_count);
+      row += cellSymbol(rooms, active_rooms, {x, y}, direct_neighbors, visible_count, missing_direct_count);
     SDL_Log("%s", row.c_str());
   }
   SDL_Log("Visible cells: %zu / %zu", visible_count, rooms.size());
   SDL_Log("Direct neighbors missing from visibility: %zu", missing_direct_count);
 }
 
-bool VisibilityMap::renderPng(const std::map<const Cell, Room&>& rooms, Room& active_room,
+bool VisibilityMap::renderPng(const std::map<const Cell, Room*>& rooms,
+                              const std::vector<Room*>& active_rooms,
                               const char* path)
 {
   if (rooms.empty())
@@ -149,7 +174,7 @@ bool VisibilityMap::renderPng(const std::map<const Cell, Room&>& rooms, Room& ac
   int rows = bounds.max_y - bounds.min_y + 1;
   int width = columns * cell_size;
   int height = rows * cell_size;
-  std::set<const Room*> direct_neighbors = getDirectNeighbors(active_room);
+  std::set<const Room*> direct_neighbors = getDirectNeighbors(active_rooms);
   std::vector<std::uint8_t> pixels(static_cast<size_t>(width) * height * 4, 0);
 
   for (int y = bounds.min_y; y <= bounds.max_y; ++y)
@@ -161,11 +186,14 @@ bool VisibilityMap::renderPng(const std::map<const Cell, Room&>& rooms, Room& ac
         continue;
 
       std::array<std::uint8_t, 4> color;
-      if (&room->second == &active_room)
+      size_t active_index = activeIndex(active_rooms, *room->second);
+      if (active_index == 0)
         color = {255, 210, 55, 255};
-      else if (room->second.isVisibleFrom(active_room))
+      else if (active_index < active_rooms.size())
+        color = {255, 145, 45, 255};
+      else if (isVisible(active_rooms, *room->second))
         color = {65, 155, 245, 255};
-      else if (direct_neighbors.contains(&room->second))
+      else if (direct_neighbors.contains(room->second))
         color = {225, 75, 75, 255};
       else
         color = {55, 60, 70, 255};

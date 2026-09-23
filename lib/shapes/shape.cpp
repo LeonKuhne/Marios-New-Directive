@@ -1,4 +1,5 @@
 #include "shape.h"
+#include <cmath>
 #include <glm/gtc/type_ptr.hpp>
 #include <unordered_set>
 #include <optional>
@@ -13,10 +14,11 @@ Shape::Shape(const ShapeData &info)
       mesh(info.mesh),
       scale(info.scale),
       density(info.density),
-      is_visible(info.is_visible)
+      is_visible(info.is_visible),
+      is_trigger(info.is_trigger)
 {
   std::unordered_set<ushort> unique_indices = vec2set<ushort>(info.mesh.indices);
-  bool has_collider = density != 0.0f;
+  bool has_collider = density != 0.0f || is_trigger;
   is_static = density > 100.0f;
 
   // compute centered vertices
@@ -34,7 +36,14 @@ Shape::Shape(const ShapeData &info)
   volume = mesh_volume.sum;
 
   // create collider
-  if (has_collider)
+  if (is_trigger)
+  {
+    collider = new btBoxShape(btVector3(
+      std::abs(scale.x) * 0.5f,
+      0.05f,
+      std::abs(scale.z) * 0.5f));
+  }
+  else if (has_collider)
   {
     collider = new btConvexHullShape((btScalar *)centered_vertices.data(), (int) centered_vertices.size(), sizeof(glm::vec3));
     collider->setLocalScaling(asBtVector3(scale));
@@ -69,6 +78,9 @@ Shape::Shape(const ShapeData &info)
   body->setUserPointer(this);
   body->setRestitution(0.0f);
   body->setFriction(Config::ground_friction);
+
+  if (is_trigger)
+    body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
   // disable collisions
   if (!has_collider)
@@ -135,6 +147,7 @@ ShapeData Shape::getShapeDataStarter()
   body->getMotionState()->getWorldTransform(transform);
   return ShapeData{
     .is_visible = is_visible,
+    .is_trigger = is_trigger,
     .pos = asGlmVec3(transform.getOrigin()),
     .rotation = asGlmQuat(transform.getRotation()),
     .scale = scale,

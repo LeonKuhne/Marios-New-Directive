@@ -23,6 +23,7 @@ public:
   glm::vec3 scale;
   float density;
   bool is_visible;
+  bool is_trigger;
 
   bool selected = false;
   float volume = 0.0f;

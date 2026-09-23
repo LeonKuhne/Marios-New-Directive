@@ -29,28 +29,28 @@ void HallwayGenerator::generate(Scene& scene, uint seed)
 
   // generate a room for each cell
   size_t num_cells = visited.size();
-  for (int i=0; i<num_cells; i++)
-    scene.rooms.emplace_back(scene.ctx);
+  for (int i = 0; i < num_cells; i++)
+    scene.room_manager.createRoom();
 
   // map rooms to cells
-  std::map<const Cell, Room&> rooms;
+  std::map<const Cell, Room*> rooms;
   for (int i=0; i<num_cells; i++)
-    rooms.emplace(visited[i], scene.rooms[i]);
+    rooms.emplace(visited[i], scene.room_manager.rooms().at(i));
 
   // generate room mesh
   for (auto [cell, room] : rooms)
-    decorateRoom(room, cell, rooms, scene);
+    decorateRoom(*room, cell, rooms, scene);
 
   // update room/portal visibility
-  for (auto [cell, room] : rooms)
-  {
-    room.updateVisibility();
-  }
+  scene.room_manager.updateVisibility();
 
-  Room& active_room = rooms.at(Cell{0, 0});
-  VisibilityMap::renderAscii(rooms, active_room);
-  if (!VisibilityMap::renderPng(rooms, active_room))
-    SDL_Log("Failed to write map.png");
+  Room& active_room = *rooms.at(Cell{0, 0});
+  scene.active_rooms_changed = [rooms, &scene](const std::vector<Room*>&) {
+    VisibilityMap::renderAscii(rooms, scene.active_rooms);
+    if (!VisibilityMap::renderPng(rooms, scene.active_rooms))
+      SDL_Log("Failed to write map.png");
+  };
+  scene.setActiveRoom(active_room);
 
   // add a light on the first cell
   scene.light_manager.add(Light{.pos = glm::vec3(0.0f, 1.0f, 0.0f), .intensity = 5000.0f});
@@ -93,7 +93,7 @@ void HallwayGenerator::fillCells(std::vector<Cell>& visited, float spawn_chance,
   }
 }
 
-void HallwayGenerator::decorateRoom(Room& room, const Cell& cell, std::map<const Cell, Room&>& rooms, Scene& scene)
+void HallwayGenerator::decorateRoom(Room& room, const Cell& cell, std::map<const Cell, Room*>& rooms, Scene& scene)
 {
   const float room_size = 3.0f;
   glm::vec3 pos = glm::vec3(static_cast<float>(cell.first) * room_size, 0.0f, static_cast<float>(cell.second) * room_size);
@@ -118,7 +118,7 @@ void HallwayGenerator::decorateRoom(Room& room, const Cell& cell, std::map<const
     {
       ShapeData portal = createWall(Config::portal, floor, i);
       scene.plane_builder.build(portal);
-      room.addPortal(portal, rooms.at(neighbor_cell));
+      scene.room_manager.connect(room, portal, *rooms.at(neighbor_cell));
     }
 
     // add wall

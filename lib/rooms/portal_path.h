@@ -11,6 +11,7 @@ class PortalPath
 {
 public:
   PortalPath(Portal& first_portal, Portal& last_portal,
+             Room& current_room,
              const std::vector<glm::vec3>& source_vertices,
              const std::vector<glm::vec3>& clipped_vertices);
 
@@ -26,6 +27,7 @@ public:
 
   Portal& first_portal;
   Portal& last_portal;
+  Room& current_room;
   std::vector<glm::vec3> source_vertices;
   std::vector<glm::vec3> clipped_vertices;
   std::vector<glm::mat3> clipping_planes;
