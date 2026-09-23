@@ -106,6 +106,7 @@ file(GLOB_RECURSE SOURCES
 
 find_package(SDL3 REQUIRED)
 find_package(Bullet REQUIRED)
+find_package(ZLIB REQUIRED)
 
 add_executable(${PROJECT_NAME}
   ${PROJECT_DIR}/main.cpp
@@ -120,12 +121,22 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     TRACY_NO_SYSTEM_TRACING
     TRACY_NO_BROADCAST
   )
+
+  target_compile_options(${PROJECT_NAME} PRIVATE
+    -fsanitize=address
+    -fno-omit-frame-pointer
+  )
+
+  target_link_options(${PROJECT_NAME} PRIVATE
+    -fsanitize=address
+  )
 endif()
 
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
     SDL3::SDL3
     ${BULLET_LIBRARIES}
+    ZLIB::ZLIB
 )
 target_include_directories(${PROJECT_NAME}
   PUBLIC 

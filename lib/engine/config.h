@@ -37,27 +37,22 @@ struct Config
     static constexpr float wall_height = 3.0f;
   };
 
-  static inline const ShapeData graviton = {
-      .type = ShapeType::GRAVITON,
-      .pos = glm::vec3(0.0f), 
-      .scale = glm::vec3(10.0f),
-      .density = 1000.0f,
-      .color = {0.0f, 0.0f, 1.0f, 1.0f},
-  };
-
-  static inline const ShapeData asteroid = {
-      .type = ShapeType::ASTEROID,
-      .scale = glm::vec3(0.5f),
-      .density = 1.0f,
-      .color = {1.0f, 1.0f, 0.0f, 1.0f},
-  };
-
   static inline const ShapeData floor = {
       .type = ShapeType::PLANE,
       .pos = {0.0f, 0.0f, 0.0f},
       //.rotation = glm::angleAxis(glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
       .scale = {10.0f, 0.0f, 10.0f},
       .density = 1000.0f,
-      .color = {0.0f, 0.0f, 1.0f, 1.0f},
+      .color = SDL_FColor(0.0f, 0.0f, 0.0f, 1.0f)
+  };
+
+  static inline const ShapeData portal = {
+      .type = ShapeType::PLANE,
+      .is_visible = false,
+      .pos = {0.0f, 0.0f, 0.0f},
+      //.rotation = glm::angleAxis(glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+      .scale = {10.0f, 0.0f, 10.0f},
+      .density = 0.0f,
+      .color = SDL_FColor(1.0f, 0.0f, 0.0f, 1.0f)
   };
 };

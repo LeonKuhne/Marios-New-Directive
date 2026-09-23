@@ -13,13 +13,15 @@ void ShapeManager::add(Shape *shape)
 {
   shape->assignToWorld(ctx.world);
   shapes.push_back(shape);
+  if (shape->is_visible)
+    visible_shapes.push_back(shape);
 }
 
-void ShapeManager::add(ShapeData& data)
+Shape* ShapeManager::add(ShapeData& data)
 {
   Shape *shape = new Shape(data);
-  shape->assignToWorld(ctx.world);
-  shapes.push_back(shape);
+  add(shape);
+  return shape;
 }
 
 void ShapeManager::remove(Shape *shape)
@@ -50,13 +52,10 @@ void ShapeManager::updateRenderVars(Frame &frame, SDL_GPUCopyPass *copy_pass)
 }
 */
 
-
 void ShapeManager::render(Scene& scene, SDL_GPURenderPass *render_pass)
 {
-  pbr_pipeline.startRender(render_pass);
-  // render frame
-  for (Shape *shape : shapes)
+  for (Shape *shape : visible_shapes)
   {
-    pbr_pipeline.render(scene, shape);
+    scene.pbr_pipeline.render(scene, shape);
   }
 }

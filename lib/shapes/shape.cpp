@@ -8,11 +8,12 @@
 #include "lib/engine/config.h"
 
 Shape::Shape(const ShapeData &info)
-    : color(info.color),
+    : type(info.type),
+      color(info.color),
       mesh(info.mesh),
       scale(info.scale),
       density(info.density),
-      type(info.type)
+      is_visible(info.is_visible)
 {
   std::unordered_set<ushort> unique_indices = vec2set<ushort>(info.mesh.indices);
   bool has_collider = density != 0.0f;
@@ -133,12 +134,13 @@ ShapeData Shape::getShapeDataStarter()
   btTransform transform;
   body->getMotionState()->getWorldTransform(transform);
   return ShapeData{
-      .pos = asGlmVec3(transform.getOrigin()),
-      .rotation = asGlmQuat(transform.getRotation()),
-      .scale = scale,
-      .density = density,
-      .linear_velocity = asGlmVec3(body->getLinearVelocity()),
-      .angular_velocity = asGlmVec3(body->getAngularVelocity()),
-      .color = color,
+    .is_visible = is_visible,
+    .pos = asGlmVec3(transform.getOrigin()),
+    .rotation = asGlmQuat(transform.getRotation()),
+    .scale = scale,
+    .density = density,
+    .linear_velocity = asGlmVec3(body->getLinearVelocity()),
+    .angular_velocity = asGlmVec3(body->getAngularVelocity()),
+    .color = color,
   };
 }

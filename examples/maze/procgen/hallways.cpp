@@ -21,31 +21,43 @@ void HallwayGenerator::generate(Scene& scene, uint seed)
 {
   srand(seed);
 
-  int max_rooms = 1000;
+  int max_rooms = 100;
   const float spawn_room_chance = 0.5f;
 
   std::vector<Cell> visited = {};
   fillCells(visited, spawn_room_chance, max_rooms);
 
-  // construct rooms
-  for (Cell& cell : visited)
-  {
-    // generate room shapes
-    Room room;
-    decorateRoom(room, cell, visited, scene.light_manager);
+  // generate a room for each cell
+  size_t num_cells = visited.size();
+  for (int i=0; i<num_cells; i++)
+    scene.rooms.emplace_back(scene.ctx);
 
-    // add room shapes to scene
-    for (ShapeData& shape : room.getShapes())
-    {
-      scene.plane_builder.build(shape);
-      scene.shapes.add(shape);
-    }
+  // map rooms to cells
+  std::map<const Cell, Room&> rooms;
+  for (int i=0; i<num_cells; i++)
+    rooms.emplace(visited[i], scene.rooms[i]);
+
+  // generate room mesh
+  for (auto [cell, room] : rooms)
+    decorateRoom(room, cell, rooms, scene);
+
+  // update room/portal visibility
+  for (auto [cell, room] : rooms)
+  {
+    room.updateVisibility();
   }
+
+  Room& active_room = rooms.at(Cell{0, 0});
+  VisibilityMap::renderAscii(rooms, active_room);
+  if (!VisibilityMap::renderPng(rooms, active_room))
+    SDL_Log("Failed to write map.png");
+
+  // add a light on the first cell
+  scene.light_manager.add(Light{.pos = glm::vec3(0.0f, 1.0f, 0.0f), .intensity = 5000.0f});
 
   // register lights
-  if (scene.light_manager.lights.empty()) {
+  if (scene.light_manager.lights.empty())
     throw std::runtime_error("Failed hallway generation: no lights");
-  }
   scene.light_manager.updateLights();
 
   SDL_Log("Generated hallways with %zu lights, and %zu cells", scene.light_manager.lights.size(), visited.size());
@@ -81,39 +93,52 @@ void HallwayGenerator::fillCells(std::vector<Cell>& visited, float spawn_chance,
   }
 }
 
-void HallwayGenerator::decorateRoom(Room& room, Cell& cell, std::vector<Cell>& visited, LightManager& light_manager)
+void HallwayGenerator::decorateRoom(Room& room, const Cell& cell, std::map<const Cell, Room&>& rooms, Scene& scene)
 {
   const float room_size = 3.0f;
   glm::vec3 pos = glm::vec3(static_cast<float>(cell.first) * room_size, 0.0f, static_cast<float>(cell.second) * room_size);
 
   // create floor
   ShapeData floor = createFloor(pos, room_size, room_size);
-  room.addShape(floor);
+  scene.plane_builder.build(floor);
+  room.addSurface(floor);
 
   // create ceiling
   ShapeData ceiling = createCeiling(pos, room_size, room_size);
-  room.addShape(ceiling);
+  scene.plane_builder.build(ceiling);
+  room.addSurface(ceiling);
 
-  // add walls
   for (int i = 0; i < 4; i++)
   {
-    // if there isnt a room in this direction, generate a wall
-    Cell room_cell = getRoomCellInDirection(cell, i);
-    if (std::ranges::contains(visited, room_cell))
-      continue;
-    ShapeData wall = createWall(floor, i);
-    room.addShape(wall);
+    Cell neighbor_cell = getRoomCellInDirection(cell, i);
+    bool has_neighbor = rooms.contains(neighbor_cell);
+
+    // add portal
+    if (has_neighbor)
+    {
+      ShapeData portal = createWall(Config::portal, floor, i);
+      scene.plane_builder.build(portal);
+      room.addPortal(portal, rooms.at(neighbor_cell));
+    }
+
+    // add wall
+    else
+    {
+      ShapeData wall = createWall(Config::floor, floor, i);
+      scene.plane_builder.build(wall);
+      room.addSurface(wall);
+    }
   }
 
   // add light
   const float spawn_light_chance = 0.1f;
   if (static_cast<float>(rand()) / RAND_MAX < spawn_light_chance)
   {
-    light_manager.add(Light{.pos = glm::vec3(pos.x, pos.y + 1.0f, pos.z), .intensity = 5000.0f});
+    scene.light_manager.add(Light{.pos = glm::vec3(pos.x, pos.y + 1.0f, pos.z), .intensity = 5000.0f});
   }
 }
 
-Edge HallwayGenerator::getEdge(ShapeData& plane, int idx)
+Edge HallwayGenerator::getEdge(const ShapeData& plane, int idx)
 {
   glm::vec3 offset = glm::vec3(0.0f);
   float size;
@@ -148,18 +173,18 @@ ShapeData HallwayGenerator::createCeiling(glm::vec3 position, float width, float
   return ceiling;
 }
 
-ShapeData HallwayGenerator::createWall(ShapeData& base, int idx)
+ShapeData HallwayGenerator::createWall(const ShapeData& base, const ShapeData& floor, int idx)
 {
-  Edge edge = getEdge(base, idx);
-  ShapeData wall = Config::floor;
+  Edge edge = getEdge(floor, idx);
+  ShapeData wall = base;
   const float height = Config::HallwaySettings::wall_height;
   if (idx % 2 == 0)
     wall.scale = glm::vec3(height, 0.0f, edge.size);
   else
     wall.scale = glm::vec3(edge.size, 0.0f, height);
-  glm::vec3 world_offset = base.rotation * (edge.offset + glm::vec3(0, height / 2.0f, 0));
-  wall.pos = base.pos + world_offset;
-  wall.rotation = base.rotation * glm::rotation(
+  glm::vec3 world_offset = floor.rotation * (edge.offset + glm::vec3(0, height / 2.0f, 0));
+  wall.pos = floor.pos + world_offset;
+  wall.rotation = floor.rotation * glm::rotation(
     glm::vec3(0.0f, 1.0f, 0.0f),
     glm::normalize(-edge.offset)
   );

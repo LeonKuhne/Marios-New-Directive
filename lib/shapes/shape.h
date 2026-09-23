@@ -17,12 +17,15 @@ private:
 public:
   btRigidBody *body;
   glm::vec3 center_offset = glm::vec3(0.0f);
-  glm::vec3 scale;
+
   SDL_FColor color;
   Mesh mesh;
+  glm::vec3 scale;
+  float density;
+  bool is_visible;
+
   bool selected = false;
   float volume = 0.0f;
-  float density;
   bool is_static;
 
   Shape(const ShapeData &info);

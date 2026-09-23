@@ -3,7 +3,7 @@
 
 int main() {
   Engine engine = Engine();
-  HallwayGenerator::generate(engine.getScene(), 80085);
+  HallwayGenerator::generate(engine.getScene(), 580085);
   engine.run();
   return EXIT_SUCCESS;
 }

@@ -1,12 +1,12 @@
 #include "scene.h"
 #include "lib/pbr/gpu_stored_object.h"
-#include "lib/shapes/shape.h"
 #include "lib/engine/config.h"
 #include <tracy/Tracy.hpp>
 #include "lib/gpu/transfer.h"
 
 Scene::Scene(bool &running, Mouse &mouse)
     : window(Window(ctx)),
+      pbr_pipeline(PBRPipeline(ctx)),
 
       // game objects
       player(Player({ .pos = Config::PlayerSettings::spawn_pos })),
@@ -18,13 +18,14 @@ Scene::Scene(bool &running, Mouse &mouse)
       pbr_materials(ctx.gpu),
 
       // rendering
-      shapes(ShapeManager(ctx)),
       light_manager(LightManager(ctx.gpu)),
       frame(Frame(window)),
 
       // game state
       running(running)
 {
+  static Scene *scene_instance = this;
+
   // upload pending updates
   transfer(ctx.gpu, [this](SDL_GPUCopyPass *pass) {
     GPUStoredObject::processPendingUpdates(pass);
@@ -39,14 +40,13 @@ Scene::Scene(bool &running, Mouse &mouse)
     }, static_cast<void *>(this) // <-- passed as worldUserInfo
   );
 
-  // handle graviton collisions
-  static Scene *scene_instance = this;
+  ctx.world->addRigidBody(player.body);
+
+  // handle collisions
   gContactStartedCallback = [](btPersistentManifold *const &manifold)
   {
     scene_instance->checkCollision(manifold);
   };
-
-  ctx.world->addRigidBody(player.body);
 }
 
 void Scene::setup(Mouse &mouse)
@@ -54,7 +54,10 @@ void Scene::setup(Mouse &mouse)
   // setup render passes
   frame.addPass([this, &mouse](Frame &frame, SDL_GPURenderPass *pass)
     {
-      shapes.render(*this, pass);
+      pbr_pipeline.startRender(pass);
+
+      // render active rooms
+      rooms[0].render(*this, pass);
     }
   );
 }
@@ -76,13 +79,6 @@ void Scene::gravityTick(btScalar timeStep)
   constexpr btScalar gravity_strength = 9.8f;
   const btVector3 gravity_dir(0.0f, -1.0f, 0.0f);
 
-  for (Shape *shape : shapes.shapes)
-  {
-    if (shape->is_static || !shape->body)
-      continue;
-    shape->body->setGravity(gravity_dir * gravity_strength);
-  }
-
   btScalar gravity = gravity_strength;
   player.body->setGravity(gravity_dir * gravity);
 }
@@ -100,21 +96,6 @@ void Scene::checkCollision(btPersistentManifold *const &manifold)
 
   ushort type_a = shape_a->getType();
   ushort type_b = shape_b->getType();
-
-  // Graviton collision.
-  if (type_a == ShapeType::GRAVITON || type_b == ShapeType::GRAVITON)
-  {
-    if (type_a == ShapeType::GRAVITON)
-    {
-      if (type_b == ShapeType::ASTEROID)
-        shapes.remove(static_cast<Shape *>(shape_b));
-    }
-    else
-    {
-      if (type_a == ShapeType::ASTEROID)
-        shapes.remove(static_cast<Shape *>(shape_a));
-    }
-  }
 
   // Player grounding.
   if (body_a == player.body || body_b == player.body)

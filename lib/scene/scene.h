@@ -7,6 +7,7 @@
 #include "lib/pbr/pbr_materials.h"
 #include "lib/pbr/pbr_vertices.h"
 #include "lib/render/context.h"
+#include "lib/rooms/room.h"
 #include "lib/shapes/shape_manager.h"
 #include "lib/render/frame.h"
 #include "lib/render/window.h"
@@ -19,6 +20,7 @@ public:
   Context ctx;
   Window window;
   std::vector<glm::vec3> all_vertices;
+  PBRPipeline pbr_pipeline;
 
   // game objects
   Player player;
@@ -31,8 +33,9 @@ public:
   
   // rendering
   Frame frame;
-  ShapeManager shapes;
   LightManager light_manager;
+  std::vector<Room> rooms;
+  std::vector<Room*> active_rooms;
 
   // game state
   bool &running;

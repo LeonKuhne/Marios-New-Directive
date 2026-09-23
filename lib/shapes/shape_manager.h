@@ -12,16 +12,16 @@ struct ShapeData;
 class ShapeManager
 {
   Context &ctx;
-  PBRPipeline pbr_pipeline;
 
 public:
-  std::vector<Shape *> shapes;
+  std::vector<Shape*> shapes;
+  std::vector<Shape*> visible_shapes;
 
-  ShapeManager(Context &ctx) : ctx(ctx), pbr_pipeline(PBRPipeline(ctx)) {};
+  ShapeManager(Context &ctx) : ctx(ctx) {};
   ~ShapeManager();
 
   void add(Shape *shape);
-  void add(ShapeData& data);
+  Shape* add(ShapeData& data);
   void remove(Shape *shape);
   void render(Scene& scene, SDL_GPURenderPass *pass);
 };
