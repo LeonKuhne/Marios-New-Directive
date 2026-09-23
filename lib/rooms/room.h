@@ -16,7 +16,7 @@ public:
   Room(Context& ctx) : shapes(ShapeManager(ctx)) { portals.reserve(4); };
 
   void addSurface(ShapeData& shape_data);
-  void addPortal(Portal& portal);
+  void addPortal(Portal* portal);
   void updateVisibility();
   void render(Scene& scene, SDL_GPURenderPass *pass);
   bool isVisibleFrom(const Room& observer) const;

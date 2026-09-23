@@ -7,8 +7,8 @@ void Room::addSurface(ShapeData& shape_data) {
   shapes.add(shape_data);
 }
 
-void Room::addPortal(Portal& portal) {
-  portals.emplace_back(&portal);
+void Room::addPortal(Portal* portal) {
+  portals.emplace_back(portal);
 }
 
 void Room::updateVisibility()
@@ -25,9 +25,7 @@ void Room::updateVisibility()
       path.addVisitedRoom(*this);
       path.addVisitedRoom(path.current_room);
       path.addVisitedRoom(target_portal->otherRoom(path.current_room));
-      PortalClipper::eachPlane(path, [&](const glm::mat3& plane) {
-        path.addClippingPlane(plane);
-      }, false);
+      PortalClipper::eachPlane(path, [&](const glm::mat3& plane) { path.addClippingPlane(plane); });
       if (&path.current_room != this)
         visible_rooms.emplace(&path.current_room);
       Room& target_room = target_portal->otherRoom(path.current_room);
@@ -59,7 +57,7 @@ void Room::updateVisibility()
           continue;
 
         // clip the next portals vertices to see if visible
-        clipped_target.second = PortalClipper::clip(plane, clipped_target.second);
+        clipped_target.second = PortalClipper::clip(path.first_portal.center, plane, clipped_target.second);
       }
     }
 

@@ -18,13 +18,13 @@ void RoomManager::connect(Room& first, ShapeData& portal_data, Room& second)
   Shape* shape = first.shapes.add(portal_data);
   owned_portals.emplace_back(std::make_unique<Portal>(shape, first, second));
   Portal* portal = owned_portals.back().get();
-  first.addPortal(*portal);
-  second.addPortal(*portal);
+  first.addPortal(portal);
+  second.addPortal(portal);
 
   portal_connections.push_back({
-    &first,
-    &second,
-    portal,
+    .room_a=&first,
+    .room_b=&second,
+    .portal=portal,
   });
 }
 

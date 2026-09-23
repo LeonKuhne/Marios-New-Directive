@@ -64,15 +64,15 @@ void Portal::eachTargetPlane(Portal& destination, const std::vector<glm::vec3>& 
 glm::vec3 Portal::furthestVertexInDirection(glm::vec3 target_direction, const std::vector<glm::vec3>& vertices)
 {
   int closest_idx;
-  float max_dot = -std::numeric_limits<float>::infinity(); // closest to 1 means most aligned
+  float min_dot = std::numeric_limits<float>::infinity(); // closest to 1 means most aligned
   for (int i=0; i<vertices.size(); i++)
   {
     glm::vec3 displacement = vertices[i] - center;
     float dot = glm::dot(target_direction, displacement);
-    if (dot < max_dot)
+    if (dot > min_dot)
       continue;
     closest_idx = i;
-    max_dot = dot;
+    min_dot = dot;
   }
   return vertices[closest_idx];
 }

@@ -1,3 +1,4 @@
+[ ] fix portal culling using plane debug visuals
 [ ] refactor to store objects in an object buffer on the gpu, then execute one draw call to dispatch many vertex shaders to process the objects
 [ ] move shader var loading to gpu buffers
 [ ] switch to using mathematical object rendering
