@@ -14,8 +14,12 @@ struct Edge
 class HallwayGenerator
 {
 public:
-    static void generate(Scene& scene, uint seed);
+    void generate(Scene& scene, uint seed);
+    void renderMap(std::vector<Room*>& active_rooms);
+
 private:
+    std::map<const Cell, Room*> rooms;
+
     static void fillCells(std::vector<Cell>& visited, float spawn_chance, int max_cells);
     static Edge getEdge(const ShapeData& plane, int idx);
 

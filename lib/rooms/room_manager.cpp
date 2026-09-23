@@ -8,15 +8,26 @@ Room& RoomManager::createRoom()
   return *owned_rooms.back();
 }
 
-void RoomManager::connect(Room& first, ShapeData& portal_data, Room& second)
+void RoomManager::connect(Room& first, ShapeData& shape_data, Room& second)
 {
   Room* lower = std::min(&first, &second);
   Room* upper = std::max(&first, &second);
   if (!connections.emplace(lower, upper).second)
     return;
 
-  Shape* shape = first.shapes.add(portal_data);
-  owned_portals.emplace_back(std::make_unique<Portal>(shape, first, second));
+  // todo create a portal class that exetends trigger
+  // construct portal gameobject from shape data
+  const Trigger::Info info{
+    .solid = {
+      .shape = shape_data,
+      .density = shape_data.density
+    }
+  };
+  Trigger* trigger = new Trigger(info);
+  first.shapes.add(trigger);
+
+  // construct portal object
+  owned_portals.emplace_back(std::make_unique<Portal>(trigger, first, second));
   Portal* portal = owned_portals.back().get();
   first.addPortal(portal);
   second.addPortal(portal);
@@ -32,6 +43,12 @@ void RoomManager::updateVisibility()
 {
   for (const std::unique_ptr<Room>& room : owned_rooms)
     room->updateVisibility();
+}
+
+void RoomManager::render(Scene& scene, SDL_GPURenderPass *pass)
+{
+  for (Room* room : active_rooms)
+    room->render(scene, pass);
 }
 
 size_t RoomManager::ConnectionHash::operator()(const ConnectionKey& key) const

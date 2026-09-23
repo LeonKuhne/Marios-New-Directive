@@ -21,17 +21,10 @@ Scene::Scene(bool &running, Mouse &mouse)
       light_manager(LightManager(ctx.gpu)),
       frame(Frame(window)),
       room_manager(ctx),
-      collision_handler(player, room_manager),
 
       // game state
       running(running)
 {
-  collision_handler.setActiveRoomsCallback([this](const std::vector<Room*>& rooms) {
-    active_rooms = rooms;
-    if (active_rooms_changed)
-      active_rooms_changed(active_rooms);
-  });
-
   // upload pending updates
   transfer(ctx.gpu, [this](SDL_GPUCopyPass *pass) {
     GPUStoredObject::processPendingUpdates(pass);
@@ -47,19 +40,6 @@ Scene::Scene(bool &running, Mouse &mouse)
   );
 
   ctx.world->addRigidBody(player.body);
-
-}
-
-void Scene::setActiveRoom(Room& room)
-{
-  collision_handler.setCurrentRoom(room);
-  if (active_rooms.size() == 1 && active_rooms.front() == &room)
-    return;
-
-  active_rooms.clear();
-  active_rooms.emplace_back(&room);
-  if (active_rooms_changed)
-    active_rooms_changed(active_rooms);
 }
 
 void Scene::setup(Mouse &mouse)
@@ -69,8 +49,7 @@ void Scene::setup(Mouse &mouse)
     {
       pbr_pipeline.startRender(pass);
 
-      for (Room* room : active_rooms)
-        room->render(*this, pass);
+      room_manager.render(*this, pass);
     }
   );
 }

@@ -1,5 +1,4 @@
 #include "shape_manager.h"
-#include "shape.h"
 #include "lib/scene/scene.h"
 #include <algorithm>
 
@@ -7,14 +6,21 @@ ShapeManager::~ShapeManager()
 {
   for (Shape *shape : shapes)
     delete shape;
+  for (Solid *solid : visible_shapes)
+    delete solid;
 }
 
 void ShapeManager::add(Shape *shape)
 {
-  shape->assignToWorld(ctx.world);
   shapes.push_back(shape);
-  if (shape->is_visible)
-    visible_shapes.push_back(shape);
+}
+
+void ShapeManager::add(Solid *solid)
+{
+  solid->assignToWorld(ctx.world);
+  add(static_cast<Shape*>(solid));
+  if (solid->is_visible)
+    visible_shapes.push_back(solid);
 }
 
 Shape* ShapeManager::add(ShapeData& data)
@@ -29,14 +35,6 @@ void ShapeManager::remove(Shape *shape)
   auto it = std::find(shapes.begin(), shapes.end(), shape);
   if (it == shapes.end())
     return;
-
-  if (shape->body)
-  {
-    ctx.world->removeRigidBody(shape->body);
-    shape->body->setCollisionFlags(shape->body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
-    shape->body->setActivationState(DISABLE_DEACTIVATION);
-  }
-
   shapes.erase(it);
   delete shape;
 }
@@ -54,8 +52,8 @@ void ShapeManager::updateRenderVars(Frame &frame, SDL_GPUCopyPass *copy_pass)
 
 void ShapeManager::render(Scene& scene, SDL_GPURenderPass *render_pass)
 {
-  for (Shape *shape : visible_shapes)
+  for (Solid *solid : visible_shapes)
   {
-    scene.pbr_pipeline.render(scene, shape);
+    scene.pbr_pipeline.render(scene, solid);
   }
 }

@@ -2,7 +2,7 @@
 #include <glm/ext/vector_float3.hpp>
 #include <glm/fwd.hpp>
 
-Player::Player(PlayerInfo info)
+Player::Player(Info info)
 {
   btVector3 localInertia;
   btScalar capsule_height = Config::PlayerSettings::height - 2.0f * Config::PlayerSettings::radius;
@@ -21,15 +21,14 @@ Player::Player(PlayerInfo info)
   transform.setOrigin(asBtVector3(info.pos - glm::vec3(0.0f, Config::PlayerSettings::height * 0.5f, 0.0f)));
 
   btDefaultMotionState *motionState = new btDefaultMotionState(transform);
-  btRigidBody::btRigidBodyConstructionInfo rbInfo(info.mass, motionState, player_collider, localInertia);
-  body = new btRigidBody(rbInfo);
+  btRigidBody::btRigidBodyConstructionInfo bodyInfo(info.mass, motionState, player_collider, localInertia);
+  body = new PlayerBody(*this, Config::Colliders::PLAYER, bodyInfo);
   body->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
   body->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
   body->setDamping(info.linear_damping, info.angular_damping);
   body->setFriction(1.0f);
   body->setRollingFriction(0.0f);
   body->setRestitution(0.0f);
-  body->setUserPointer(this);
   body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 }
 
@@ -86,69 +85,4 @@ void Player::jump()
                           : glm::vec3(0.0f, 1.0f, 0.0f);
   body->activate(true);
   body->applyCentralImpulse(asBtVector3(up_axis * Config::PlayerSettings::jump_strength * body->getMass()));
-}
-
-void Player::setupGroundedListener()
-{
-    gContactAddedCallback = [](btManifoldPoint &cp, 
-      const btCollisionObjectWrapper *a, int partIdA, int indexA,
-      const btCollisionObjectWrapper *b, int partIdB, int indexB)
-    {
-
-        Player *player = Player::isPlayerCollidingWithGround(a->getCollisionObject(), b->getCollisionObject());
-        if (!player)
-          return true;
-
-        btVector3 normal = cp.m_normalWorldOnB;
-
-        // Make normal point from the ground toward the player.
-        if (b->getCollisionObject()->getUserPointer() == player)
-          normal = -normal;
-
-        if (normal.getY() > 0.5f)
-          player->isGrounded = true;
-        return true;
-    };
-
-    gContactEndedCallback = [](btPersistentManifold *const &manifold)
-    {
-        Player *player = Player::isPlayerCollidingWithGround(manifold->getBody0(), manifold->getBody1());
-        if (player)
-            player->isGrounded = false;
-    };
-}
-
-Player *Player::isPlayerCollidingWithGround(const btCollisionObject *a, const btCollisionObject *b)
-{
-    if (!a->getUserPointer() || !b->getUserPointer())
-        return nullptr;
-
-    auto *shape_a = static_cast<ShapeBase *>(a->getUserPointer());
-    auto *shape_b = static_cast<ShapeBase *>(b->getUserPointer());
-
-    if (shape_a->getType() == ShapeType::PLANE &&
-        shape_b->getType() == ShapeType::PLAYER)
-        return static_cast<Player *>(b->getUserPointer());
-
-    if (shape_a->getType() == ShapeType::PLAYER &&
-        shape_b->getType() == ShapeType::PLANE)
-        return static_cast<Player *>(a->getUserPointer());
-
-    return nullptr;
-}
-
-Player *Player::isPlayerGravitonCollision(const btCollisionObject *a, const btCollisionObject *b)
-{
-  if (!a->getUserPointer() || !b->getUserPointer())
-    return nullptr;
-
-  uint type_a = static_cast<ShapeBase *>(a->getUserPointer())->getType();
-  uint type_b = static_cast<ShapeBase *>(b->getUserPointer())->getType();
-  if (type_a == ShapeType::GRAVITON && type_b == ShapeType::PLAYER) {
-    return static_cast<Player *>(b->getUserPointer());
-  } else if (type_a == ShapeType::PLAYER && type_b == ShapeType::GRAVITON) {
-    return static_cast<Player *>(a->getUserPointer());
-  }
-
-  return nullptr;
 }

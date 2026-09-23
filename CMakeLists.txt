@@ -122,14 +122,14 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     TRACY_NO_BROADCAST
   )
 
-  target_compile_options(${PROJECT_NAME} PRIVATE
-    -fsanitize=address
-    -fno-omit-frame-pointer
-  )
+  #target_compile_options(${PROJECT_NAME} PRIVATE
+  #  -fsanitize=address
+  #  -fno-omit-frame-pointer
+  #)
 
-  target_link_options(${PROJECT_NAME} PRIVATE
-    -fsanitize=address
-  )
+  #target_link_options(${PROJECT_NAME} PRIVATE
+  #  -fsanitize=address
+  #)
 endif()
 
 target_link_libraries(${PROJECT_NAME}

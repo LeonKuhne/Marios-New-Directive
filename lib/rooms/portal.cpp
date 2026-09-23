@@ -4,24 +4,32 @@
 #include <limits>
 #include <unordered_set>
 
-Portal::Portal(Shape* shape, Room& room_a, Room& room_b)
-  : shape(shape), room_a(room_a), room_b(room_b) {
+Portal::Portal(Trigger* trigger, Room& room_a, Room& room_b)
+  : trigger(trigger), room_a(room_a), room_b(room_b) 
+{
   // assign vertices and compute center
   center = glm::vec3(0.0f);
-  // todo use global coordinates here instead of local
   std::unordered_set<ushort> seen_indices;
-  for (size_t vertex_index : shape->mesh.indices)
+  for (size_t vertex_index : trigger->mesh.indices)
   {
     if (!seen_indices.emplace(vertex_index).second)
       continue;
-    glm::vec3 local_vertex = shape->mesh.all_vertices->at(vertex_index);
-    glm::vec3 global_vertex = shape->inGlobalSpace(local_vertex);
+    glm::vec3 local_vertex = trigger->mesh.all_vertices->at(vertex_index);
+    glm::vec3 global_vertex = trigger->inGlobalSpace(local_vertex);
     vertices.emplace_back(global_vertex);
     center += global_vertex;
   }
   center /= vertices.size();
   reverse_vertices = vertices;
   std::reverse(reverse_vertices.begin(), reverse_vertices.end());
+
+  // handle portal triggers
+  trigger->body->on_enter = [this](CollisionEvent& event) {
+    // todo
+  };
+  trigger->body->on_exit = [this](CollisionEvent& event) {
+    // todo
+  };
 }
 
 glm::vec3 Portal::normal() const
@@ -54,14 +62,14 @@ void Portal::eachTargetPlane(Portal& destination, const std::vector<glm::vec3>& 
     glm::vec3 b = source_vertices[(i + 1) % source_vertices.size()];
     glm::vec3 average_vertex = (a + b) / 2.0f;
     glm::vec3 average_displacement = average_vertex - source_center;
-    glm::vec3 destination_vertex = destination.furthestVertexInDirection(average_displacement, destination_vertices);
+    glm::vec3 destination_vertex = destination.furthestVertexOppositeDirection(average_displacement, destination_vertices);
     if (destination_vertex == a || destination_vertex == b)
         continue;
     callback(glm::mat3(a, b, destination_vertex));
   }
 }
 
-glm::vec3 Portal::furthestVertexInDirection(glm::vec3 target_direction, const std::vector<glm::vec3>& vertices)
+glm::vec3 Portal::furthestVertexOppositeDirection(glm::vec3 target_direction, const std::vector<glm::vec3>& vertices)
 {
   int closest_idx;
   float min_dot = std::numeric_limits<float>::infinity(); // closest to 1 means most aligned

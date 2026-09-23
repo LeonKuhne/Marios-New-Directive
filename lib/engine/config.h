@@ -3,17 +3,15 @@
 #include <sys/types.h>
 #include "lib/shapes/shape_data.h"
 
-enum ShapeType : uint8_t
-{
-  GRAVITON = 1,
-  ASTEROID = 2,
-  PLAYER = 3,
-  PLANE = 4,
-  PORTAL = 5,
-};
-
 struct Config
 {
+  enum Colliders : uint8_t
+  {
+    PLAYER = 0,
+    PORTAL = 1,
+    SURFACE = 2,
+  };
+
   struct PlayerSettings
   {
     static constexpr glm::vec3 spawn_pos = glm::vec3(0.0f, 0.5f, 0.0f);
@@ -39,7 +37,7 @@ struct Config
   };
 
   static inline const ShapeData floor = {
-      .type = ShapeType::PLANE,
+      .collider_type = Config::Colliders::SURFACE,
       .pos = {0.0f, 0.0f, 0.0f},
       //.rotation = glm::angleAxis(glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
       .scale = {10.0f, 0.0f, 10.0f},
@@ -48,9 +46,8 @@ struct Config
   };
 
   static inline const ShapeData portal = {
-      .type = ShapeType::PORTAL,
+      .collider_type = Config::Colliders::PORTAL,
       .is_visible = false,
-      .is_trigger = true,
       .pos = {0.0f, 0.0f, 0.0f},
       //.rotation = glm::angleAxis(glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
       .scale = {10.0f, 0.0f, 10.0f},

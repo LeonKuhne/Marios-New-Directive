@@ -3,7 +3,9 @@
 
 int main() {
   Engine engine = Engine();
-  HallwayGenerator::generate(engine.getScene(), 580085);
+  HallwayGenerator hallwayGenerator;
+  hallwayGenerator.generate(engine.getScene(), 580085);
+  //hallwayGenerator.renderMap(engine.getScene().roomManager.active_rooms);
   engine.run();
   return EXIT_SUCCESS;
 }

@@ -9,9 +9,8 @@
 
 struct ShapeData
 {
-  ushort type;
+  uint8_t collider_type;
   bool is_visible = true;
-  bool is_trigger = false;
   glm::vec3 pos = glm::vec3(0.0f);
   glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
   glm::vec3 scale = glm::vec3(1.0f);

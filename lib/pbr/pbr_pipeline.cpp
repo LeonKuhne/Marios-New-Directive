@@ -1,8 +1,7 @@
 #include "pbr_pipeline.h"
 #include "lib/scene/scene.h"
-#include "lib/shapes/shape.h"
 
-void PBRPipeline::render(Scene &scene, Shape *shape)
+void PBRPipeline::render(Scene &scene, Solid *solid)
 {
   struct PushConstants
   {
@@ -18,7 +17,7 @@ void PBRPipeline::render(Scene &scene, Shape *shape)
 
   // setup ubo uniform data
   ubo_uniform_data.projection = camera.projection;
-  shape->getTransform(ubo_uniform_data.model);
+  solid->getTransform(ubo_uniform_data.model);
   ubo_uniform_data.view = camera.view;
   ubo_uniform_data.camPos = camera.camera_pos;
 
@@ -41,7 +40,7 @@ void PBRPipeline::render(Scene &scene, Shape *shape)
   SDL_BindGPUVertexBuffers(render_pass, 0, &vertexBinding, 1);
 
   // submit index buffers
-  SDL_GPUBufferBinding indexBinding{shape->mesh.index_buffer, 0};
+  SDL_GPUBufferBinding indexBinding{solid->mesh.index_buffer, 0};
   SDL_BindGPUIndexBuffer(render_pass, &indexBinding, SDL_GPU_INDEXELEMENTSIZE_16BIT);
 
   // bind storage buffers
@@ -68,5 +67,5 @@ void PBRPipeline::render(Scene &scene, Shape *shape)
   SDL_BindGPUFragmentSamplers(render_pass, 7, &brdf_binding, 1);
 
   // draw
-  SDL_DrawGPUIndexedPrimitives(render_pass, shape->mesh.indices.size(), 1, 0, 0, 0);
+  SDL_DrawGPUIndexedPrimitives(render_pass, solid->mesh.indices.size(), 1, 0, 0, 0);
 }

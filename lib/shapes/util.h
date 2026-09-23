@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/ext/vector_float3.hpp>
+#include <sys/types.h>
 #include <vector>
 #include <unordered_set>
 

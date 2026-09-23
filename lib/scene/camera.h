@@ -3,9 +3,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include "lib/player/player.h"
 #include "lib/render/window.h"
 #include "lib/controls/mouse.h"
-#include "player.h"
 
 class Camera
 {
@@ -50,8 +50,8 @@ public:
   glm::vec3 screenToWorld(int x, int y, float depth = 0.98f)
   {
     // convert screen coordinates to NDC
-    float ndc_x = (2.0f * x) / window.width - 1.0f;
-    float ndc_y = 1.0f - (2.0f * y) / window.height;
+    float ndc_x = ((2.0f * (float) x) / (float) window.width) - 1.0f;
+    float ndc_y = 1.0f - (2.0f * (float) y) / (float) window.height;
     float ndc_z = depth;
     glm::vec4 clip_coords = glm::vec4(ndc_x, ndc_y, ndc_z, 1.0f);
 

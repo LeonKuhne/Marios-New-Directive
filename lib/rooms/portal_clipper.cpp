@@ -29,27 +29,24 @@ std::vector<glm::vec3> PortalClipper::clip(const glm::vec3& first_portal_center,
   result.reserve(target_polygon.size() + 2);
 
   for (size_t i = 0; i < target_polygon.size(); ++i)
-  {
+{
     const glm::vec3& current = target_polygon[i];
     const glm::vec3& next = target_polygon[(i + 1) % target_polygon.size()];
+
     float current_distance = distance(current);
     float next_distance = distance(next);
+
     bool current_inside = current_distance >= -clip_epsilon;
     bool next_inside = next_distance >= -clip_epsilon;
 
-    if (current_inside && next_inside)
-      result.push_back(next);
-    else if (current_inside && !next_inside)
+    if (current_inside != next_inside)
     {
-      float t = current_distance / (current_distance - next_distance);
-      result.push_back(current + t * (next - current));
+        float t = current_distance / (current_distance - next_distance);
+        result.push_back(current + t * (next - current));
     }
-    else if (!current_inside && next_inside)
-    {
-      float t = current_distance / (current_distance - next_distance);
-      result.push_back(current + t * (next - current));
-      result.push_back(next);
-    }
+
+    if (next_inside)
+        result.push_back(next);
   }
 
   return result;

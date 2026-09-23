@@ -4,7 +4,8 @@
 #include "portal_path.h"
 
 void Room::addSurface(ShapeData& shape_data) {
-  shapes.add(shape_data);
+  Solid *solid = new Solid({.shape = shape_data});
+  shapes.add(solid);
 }
 
 void Room::addPortal(Portal* portal) {
