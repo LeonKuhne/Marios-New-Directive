@@ -39,6 +39,11 @@ void RoomManager::connect(Room& first, ShapeData& shape_data, Room& second)
   });
 }
 
+void RoomManager::setActive(Room& room)
+{
+  active_rooms.push_back(&room);
+}
+
 void RoomManager::updateVisibility()
 {
   for (const std::unique_ptr<Room>& room : owned_rooms)

@@ -78,7 +78,7 @@ void HallwayGenerator::fillCells(std::vector<Cell>& visited, float spawn_chance,
         continue;
 
       // chance to create new room
-      if (static_cast<float>(rand()) / RAND_MAX < spawn_chance)
+      if (rand() / static_cast<float>(RAND_MAX) < spawn_chance)
         unvisited.push_back(room_cell);
     }
   }
@@ -123,7 +123,7 @@ void HallwayGenerator::decorateRoom(Room& room, const Cell& cell, std::map<const
 
   // add light
   const float spawn_light_chance = 0.1f;
-  if (static_cast<float>(rand()) / RAND_MAX < spawn_light_chance)
+  if (rand() / static_cast<float>(RAND_MAX) < spawn_light_chance)
   {
     scene.light_manager.add(Light{.pos = glm::vec3(pos.x, pos.y + 1.0f, pos.z), .intensity = 5000.0f});
   }

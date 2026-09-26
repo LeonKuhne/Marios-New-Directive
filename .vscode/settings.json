@@ -1,5 +1,5 @@
 {
     "cmake.configureEnvironment": {
-        "NAME": "maze"
+        "NAME": "test"
     }
 }

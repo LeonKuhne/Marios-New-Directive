@@ -21,6 +21,7 @@ public:
   void connect(Room& first, ShapeData& portal, Room& second);
   void updateVisibility();
   void render(Scene& scene, SDL_GPURenderPass *pass);
+  void setActive(Room& room);
 
   const std::vector<Room*>& rooms() const { return room_pointers; }
   const std::vector<PortalConnection>& portals() const { return portal_connections; }
