@@ -10,8 +10,14 @@ class CollisionManager
 public:
   CollisionManager()
   {
-    gContactStartedCallback = &enterCollision;
-    gContactEndedCallback = &exitCollision;
+    gContactStartedCallback = [](btPersistentManifold *const &manifold)
+    {
+      enterCollision(manifold);
+    };
+    gContactEndedCallback = [](btPersistentManifold *const &manifold)
+    {
+      exitCollision(manifold);
+    };
   }
 
   static void enterCollision(btPersistentManifold* const& manifold);

@@ -5,6 +5,10 @@
 Solid::Solid(const Solid::Info &info)
   : Shape(info.shape)
 {
+  // create collider
+  collider = new btConvexHullShape((btScalar *)centered_vertices.data(), (int) centered_vertices.size(), sizeof(glm::vec3));
+  collider->setLocalScaling(asBtVector3(scale));
+
   // create body
   btRigidBody::btRigidBodyConstructionInfo rbInfo(
     0.0f, 
@@ -12,10 +16,6 @@ Solid::Solid(const Solid::Info &info)
     collider, 
     btVector3(0,0,0));
   body = new ColliderBody(info.shape.collider_type, rbInfo);
-
-  // create collider
-  collider = new btConvexHullShape((btScalar *)centered_vertices.data(), (int) centered_vertices.size(), sizeof(glm::vec3));
-  collider->setLocalScaling(asBtVector3(scale));
 }
 
 Solid::~Solid()
