@@ -2,8 +2,7 @@
 
 #include "lib/rooms/room.h"
 #include <map>
-
-using Cell = std::pair<int, int>;
+#include "cell.h"
 
 class VisibilityMap
 {

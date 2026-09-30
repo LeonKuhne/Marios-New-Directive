@@ -6,16 +6,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include "lib/engine/config.h"
 #include <algorithm>
-
-static Cell getRoomCellInDirection(Cell cell, int i) {
-  switch (i) {
-    case 0: return std::make_pair(cell.first + 1, cell.second);
-    case 1: return std::make_pair(cell.first, cell.second + 1);
-    case 2: return std::make_pair(cell.first - 1, cell.second);
-    case 3: return std::make_pair(cell.first, cell.second - 1);
-    default: return cell;
-  }
-}
+#include "cell_walk.h"
 
 void HallwayGenerator::generate(Scene& scene, uint seed)
 {
@@ -25,7 +16,7 @@ void HallwayGenerator::generate(Scene& scene, uint seed)
   const float spawn_room_chance = 0.5f;
 
   std::vector<Cell> visited = {};
-  fillCells(visited, spawn_room_chance, max_rooms);
+  CellWalk::fillCells(visited, spawn_room_chance, max_rooms);
 
   // generate a room for each cell
   size_t num_cells = visited.size();
@@ -54,40 +45,10 @@ void HallwayGenerator::generate(Scene& scene, uint seed)
   SDL_Log("Generated hallways with %zu lights, and %zu cells", scene.light_manager.lights.size(), visited.size());
 }
 
-void HallwayGenerator::fillCells(std::vector<Cell>& visited, float spawn_chance, int max_cells)
-{
-  std::vector<Cell> unvisited = {};
-  unvisited.emplace_back(0, 0);
-
-  // generate cells
-  while (!unvisited.empty() && max_cells > 0)
-  {
-    // basic depth first search algo
-    Cell cell = unvisited.back();
-    unvisited.pop_back();
-
-    // determine room cells
-    visited.emplace_back(cell);
-    max_cells--;
-
-    for (int i = 0; i < 4; i++)
-    {
-      Cell room_cell = getRoomCellInDirection(cell, i);
-      bool is_room_visited = std::ranges::contains(visited, room_cell);
-      if (is_room_visited)
-        continue;
-
-      // chance to create new room
-      if (rand() / static_cast<float>(RAND_MAX) < spawn_chance)
-        unvisited.push_back(room_cell);
-    }
-  }
-}
-
 void HallwayGenerator::decorateRoom(Room& room, const Cell& cell, std::map<const Cell, Room*>& rooms, Scene& scene)
 {
   const float room_size = 3.0f;
-  glm::vec3 pos = glm::vec3(static_cast<float>(cell.first) * room_size, 0.0f, static_cast<float>(cell.second) * room_size);
+  glm::vec3 pos = glm::vec3(static_cast<float>(cell.x) * room_size, 0.0f, static_cast<float>(cell.y) * room_size);
 
   // create floor
   ShapeData floor = createFloor(pos, room_size, room_size);
@@ -101,7 +62,7 @@ void HallwayGenerator::decorateRoom(Room& room, const Cell& cell, std::map<const
 
   for (int i = 0; i < 4; i++)
   {
-    Cell neighbor_cell = getRoomCellInDirection(cell, i);
+    Cell neighbor_cell = cell.getRoomCellInDirection(i);
     bool has_neighbor = rooms.contains(neighbor_cell);
 
     // add portal
