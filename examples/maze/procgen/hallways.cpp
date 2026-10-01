@@ -5,8 +5,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 #include "lib/engine/config.h"
-#include <algorithm>
 #include "cell_walk.h"
+#include "render_map.h"
 
 void HallwayGenerator::generate(Scene& scene, uint seed)
 {
@@ -15,7 +15,7 @@ void HallwayGenerator::generate(Scene& scene, uint seed)
   int max_rooms = 100;
   const float spawn_room_chance = 0.5f;
 
-  std::vector<Cell> visited = {};
+  std::vector<uint32_t> visited = {};
   CellWalk::fillCells(visited, spawn_room_chance, max_rooms);
 
   // generate a room for each cell
@@ -28,8 +28,8 @@ void HallwayGenerator::generate(Scene& scene, uint seed)
     rooms.emplace(visited[i], scene.room_manager.rooms().at(i));
 
   // generate room mesh
-  for (auto [cell, room] : rooms)
-    decorateRoom(*room, cell, rooms, scene);
+  for (auto [cell_hash, room] : rooms)
+    decorateRoom(*room, cell_hash, rooms, scene);
 
   // update room/portal visibility
   scene.room_manager.updateVisibility();
@@ -45,7 +45,7 @@ void HallwayGenerator::generate(Scene& scene, uint seed)
   SDL_Log("Generated hallways with %zu lights, and %zu cells", scene.light_manager.lights.size(), visited.size());
 }
 
-void HallwayGenerator::decorateRoom(Room& room, const Cell& cell, std::map<const Cell, Room*>& rooms, Scene& scene)
+void HallwayGenerator::decorateRoom(Room& room, const Cell& cell, std::map<uint32_t, Room*>& rooms, Scene& scene)
 {
   const float room_size = 3.0f;
   glm::vec3 pos = glm::vec3(static_cast<float>(cell.x) * room_size, 0.0f, static_cast<float>(cell.y) * room_size);
@@ -62,15 +62,15 @@ void HallwayGenerator::decorateRoom(Room& room, const Cell& cell, std::map<const
 
   for (int i = 0; i < 4; i++)
   {
-    Cell neighbor_cell = cell.getRoomCellInDirection(i);
-    bool has_neighbor = rooms.contains(neighbor_cell);
+    const Cell neighbor_cell = cell.getRoomCellInDirection(i);
+    bool has_neighbor = rooms.contains(neighbor_cell.hash());
 
     // add portal
     if (has_neighbor)
     {
       ShapeData portal = createWall(Config::portal, floor, i);
       scene.plane_builder.build(portal);
-      scene.room_manager.connect(room, portal, *rooms.at(neighbor_cell));
+      scene.room_manager.connect(room, portal, *rooms.at(neighbor_cell.hash()));
     }
 
     // add wall
@@ -84,7 +84,7 @@ void HallwayGenerator::decorateRoom(Room& room, const Cell& cell, std::map<const
 
   // add light
   const float spawn_light_chance = 0.1f;
-  if (rand() / static_cast<float>(RAND_MAX) < spawn_light_chance)
+  if (static_cast<float>(rand()) / static_cast<float>(RAND_MAX) < spawn_light_chance)
   {
     scene.light_manager.add(Light{.pos = glm::vec3(pos.x, pos.y + 1.0f, pos.z), .intensity = 5000.0f});
   }
@@ -105,7 +105,7 @@ Edge HallwayGenerator::getEdge(const ShapeData& plane, int idx)
   // negative direction
   } if (idx > 1) 
     offset = -offset;
-  return Edge{idx, offset, size};
+  return Edge{.idx=idx, .offset=offset, .size=size};
 }
 
 ShapeData HallwayGenerator::createFloor(glm::vec3 position, float width, float length)
@@ -145,7 +145,7 @@ ShapeData HallwayGenerator::createWall(const ShapeData& base, const ShapeData& f
 
 void HallwayGenerator::renderMap(std::vector<Room*>& active_rooms)
 {
-  VisibilityMap::renderAscii(rooms, active_rooms);
-  if (!VisibilityMap::renderPng(rooms, active_rooms))
+  RenderMap::renderAscii(rooms, active_rooms);
+  if (!RenderMap::renderPng(rooms, active_rooms))
     SDL_Log("Failed to write map.png");
 }

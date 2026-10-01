@@ -5,7 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "lib/render/context.h"
 #include "lib/pipeline/pipeline.h"
-#include "lib/shapes/gameobjects/solid.h"
+#include "lib/pbr/render_object.h"
 
 class Scene;
 class Shape;
@@ -71,5 +71,5 @@ public:
     // initialize storage buffers
 
   }
-  void render(Scene &scene, Solid *solid);
+  void render(Scene &scene, RenderObject &obj);
 };

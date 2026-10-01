@@ -1,10 +1,10 @@
 #pragma once
 
-#include "cell.h"
+#include <cstdint>
 #include <vector>
 
 class CellWalk
 {
 public:
-  static void fillCells(std::vector<Cell>& visited, float spawn_chance, int max_cells);
+  static void fillCells(std::vector<uint32_t>& visited, float spawn_chance, int max_cells);
 };

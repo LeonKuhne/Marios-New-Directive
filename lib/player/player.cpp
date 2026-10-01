@@ -72,7 +72,6 @@ void Player::applyMove() {
   body->setLinearVelocity(velocity);
 }
 
-
 void Player::jump()
 {
   Uint64 current_time = SDL_GetTicks();

@@ -61,9 +61,19 @@ void Scene::tick()
   float delta_time = static_cast<float>(current_time - last_game_time) / static_cast<float>(SDL_GetPerformanceFrequency());
   last_game_time = current_time;
 
-  ctx.world->stepSimulation(delta_time, 5, 1.0f / 60.0f);
-  player.tick();
-  camera.tick();
+  {
+    ZoneScopedN("Step Simulation");
+    printf("%d\n", ctx.world->getNumCollisionObjects());
+    ctx.world->stepSimulation(delta_time, 5, 1.0f / 60.0f);
+  }
+  {
+    ZoneScopedN("Player Tick");
+    player.tick();
+  }
+  {
+    ZoneScopedN("Camera Tick");
+    camera.tick();
+  }
 }
 
 void Scene::gravityTick(btScalar timeStep)

@@ -1,9 +1,10 @@
 #include "room_manager.h"
 #include <algorithm>
+#include "lib/scene/scene.h"
 
 Room& RoomManager::createRoom()
 {
-  owned_rooms.emplace_back(std::make_unique<Room>(context));
+  owned_rooms.emplace_back(std::make_unique<Room>(ctx));
   room_pointers.emplace_back(owned_rooms.back().get());
   return *owned_rooms.back();
 }
@@ -39,9 +40,18 @@ void RoomManager::connect(Room& first, ShapeData& shape_data, Room& second)
   });
 }
 
-void RoomManager::setActive(Room& room)
+void RoomManager::setActive(Room* room)
 {
-  active_rooms.push_back(&room);
+  active_rooms.push_back(room);
+
+  // create shape manager for active room
+  bool active_room_exists = active_render_objects.contains(room);
+  if (active_room_exists)
+    active_render_objects.erase(room);
+  std::vector<RenderObject>* render_objects = active_render_objects.emplace(room, new std::vector<RenderObject>).first->second;
+  
+  // insert room's shapes into the shape manager
+  room->collect_visible_render_objects(render_objects);
 }
 
 void RoomManager::updateVisibility()
@@ -52,8 +62,9 @@ void RoomManager::updateVisibility()
 
 void RoomManager::render(Scene& scene, SDL_GPURenderPass *pass)
 {
-  for (Room* room : active_rooms)
-    room->render(scene, pass);
+  for (auto [room, objects] : active_render_objects)
+    for (RenderObject& obj : *objects)
+      scene.pbr_pipeline.render(scene, obj);
 }
 
 size_t RoomManager::ConnectionHash::operator()(const ConnectionKey& key) const

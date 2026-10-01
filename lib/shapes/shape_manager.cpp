@@ -1,5 +1,4 @@
 #include "shape_manager.h"
-#include "lib/scene/scene.h"
 #include <algorithm>
 
 ShapeManager::~ShapeManager()
@@ -49,11 +48,3 @@ void ShapeManager::updateRenderVars(Frame &frame, SDL_GPUCopyPass *copy_pass)
   }
 }
 */
-
-void ShapeManager::render(Scene& scene, SDL_GPURenderPass *render_pass)
-{
-  for (Solid *solid : visible_shapes)
-  {
-    scene.pbr_pipeline.render(scene, solid);
-  }
-}

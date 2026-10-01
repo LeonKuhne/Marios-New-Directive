@@ -27,4 +27,5 @@ public:
   Shape* add(ShapeData& data);
   void remove(Shape *shape);
   void render(Scene& scene, SDL_GPURenderPass *pass);
+  void collect(ShapeManager* target);
 };

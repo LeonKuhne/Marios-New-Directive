@@ -21,4 +21,5 @@ struct ShapeData
   Mesh mesh;
   std::optional<btTransform> parent_transform;
   std::optional<glm::vec3> parent_center_offset;
+  btCollisionShape* collider = nullptr;
 };

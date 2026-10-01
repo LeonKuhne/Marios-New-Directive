@@ -1,4 +1,4 @@
-#include "map.h"
+#include "render_map.h"
 #include <SDL3/SDL_log.h>
 #include <algorithm>
 #include <array>
@@ -10,31 +10,31 @@
 #include <vector>
 #include <zlib.h>
 
-namespace
-{
 struct Bounds
 {
-  int min_x;
-  int max_x;
-  int min_y;
-  int max_y;
+  int16_t min_x;
+  int16_t max_x;
+  int16_t min_y;
+  int16_t max_y;
 };
 
-Bounds getBounds(const std::map<const Cell, Room*>& rooms)
+Bounds getBounds(const std::map<uint32_t, Room*>& rooms)
 {
+  const Cell cell(rooms.begin()->first);
   Bounds bounds{
-    rooms.begin()->first.first,
-    rooms.begin()->first.first,
-    rooms.begin()->first.second,
-    rooms.begin()->first.second,
+    .min_x=cell.x,
+    .max_x=cell.x,
+    .min_y=cell.y,
+    .max_y=cell.y,
   };
 
-  for (const auto& [cell, room] : rooms)
+  for (const auto& [cell_hash, room] : rooms)
   {
-    bounds.min_x = std::min(bounds.min_x, cell.first);
-    bounds.max_x = std::max(bounds.max_x, cell.first);
-    bounds.min_y = std::min(bounds.min_y, cell.second);
-    bounds.max_y = std::max(bounds.max_y, cell.second);
+    const Cell cell(cell_hash);
+    bounds.min_x = std::min(bounds.min_x, cell.x);
+    bounds.max_x = std::max(bounds.max_x, cell.x);
+    bounds.min_y = std::min(bounds.min_y, cell.y);
+    bounds.max_y = std::max(bounds.max_y, cell.y);
   }
   return bounds;
 }
@@ -67,12 +67,14 @@ bool isVisible(const std::vector<Room*>& active_rooms, const Room& room)
     [&](const Room* active_room) { return room.isVisibleFrom(*active_room); });
 }
 
-std::string cellSymbol(const std::map<const Cell, Room*>& rooms, const std::vector<Room*>& active_rooms,
-                const Cell& cell,
-                const std::set<const Room*>& direct_neighbors, size_t& visible_count,
-                size_t& missing_direct_count)
-{
-  auto room = rooms.find(cell);
+std::string RenderMap::cellSymbol(
+  const Rooms& rooms,
+  const std::vector<Room*>& active_rooms,
+  const Cell& cell,
+  const std::set<const Room*>& direct_neighbors, size_t& visible_count,
+  size_t& missing_direct_count
+) {
+  auto room = rooms.find(cell.hash());
   if (room == rooms.end())
     return "  ";
 
@@ -133,11 +135,11 @@ void setPixel(std::vector<std::uint8_t>& pixels, int width, int x, int y,
   size_t offset = (static_cast<size_t>(y) * width + x) * 4;
   std::copy(color.begin(), color.end(), pixels.begin() + static_cast<std::ptrdiff_t>(offset));
 }
-}
 
-void VisibilityMap::renderAscii(const std::map<const Cell, Room*>& rooms,
-                                const std::vector<Room*>& active_rooms)
-{
+void RenderMap::renderAscii(
+  const Rooms& rooms, 
+  const std::vector<Room*>& active_rooms
+) {
   if (rooms.empty())
     return;
 
@@ -146,13 +148,13 @@ void VisibilityMap::renderAscii(const std::map<const Cell, Room*>& rooms,
   size_t visible_count = 0;
   size_t missing_direct_count = 0;
   SDL_Log("Visibility map for %zu active rooms:", active_rooms.size());
-  for (const auto& [cell, room] : rooms)
+  for (const auto& [cell_hash, room] : rooms)
     if (isActive(active_rooms, *room))
-      SDL_Log("Active cell: (%d, %d)", cell.first, cell.second);
-  for (int y = bounds.max_y; y >= bounds.min_y; --y)
+      SDL_Log("Active cell: (%d, %d)", cell_hash >> 16, cell_hash & 0xFFFF);
+  for (int16_t y = bounds.max_y; y >= bounds.min_y; --y)
   {
     std::string row;
-    for (int x = bounds.min_x; x <= bounds.max_x; ++x)
+    for (int16_t x = bounds.min_x; x <= bounds.max_x; ++x)
       row += cellSymbol(rooms, active_rooms, {x, y}, direct_neighbors, visible_count, missing_direct_count);
     SDL_Log("%s", row.c_str());
   }
@@ -160,10 +162,11 @@ void VisibilityMap::renderAscii(const std::map<const Cell, Room*>& rooms,
   SDL_Log("Direct neighbors missing from visibility: %zu", missing_direct_count);
 }
 
-bool VisibilityMap::renderPng(const std::map<const Cell, Room*>& rooms,
-                              const std::vector<Room*>& active_rooms,
-                              const char* path)
-{
+bool RenderMap::renderPng(
+  const Rooms& rooms,
+  const std::vector<Room*>& active_rooms,
+  const char* path
+) {
   if (rooms.empty())
     return false;
 
@@ -176,27 +179,34 @@ bool VisibilityMap::renderPng(const std::map<const Cell, Room*>& rooms,
   int height = rows * cell_size;
   std::set<const Room*> direct_neighbors = getDirectNeighbors(active_rooms);
   std::vector<std::uint8_t> pixels(static_cast<size_t>(width) * height * 4, 0);
+  std::array<std::uint8_t, 4> color_active{255, 210, 55, 255};
+  std::array<std::uint8_t, 4> color_active_secondary{255, 145, 45, 255};
+  std::array<std::uint8_t, 4> color_inactive{55, 60, 70, 255};
+  std::array<std::uint8_t, 4> color_visible{65, 155, 245, 255};
+  std::array<std::uint8_t, 4> color_direct_neighbor{225, 75, 75, 255};
 
-  for (int y = bounds.min_y; y <= bounds.max_y; ++y)
+  for (int16_t y = bounds.min_y; y <= bounds.max_y; ++y)
   {
-    for (int x = bounds.min_x; x <= bounds.max_x; ++x)
+    for (int16_t x = bounds.min_x; x <= bounds.max_x; ++x)
     {
-      auto room = rooms.find({x, y});
-      if (room == rooms.end())
+      const Cell cell(x, y);
+      auto it = rooms.find(cell.hash());
+      if (it == rooms.end())
         continue;
+      const Room& room = *it->second;
 
+      size_t active_index = activeIndex(active_rooms, room);
       std::array<std::uint8_t, 4> color;
-      size_t active_index = activeIndex(active_rooms, *room->second);
       if (active_index == 0)
-        color = {255, 210, 55, 255};
+        color = color_active;
       else if (active_index < active_rooms.size())
-        color = {255, 145, 45, 255};
-      else if (isVisible(active_rooms, *room->second))
-        color = {65, 155, 245, 255};
-      else if (direct_neighbors.contains(room->second))
-        color = {225, 75, 75, 255};
+        color = color_active_secondary;
+      else if (isVisible(active_rooms, room))
+        color = color_visible;
+      else if (direct_neighbors.contains(&room))
+        color = color_direct_neighbor;
       else
-        color = {55, 60, 70, 255};
+        color = color_inactive;
 
       int pixel_x = (x - bounds.min_x) * cell_size;
       int pixel_y = (bounds.max_y - y) * cell_size;

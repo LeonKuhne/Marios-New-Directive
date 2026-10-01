@@ -85,11 +85,16 @@ void Room::updateVisibility()
   }
 }
 
-void Room::render(Scene& scene, SDL_GPURenderPass *render_pass)
+void Room::collect_visible_render_objects(std::vector<RenderObject>* objects)
 {
-  shapes.render(scene, render_pass);
   for (Room* visible_room : visible_rooms)
-    visible_room->shapes.render(scene, render_pass);
+  {
+    for (Solid* solid : visible_room->shapes.visible_shapes)
+    {
+      RenderObject& obj = objects->emplace_back();
+      solid->getRenderObject(obj);
+    }
+  }
 }
 
 bool Room::isVisibleFrom(const Room& observer) const

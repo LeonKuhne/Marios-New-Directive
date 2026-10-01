@@ -30,6 +30,11 @@ public:
     info.mesh.indices = plane_indices;
     info.mesh.index_buffer = plane_index_buffer;
     info.mesh.all_vertices = &all_vertices;
+    info.collider = new btBoxShape(btVector3(
+      std::abs(info.scale.x) * 0.5f,
+      0.05f,
+      std::abs(info.scale.z) * 0.5f)
+    );
   }
 
   ~PlaneBuilder() {

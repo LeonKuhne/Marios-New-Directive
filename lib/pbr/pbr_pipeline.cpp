@@ -1,7 +1,7 @@
 #include "pbr_pipeline.h"
 #include "lib/scene/scene.h"
 
-void PBRPipeline::render(Scene &scene, Solid *solid)
+void PBRPipeline::render(Scene &scene, RenderObject &obj)
 {
   struct PushConstants
   {
@@ -17,12 +17,12 @@ void PBRPipeline::render(Scene &scene, Solid *solid)
 
   // setup ubo uniform data
   ubo_uniform_data.projection = camera.projection;
-  solid->getTransform(ubo_uniform_data.model);
+  ubo_uniform_data.model = obj.transform_matrix; 
   ubo_uniform_data.view = camera.view;
   ubo_uniform_data.camPos = camera.camera_pos;
 
   // setup ubo params uniform data
-  ubo_params_uniform_data.lightCount = light_manager.lights.size();
+  ubo_params_uniform_data.lightCount = static_cast<int>(light_manager.lights.size());
 
   // submit vertex uniforms
   SDL_PushGPUVertexUniformData(scene.frame.cmd, 0, &ubo_uniform_data, sizeof(ubo_uniform_data));
@@ -40,7 +40,7 @@ void PBRPipeline::render(Scene &scene, Solid *solid)
   SDL_BindGPUVertexBuffers(render_pass, 0, &vertexBinding, 1);
 
   // submit index buffers
-  SDL_GPUBufferBinding indexBinding{solid->mesh.index_buffer, 0};
+  SDL_GPUBufferBinding indexBinding{obj.index_buffer, 0};
   SDL_BindGPUIndexBuffer(render_pass, &indexBinding, SDL_GPU_INDEXELEMENTSIZE_16BIT);
 
   // bind storage buffers
@@ -67,5 +67,5 @@ void PBRPipeline::render(Scene &scene, Solid *solid)
   SDL_BindGPUFragmentSamplers(render_pass, 7, &brdf_binding, 1);
 
   // draw
-  SDL_DrawGPUIndexedPrimitives(render_pass, solid->mesh.indices.size(), 1, 0, 0, 0);
+  SDL_DrawGPUIndexedPrimitives(render_pass, obj.num_indices, 1, 0, 0, 0);
 }

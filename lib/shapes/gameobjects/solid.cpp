@@ -6,8 +6,13 @@ Solid::Solid(const Solid::Info &info)
   : Shape(info.shape)
 {
   // create collider
-  collider = new btConvexHullShape((btScalar *)centered_vertices.data(), (int) centered_vertices.size(), sizeof(glm::vec3));
-  collider->setLocalScaling(asBtVector3(scale));
+  if (info.shape.collider)
+  {
+    collider = info.shape.collider;
+  } else {
+    collider = new btConvexHullShape((btScalar *)centered_vertices.data(), (int) centered_vertices.size(), sizeof(glm::vec3));
+    collider->setLocalScaling(asBtVector3(scale));
+  }
 
   // create body
   btRigidBody::btRigidBodyConstructionInfo rbInfo(
@@ -67,4 +72,11 @@ glm::vec3 Solid::inGlobalSpace(const glm::vec3 local_pos)
   pos *= scale;
   btVector3 global_intersect = body->getWorldTransform() * asBtVector3(pos);
   return asGlmVec3(global_intersect);
+}
+
+void Solid::getRenderObject(RenderObject &obj)
+{
+  obj.index_buffer = mesh.index_buffer;
+  obj.num_indices = mesh.indices.size();
+  getTransform(obj.transform_matrix);
 }
