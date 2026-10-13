@@ -1,5 +1,6 @@
 #include "pipeline.h"
 #include "lib/pbr/pbr_vertices.h"
+#include "lib/shader/shader.h"
 
 Pipeline::Pipeline(Context &ctx, PipelineInfo info)
 {
@@ -37,18 +38,18 @@ Pipeline::Pipeline(Context &ctx, PipelineInfo info)
 
   SDL_GPUGraphicsPipelineCreateInfo pipeline_create_info = {
     .vertex_shader = shader_load(ctx.gpu, {
-      info.vertex_path, 
-      SDL_GPU_SHADERSTAGE_VERTEX, 
-      info.num_vert_uniforms, 
-      0, 
-      info.num_vert_storage_buffers
+      .path=info.vertex_path, 
+      .stage=SDL_GPU_SHADERSTAGE_VERTEX, 
+      .num_uniforms=info.num_vert_uniforms, 
+      .num_samplers=0, 
+      .num_storage_buffers=info.num_vert_storage_buffers
     }),
     .fragment_shader = shader_load(ctx.gpu, {
-      info.fragment_path, 
-      SDL_GPU_SHADERSTAGE_FRAGMENT, 
-      info.num_frag_uniforms, 
-      info.num_frag_samplers,
-      info.num_frag_storage_buffers
+      .path=info.fragment_path, 
+      .stage=SDL_GPU_SHADERSTAGE_FRAGMENT, 
+      .num_uniforms=info.num_frag_uniforms, 
+      .num_samplers=info.num_frag_samplers,
+      .num_storage_buffers=info.num_frag_storage_buffers
     }),
     .vertex_input_state = {
       .vertex_buffer_descriptions = info.has_vertex_input ? &vertexBufferDesc : nullptr,
@@ -58,7 +59,9 @@ Pipeline::Pipeline(Context &ctx, PipelineInfo info)
     },
     .primitive_type = info.primitive_type,
     .rasterizer_state = {
-      .cull_mode = SDL_GPU_CULLMODE_BACK,
+      .cull_mode = info.has_vertex_input
+        ? SDL_GPU_CULLMODE_BACK
+        : SDL_GPU_CULLMODE_NONE,
     },
     .depth_stencil_state = {
       .compare_op = SDL_GPU_COMPAREOP_LESS,

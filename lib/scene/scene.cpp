@@ -7,6 +7,7 @@
 Scene::Scene(bool &running, Mouse &mouse)
     : window(Window(ctx)),
       pbr_pipeline(PBRPipeline(ctx)),
+      overlay_pipeline(OverlayPipeline(ctx)),
 
       // game objects
       player(Player({ .pos = Config::PlayerSettings::spawn_pos })),
@@ -18,6 +19,7 @@ Scene::Scene(bool &running, Mouse &mouse)
       pbr_materials(ctx.gpu),
 
       // rendering
+      gui(GUI(window)),
       light_manager(LightManager(ctx.gpu)),
       frame(Frame(window)),
       room_manager(ctx),
@@ -44,12 +46,14 @@ Scene::Scene(bool &running, Mouse &mouse)
 
 void Scene::setup(Mouse &mouse)
 {
-  // setup render passes
+  // setup pbr passes
   frame.addPass([this, &mouse](Frame &frame, SDL_GPURenderPass *pass)
     {
       pbr_pipeline.startRender(pass);
-
       room_manager.render(*this, pass);
+
+      overlay_pipeline.startRender(pass);
+      gui.render(*this, pass);
     }
   );
 }
@@ -63,7 +67,6 @@ void Scene::tick()
 
   {
     ZoneScopedN("Step Simulation");
-    printf("%d\n", ctx.world->getNumCollisionObjects());
     ctx.world->stepSimulation(delta_time, 5, 1.0f / 60.0f);
   }
   {
@@ -74,6 +77,12 @@ void Scene::tick()
     ZoneScopedN("Camera Tick");
     camera.tick();
   }
+}
+
+void Scene::render()
+{
+  ZoneScoped;
+  frame.run();
 }
 
 void Scene::gravityTick(btScalar timeStep)

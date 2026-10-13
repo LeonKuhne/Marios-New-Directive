@@ -17,6 +17,9 @@ Context::~Context()
     SDL_DestroyRenderer(renderer);
   if (window)
     SDL_DestroyWindow(window);
+  if (font)
+    TTF_CloseFont(font);
+  TTF_Quit();
   SDL_Quit();
 }
 
@@ -38,6 +41,12 @@ Context::ErrorCode Context::initSDL()
     return GPU_ERROR;
   if (!SDL_ClaimWindowForGPUDevice(gpu, window))
     return GPU_ERROR;
+
+  if (!TTF_Init())
+    return TTF_ERROR;
+  font = TTF_OpenFont("fonts/RobotoMono-Medium.ttf", 16);
+  if (!font)
+    return TTF_ERROR;
 
   return SUCCESS;
 }

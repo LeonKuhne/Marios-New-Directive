@@ -1,7 +1,6 @@
 #pragma once
 
 #include <SDL3/SDL.h>
-#include "lib/file/file.h"
 
 struct ShaderInfo {
     const char* path;

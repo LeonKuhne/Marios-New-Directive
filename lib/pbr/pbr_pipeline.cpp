@@ -36,11 +36,11 @@ void PBRPipeline::render(Scene &scene, RenderObject &obj)
   SDL_PushGPUFragmentUniformData(scene.frame.cmd, 2, &constants, sizeof(constants));
 
   // submit vertex buffers
-  SDL_GPUBufferBinding vertexBinding{pbr_vertices.vertex_buffer, 0};
+  SDL_GPUBufferBinding vertexBinding{.buffer=pbr_vertices.vertex_buffer, .offset=0};
   SDL_BindGPUVertexBuffers(render_pass, 0, &vertexBinding, 1);
 
   // submit index buffers
-  SDL_GPUBufferBinding indexBinding{obj.index_buffer, 0};
+  SDL_GPUBufferBinding indexBinding{.buffer=obj.index_buffer, .offset=0};
   SDL_BindGPUIndexBuffer(render_pass, &indexBinding, SDL_GPU_INDEXELEMENTSIZE_16BIT);
 
   // bind storage buffers
@@ -50,15 +50,15 @@ void PBRPipeline::render(Scene &scene, RenderObject &obj)
 
   // bind texture
   SDL_GPUTextureSamplerBinding texture_bindings[5] = {
-    {pbr_materials.default_texture, sampler},
-    {pbr_materials.default_texture, sampler},
-    {pbr_materials.default_texture, sampler},
-    {pbr_materials.default_texture, sampler},
-    {pbr_materials.default_texture, sampler}
+    {.texture=pbr_materials.default_texture, .sampler=sampler},
+    {.texture=pbr_materials.default_texture, .sampler=sampler},
+    {.texture=pbr_materials.default_texture, .sampler=sampler},
+    {.texture=pbr_materials.default_texture, .sampler=sampler},
+    {.texture=pbr_materials.default_texture, .sampler=sampler}
   };
   SDL_GPUTextureSamplerBinding cube_bindings[2] = {
-    {pbr_materials.default_cube_texture, sampler},
-    {pbr_materials.default_cube_texture, sampler},
+    {.texture=pbr_materials.default_cube_texture, .sampler=sampler},
+    {.texture=pbr_materials.default_cube_texture, .sampler=sampler},
   };
   SDL_GPUTextureSamplerBinding brdf_binding{pbr_materials.default_brdf_lut, sampler};
 

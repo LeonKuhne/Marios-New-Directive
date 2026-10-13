@@ -1,4 +1,5 @@
 #include "shader.h"
+#include "lib/file/file.h"
 
 static uint8_t* shader_read_file(const char* path, size_t* out_code_size) {
   // construct full path
@@ -11,7 +12,7 @@ static uint8_t* shader_read_file(const char* path, size_t* out_code_size) {
 
   // open file
   size_t byte_size = 0;
-  uint8_t* buffer = (uint8_t*) file_read(full_path, &byte_size);
+  uint8_t* buffer = reinterpret_cast<uint8_t*>(file_read(full_path, &byte_size));
   if (byte_size <= 0 || byte_size % 4 != 0) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Invalid file size for %s: %zu, %s\n", path, byte_size, strerror(errno));
     return nullptr;

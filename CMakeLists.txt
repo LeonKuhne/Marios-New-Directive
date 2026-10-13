@@ -104,7 +104,9 @@ file(GLOB_RECURSE SOURCES
 #
 # build libs
 
+find_package(PkgConfig REQUIRED)
 find_package(SDL3 REQUIRED)
+pkg_check_modules(SDL3_TTF REQUIRED IMPORTED_TARGET sdl3-ttf)
 find_package(Bullet REQUIRED)
 find_package(ZLIB REQUIRED)
 
@@ -135,6 +137,7 @@ endif()
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
     SDL3::SDL3
+    PkgConfig::SDL3_TTF
     ${BULLET_LIBRARIES}
     ZLIB::ZLIB
 )
@@ -143,4 +146,11 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_SOURCE_DIR}
     ${BULLET_INCLUDE_DIRS}
     ${CMAKE_SOURCE_DIR}/external/tracy/public
+)
+
+# copy over fonts into build/fonts
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets/fonts
+        ${CMAKE_BINARY_DIR}/fonts
 )

@@ -7,7 +7,10 @@
 #include "lib/mesh/plane_builder.h"
 #include "lib/pbr/pbr_materials.h"
 #include "lib/pbr/pbr_vertices.h"
+#include "lib/pbr/pbr_pipeline.h"
+#include "lib/pipeline/overlay_pipeline.h"
 #include "lib/render/context.h"
+#include "lib/gui/gui.h"
 #include "lib/rooms/room_manager.h"
 #include "lib/shapes/shape_manager.h"
 #include "lib/render/frame.h"
@@ -21,6 +24,7 @@ public:
   Window window;
   std::vector<glm::vec3> all_vertices;
   PBRPipeline pbr_pipeline;
+  OverlayPipeline overlay_pipeline;
 
   // game objects
   Player player;
@@ -36,6 +40,7 @@ public:
   LightManager light_manager;
   RoomManager room_manager;
   CollisionManager collision_manager;
+  GUI gui;
 
   // game state
   bool &running;
@@ -45,7 +50,7 @@ public:
 
   void setup(Mouse &mouse);
   void tick();
-  void render() { frame.run(); }
+  void render();
 
 private:
   void gravityTick(btScalar timeStep);
