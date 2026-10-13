@@ -1,6 +1,6 @@
-cbuffer BufferData : register(b0, space0) { 
-  float2 pos    : packoffset(c0);
-  float2 scale  : packoffset(c1);
+cbuffer BufferData : register(b0, space1) { 
+  float2 offset : packoffset(c0.x);
+  float2 scale  : packoffset(c0.z);
 };
 
 struct VSOutput {
@@ -28,7 +28,8 @@ static const float2 texcoords[6] = {
 
 VSOutput main(uint vertexID : SV_VertexID) {
   VSOutput output;
-  float2 pos = positions[vertexID];
+  float2 pos = offset + positions[vertexID] * scale;
+  //float2 pos = 0.0 + positions[vertexID] * 0.1;
   output.position = float4(pos, 0.0, 1.0);
   output.texcoord = texcoords[vertexID];
   return output;

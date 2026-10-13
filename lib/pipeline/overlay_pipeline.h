@@ -13,8 +13,8 @@ private:
   SDL_GPUGraphicsPipeline *pipeline;
 
   struct OverlayData {
-    glm::vec2 pos;
-    glm::vec2 scale;
+    float pos[2];
+    float scale[2];
   };
 
 public:

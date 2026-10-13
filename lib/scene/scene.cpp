@@ -49,8 +49,8 @@ void Scene::setup(Mouse &mouse)
   // setup pbr passes
   frame.addPass([this, &mouse](Frame &frame, SDL_GPURenderPass *pass)
     {
-      pbr_pipeline.startRender(pass);
-      room_manager.render(*this, pass);
+      //pbr_pipeline.startRender(pass);
+      //room_manager.render(*this, pass);
 
       overlay_pipeline.startRender(pass);
       gui.render(*this, pass);
