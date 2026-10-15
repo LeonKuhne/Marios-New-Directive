@@ -11,8 +11,9 @@ public:
   SDL_Renderer *renderer;
   SDL_Window *window;
   SDL_GPUDevice *gpu;
-  btDiscreteDynamicsWorld* world;
+  SDL_GPUSampler *sampler;
   TTF_Font* font;
+  btDiscreteDynamicsWorld* world;
 
   Context();
   ~Context();
@@ -25,7 +26,8 @@ private:
     WINDOW_ERROR = 2,
     RENDERER_ERROR = 3,
     GPU_ERROR = 4,
-    TTF_ERROR = 5
+    SAMPLER_ERROR = 5,
+    TTF_ERROR = 6
   };
 
   ErrorCode initSDL();

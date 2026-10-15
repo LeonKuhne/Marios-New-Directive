@@ -11,19 +11,6 @@ PBRPipeline::PBRPipeline(Info info) : Pipeline(info.ctx, {
   .num_frag_storage_buffers=2
 }), state(info) 
 {
-  SDL_GPUSamplerCreateInfo sampler_info{};
-  sampler_info.min_filter = SDL_GPU_FILTER_LINEAR;
-  sampler_info.mag_filter = SDL_GPU_FILTER_LINEAR;
-  sampler_info.mipmap_mode = SDL_GPU_SAMPLERMIPMAPMODE_LINEAR;
-  sampler_info.address_mode_u = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
-  sampler_info.address_mode_v = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
-  sampler_info.address_mode_w = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
-  sampler = SDL_CreateGPUSampler(state.ctx.gpu, &sampler_info);
-  if (!sampler)
-  {
-    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to create GPU sampler");
-  }
-
   // initialize storage buffers
 }
 
@@ -73,6 +60,8 @@ void PBRPipeline::render(SDL_GPUCommandBuffer *cmd, PBRRenderObject &obj)
   SDL_BindGPUVertexStorageBuffers(render_pass, 0, &pbr_vertices.mesh_shader_data_buffer, 1);
   SDL_BindGPUFragmentStorageBuffers(render_pass, 0, &pbr_materials.material_buffer, 1);
   SDL_BindGPUFragmentStorageBuffers(render_pass, 1, &light_manager.light_buffer, 1);
+
+  SDL_GPUSampler *sampler = state.ctx.sampler;
 
   // bind texture
   SDL_GPUTextureSamplerBinding texture_bindings[5] = {

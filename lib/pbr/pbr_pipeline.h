@@ -44,8 +44,6 @@ private:
     int materialIndex = 0;
   } push_constants;
 
-  SDL_GPUSampler *sampler;
-
 public:
   struct Info
   {

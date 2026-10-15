@@ -42,6 +42,17 @@ Context::ErrorCode Context::initSDL()
   if (!SDL_ClaimWindowForGPUDevice(gpu, window))
     return GPU_ERROR;
 
+  SDL_GPUSamplerCreateInfo sampler_info{};
+  sampler_info.min_filter = SDL_GPU_FILTER_LINEAR;
+  sampler_info.mag_filter = SDL_GPU_FILTER_LINEAR;
+  sampler_info.mipmap_mode = SDL_GPU_SAMPLERMIPMAPMODE_LINEAR;
+  sampler_info.address_mode_u = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
+  sampler_info.address_mode_v = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
+  sampler_info.address_mode_w = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
+  sampler = SDL_CreateGPUSampler(gpu, &sampler_info);
+  if (!sampler)
+    return SAMPLER_ERROR;
+
   if (!TTF_Init())
     return TTF_ERROR;
   font = TTF_OpenFont("fonts/RobotoMono-Medium.ttf", 16);

@@ -12,10 +12,8 @@ class Scene;
 
 template<std::derived_from<OverlayRenderObjectBase> T>
 class OverlayPipeline : public Pipeline<T> {
-private:
-  SDL_GPUGraphicsPipeline *pipeline;
-
 public:
+  using Pipeline<T>::Pipeline;
   OverlayPipeline(Context &ctx) : Pipeline<T>(ctx, {
     .vertex_path = "rect.vert",
     .fragment_path = "color.frag",
@@ -23,7 +21,7 @@ public:
     .num_vert_uniforms = 1,
     .num_vert_storage_buffers = 0,
     .num_frag_uniforms = 0,
-    .num_frag_samplers = 0, // font atlas
+    .num_frag_samplers = 0,
     .num_frag_storage_buffers = 0,
     .primitive_type = SDL_GPU_PRIMITIVETYPE_TRIANGLELIST,
     .enable_depth_test = false,
@@ -32,7 +30,7 @@ public:
 
   void render(SDL_GPUCommandBuffer *cmd, T &render_data) override {
     SDL_PushGPUVertexUniformData(cmd, 0, &render_data.vert, sizeof(render_data.vert));
-    //SDL_PushGPUFragmentUniformData(cmd, 1, &render_data.frag, sizeof(render_data.frag));
+    SDL_PushGPUFragmentUniformData(cmd, 1, &render_data.frag, sizeof(render_data.frag));
     SDL_DrawGPUPrimitives(this->render_pass, 6, 1, 0, 0);
   };
 };

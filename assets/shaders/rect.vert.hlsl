@@ -28,8 +28,7 @@ static const float2 texcoords[6] = {
 
 VSOutput main(uint vertexID : SV_VertexID) {
   VSOutput output;
-  //float2 pos = offset + positions[vertexID] * scale;
-  float2 pos = 0.0 + positions[vertexID] * 0.1;
+  float2 pos = offset + positions[vertexID] * scale;
   output.position = float4(pos, 0.0, 1.0);
   output.texcoord = texcoords[vertexID];
   return output;
