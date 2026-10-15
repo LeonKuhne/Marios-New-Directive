@@ -2,25 +2,21 @@
 
 #include "lib/pipeline/overlay/overlay_pipeline.h"
 #include "lib/pipeline/overlay/render_objects/text_overlay_render_object.h"
-#include "lib/pipeline/pipeline.h"
 #include "lib/render/context.h"
 #include <SDL3/SDL_gpu.h>
 #include <SDL3/SDL_stdinc.h>
 #include <glm/ext/vector_float2.hpp>
-#include <concepts>
 #include <stdexcept>
 
 class Scene;
 
-template<std::derived_from<TextOverlayRenderObject> T>
-class TextOverlayPipeline : public OverlayPipeline<T> {
+class TextOverlayPipeline : public OverlayPipeline<TextOverlayRenderObject> {
 private:
   SDL_GPUTextureSamplerBinding atlas_binding;
 
 public:
-  using Pipeline<T>::Pipeline;
   TextOverlayPipeline(Context &ctx) 
-    : OverlayPipeline<T>(ctx, {
+    : OverlayPipeline<TextOverlayRenderObject>(ctx, {
       .vertex_path = "rect.vert",
       .fragment_path = "text.frag",
       .has_vertex_input = false,
@@ -102,8 +98,8 @@ public:
     SDL_DestroySurface(atlas);
   };
 
-  void render(SDL_GPUCommandBuffer *cmd, T &render_data) override {
-    //SDL_BindGPUFragmentSamplers(this->render_pass, 0, &atlas_binding, 1);
-    Pipeline<T>::render();
+  void render(SDL_GPUCommandBuffer *cmd, TextOverlayRenderObject &render_data) override {
+    SDL_BindGPUFragmentSamplers(this->render_pass, 0, &atlas_binding, 1);
+    OverlayPipeline<TextOverlayRenderObject>::render(cmd, render_data);
   };
 };
