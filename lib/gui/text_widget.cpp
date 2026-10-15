@@ -1,11 +1,13 @@
-#include "fps_display.h"
+#include "text_widget.h"
 #include "lib/gpu/transfer.h"
 #include <SDL3/SDL_surface.h>
 #include <stdexcept>
 #include <vector>
-#include "lib/scene/scene.h"
+#include "lib/pipeline/overlay/render_objects/text_overlay_render_object.h"
+#include <algorithm>
+#include <cstring>
 
-FPSDisplay::FPSDisplay(Context &ctx)
+TextWidget::TextWidget(Context &ctx, OverlayPipeline<TextOverlayRenderObject>& pipeline) : Widget(pipeline)
 {
   SDL_Color white = {
     .r = 255,
@@ -14,17 +16,15 @@ FPSDisplay::FPSDisplay(Context &ctx)
     .a = 255
   };
 
-  const char *characters = "0123456789FPS:";
-
   std::vector<SDL_Surface*> glyphs;
 
   int atlas_width = 0;
   int atlas_height = 0;
 
-  for (const char *c = characters; *c; ++c)
+  for (char c = 32; c <= 126; ++c)
   {
     SDL_Surface *glyph =
-      TTF_RenderGlyph_Blended(ctx.font, *c, white);
+      TTF_RenderGlyph_Blended(ctx.font, c, white);
 
     if (!glyph)
       throw std::runtime_error(SDL_GetError());
@@ -33,9 +33,9 @@ FPSDisplay::FPSDisplay(Context &ctx)
 
     atlas_width += glyph->w;
     atlas_height = std::max(atlas_height, glyph->h);
-}
+  }
 
-SDL_Surface *atlas = SDL_CreateSurface(
+  SDL_Surface *atlas = SDL_CreateSurface(
     atlas_width,
     atlas_height,
     SDL_PIXELFORMAT_RGBA8888
@@ -74,9 +74,9 @@ SDL_Surface *atlas = SDL_CreateSurface(
   });
 
   SDL_DestroySurface(atlas);
-}
-
-void FPSDisplay::render(Scene &scene)
-{
-  scene.overlay_pipeline.render(scene);
-}
+  memcpy(render_data.frag.text, "helowrld", 8);
+  render_data.vert.pos[0] = 0.0f;
+  render_data.vert.pos[1] = 0.1f;
+  render_data.vert.scale[0] = 0.1f;
+  render_data.vert.scale[1] = 0.1f;
+};

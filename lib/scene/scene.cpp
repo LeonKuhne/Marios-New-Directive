@@ -3,11 +3,10 @@
 #include "lib/engine/config.h"
 #include <tracy/Tracy.hpp>
 #include "lib/gpu/transfer.h"
+#include "lib/pipeline/overlay/render_objects/text_overlay_render_object.h"
 
 Scene::Scene(bool &running, Mouse &mouse)
     : window(Window(ctx)),
-      pbr_pipeline(PBRPipeline(ctx)),
-      overlay_pipeline(OverlayPipeline(ctx)),
 
       // game objects
       player(Player({ .pos = Config::PlayerSettings::spawn_pos })),
@@ -19,10 +18,22 @@ Scene::Scene(bool &running, Mouse &mouse)
       pbr_materials(ctx.gpu),
 
       // rendering
-      gui(GUI(window)),
       light_manager(LightManager(ctx.gpu)),
       frame(Frame(window)),
-      room_manager(ctx),
+
+      // render pipelines
+      pbr_pipeline(PBRPipeline({
+        .ctx=ctx, 
+        .camera=camera, 
+        .light_manager=light_manager, 
+        .pbr_vertices=pbr_vertices, 
+        .pbr_materials=pbr_materials
+      })),
+      text_overlay_pipeline(OverlayPipeline<TextOverlayRenderObject>(ctx)),
+
+      // render composites
+      gui(GUI(ctx)),
+      room_manager(ctx, pbr_pipeline),
 
       // game state
       running(running)
@@ -47,13 +58,10 @@ Scene::Scene(bool &running, Mouse &mouse)
 void Scene::setup(Mouse &mouse)
 {
   // setup pbr passes
-  frame.addPass([this, &mouse](Frame &frame, SDL_GPURenderPass *pass)
+  frame.addPass([this, &mouse](SDL_GPUCommandBuffer *cmd, SDL_GPURenderPass *pass)
     {
-      //pbr_pipeline.startRender(pass);
-      //room_manager.render(*this, pass);
-
-      overlay_pipeline.startRender(pass);
-      gui.render(*this, pass);
+      room_manager.render(cmd, pass);
+      gui.render(cmd, pass);
     }
   );
 }

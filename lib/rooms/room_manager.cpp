@@ -1,6 +1,5 @@
 #include "room_manager.h"
 #include <algorithm>
-#include "lib/scene/scene.h"
 
 Room& RoomManager::createRoom()
 {
@@ -9,7 +8,7 @@ Room& RoomManager::createRoom()
   return *owned_rooms.back();
 }
 
-void RoomManager::connect(Room& first, ShapeData& shape_data, Room& second)
+void RoomManager::connect(Room &first, ShapeData &shape_data, Room &second)
 {
   Room* lower = std::min(&first, &second);
   Room* upper = std::max(&first, &second);
@@ -48,7 +47,7 @@ void RoomManager::setActive(Room* room)
   bool active_room_exists = active_render_objects.contains(room);
   if (active_room_exists)
     active_render_objects.erase(room);
-  std::vector<RenderObject>* render_objects = active_render_objects.emplace(room, new std::vector<RenderObject>).first->second;
+  std::vector<PBRRenderObject>* render_objects = active_render_objects.emplace(room, new std::vector<PBRRenderObject>).first->second;
   
   // insert room's shapes into the shape manager
   room->collect_visible_render_objects(render_objects);
@@ -56,18 +55,19 @@ void RoomManager::setActive(Room* room)
 
 void RoomManager::updateVisibility()
 {
-  for (const std::unique_ptr<Room>& room : owned_rooms)
+  for (const std::unique_ptr<Room> &room : owned_rooms)
     room->updateVisibility();
 }
 
-void RoomManager::render(Scene& scene, SDL_GPURenderPass *pass)
+void RoomManager::render(SDL_GPUCommandBuffer *cmd, SDL_GPURenderPass *pass)
 {
+  pbr_pipeline.startRender(pass);
   for (auto [room, objects] : active_render_objects)
-    for (RenderObject& obj : *objects)
-      scene.pbr_pipeline.render(scene, obj);
+    for (PBRRenderObject &obj : *objects)
+      pbr_pipeline.render(cmd, obj);
 }
 
-size_t RoomManager::ConnectionHash::operator()(const ConnectionKey& key) const
+size_t RoomManager::ConnectionHash::operator()(const ConnectionKey &key) const
 {
   size_t first_hash = std::hash<Room*>{}(key.first);
   size_t second_hash = std::hash<Room*>{}(key.second);

@@ -8,6 +8,8 @@
 
 class Frame
 {
+  using Pass = std::function<void(SDL_GPUCommandBuffer*, SDL_GPURenderPass*)>;
+  
   Context &ctx;
   std::vector<std::function<void()>> passes;
   SDL_GPUDepthStencilTargetInfo *depth_target = nullptr;
@@ -15,7 +17,7 @@ class Frame
 
   SDL_GPUColorTargetInfo pass_info = {
       .texture = NULL,
-      .clear_color = {0, 0, 0, 1},
+      .clear_color = {.r=0, .g=0, .b=0, .a=1},
       .load_op = SDL_GPU_LOADOP_CLEAR,
       .store_op = SDL_GPU_STOREOP_STORE,
       .cycle = false};
@@ -32,7 +34,7 @@ public:
   };
   ~Frame();
 
-  void addPass(std::function<void(Frame &, SDL_GPURenderPass *)> render); 
+  void addPass(const Pass &callback); 
 
   void run();
 

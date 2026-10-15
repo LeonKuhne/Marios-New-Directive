@@ -1,10 +1,12 @@
 #pragma once
 
 #include "lib/gui/widget.h"
+#include "lib/pipeline/overlay/overlay_pipeline.h"
+#include "lib/pipeline/overlay/render_objects/text_overlay_render_object.h"
 #include "lib/render/context.h"
 #include <unordered_map>
 
-class FPSDisplay : public Widget
+class TextWidget : public Widget<TextOverlayRenderObject>
 {
 private:
   struct Glyph
@@ -19,6 +21,5 @@ private:
   std::unordered_map<char, Glyph> glyphs;
 
 public:
-  FPSDisplay(Context &ctx);
-  void render(Scene &scene) override;
+  TextWidget(Context &ctx, OverlayPipeline<TextOverlayRenderObject>& pipeline);
 };

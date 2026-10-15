@@ -85,13 +85,13 @@ void Room::updateVisibility()
   }
 }
 
-void Room::collect_visible_render_objects(std::vector<RenderObject>* objects)
+void Room::collect_visible_render_objects(std::vector<PBRRenderObject>* objects)
 {
   for (Room* visible_room : visible_rooms)
   {
     for (Solid* solid : visible_room->shapes.visible_shapes)
     {
-      RenderObject& obj = objects->emplace_back();
+      PBRRenderObject& obj = objects->emplace_back();
       solid->getRenderObject(obj);
     }
   }

@@ -12,16 +12,16 @@ class RoomManager
 public:
   struct PortalConnection
   {
-    Room* room_a;
-    Room* room_b;
-    Portal* portal;
+    Room *room_a;
+    Room *room_b;
+    Portal *portal;
   };
 
 private:
   struct ConnectionKey
   {
-    Room* first;
-    Room* second;
+    Room *first;
+    Room *second;
     bool operator==(const ConnectionKey&) const = default;
   };
 
@@ -31,25 +31,27 @@ private:
   };
 
 private:
-  Context& ctx;
+  Context &ctx;
+  PBRPipeline &pbr_pipeline;
+
   std::vector<std::unique_ptr<Room>> owned_rooms;
   std::vector<Room*> room_pointers;
   std::vector<std::unique_ptr<Portal>> owned_portals;
   std::unordered_set<ConnectionKey, ConnectionHash> connections;
   std::vector<PortalConnection> portal_connections;
   std::function<void(const std::vector<Room*>&)> active_rooms_changed;
-  std::map<Room*, std::vector<RenderObject>*> active_render_objects;
+  std::map<Room*, std::vector<PBRRenderObject>*> active_render_objects;
 
 public:
   std::vector<Room*> active_rooms;
 
-  explicit RoomManager(Context& ctx) : ctx(ctx) {}
+  explicit RoomManager(Context &ctx, PBRPipeline &pbr_pipeline) : ctx(ctx), pbr_pipeline(pbr_pipeline) {}
 
   Room& createRoom();
-  void connect(Room& first, ShapeData& portal, Room& second);
+  void connect(Room &first, ShapeData &portal, Room &second);
   void updateVisibility();
-  void render(Scene& scene, SDL_GPURenderPass *pass);
-  void setActive(Room* room);
+  void render(SDL_GPUCommandBuffer *cmd, SDL_GPURenderPass *pass);
+  void setActive(Room *room);
   Room* find(int index) const { return room_pointers[index]; }
 
   const std::vector<Room*>& rooms() const { return room_pointers; }

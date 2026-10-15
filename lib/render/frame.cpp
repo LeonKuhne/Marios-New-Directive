@@ -26,10 +26,10 @@ void Frame::run() {
   SDL_SubmitGPUCommandBuffer(cmd);
 }
 
-void Frame::addPass(std::function<void(Frame &, SDL_GPURenderPass *)> render) {
-  passes.emplace_back([this, render]() {
+void Frame::addPass(const Pass &callback) {
+  passes.emplace_back([this, callback]() {
     SDL_GPURenderPass *pass = SDL_BeginGPURenderPass(cmd, &pass_info, 1, depth_target);
-    render(*this, pass);
+    callback(cmd, pass);
     SDL_EndGPURenderPass(pass);
   });
 }

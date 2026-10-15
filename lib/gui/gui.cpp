@@ -1,15 +1,10 @@
 #include "gui.h"
-#include "lib/gui/fps_display.h"
+#include "lib/gui/text_widget.h"
 
-GUI::GUI(Window &window)
-{
-  widgets.emplace_back(new FPSDisplay(window.ctx));
-}
+GUI::GUI(Context &ctx) : text_pipeline(ctx), fps_display(ctx, text_pipeline) {}
 
-void GUI::render(Scene &scene, SDL_GPURenderPass *pass)
+void GUI::render(SDL_GPUCommandBuffer *cmd, SDL_GPURenderPass *pass)
 {
-  for (Widget* widget : widgets)
-  {
-    widget->render(scene);
-  }
+  text_pipeline.startRender(pass),
+  fps_display.render(cmd);
 }

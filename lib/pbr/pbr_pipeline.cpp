@@ -1,7 +1,33 @@
 #include "pbr_pipeline.h"
-#include "lib/scene/scene.h"
+#include "lib/pbr/pbr_render_object.h"
 
-void PBRPipeline::render(Scene &scene, RenderObject &obj)
+PBRPipeline::PBRPipeline(Info info) : Pipeline(info.ctx, {
+  .vertex_path="pbr.vert", 
+  .fragment_path="material_pbr.frag", 
+  .num_vert_uniforms=2, // projection/model/view/camPos + indices
+  .num_vert_storage_buffers=1, 
+  .num_frag_uniforms=3, // UBO + UBOparams + indices 
+  .num_frag_samplers=8, 
+  .num_frag_storage_buffers=2
+}), state(info) 
+{
+  SDL_GPUSamplerCreateInfo sampler_info{};
+  sampler_info.min_filter = SDL_GPU_FILTER_LINEAR;
+  sampler_info.mag_filter = SDL_GPU_FILTER_LINEAR;
+  sampler_info.mipmap_mode = SDL_GPU_SAMPLERMIPMAPMODE_LINEAR;
+  sampler_info.address_mode_u = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
+  sampler_info.address_mode_v = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
+  sampler_info.address_mode_w = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
+  sampler = SDL_CreateGPUSampler(state.ctx.gpu, &sampler_info);
+  if (!sampler)
+  {
+    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to create GPU sampler");
+  }
+
+  // initialize storage buffers
+}
+
+void PBRPipeline::render(SDL_GPUCommandBuffer *cmd, PBRRenderObject &obj)
 {
   struct PushConstants
   {
@@ -10,10 +36,10 @@ void PBRPipeline::render(Scene &scene, RenderObject &obj)
   };
   PushConstants constants;
 
-  const Camera& camera = scene.camera;
-  const LightManager& light_manager = scene.light_manager;
-  const PBRVertices& pbr_vertices = scene.pbr_vertices;
-  const PBRMaterials& pbr_materials = scene.pbr_materials;
+  const Camera& camera = state.camera;
+  const LightManager& light_manager = state.light_manager;
+  const PBRVertices& pbr_vertices = state.pbr_vertices;
+  const PBRMaterials& pbr_materials = state.pbr_materials;
 
   // setup ubo uniform data
   ubo_uniform_data.projection = camera.projection;
@@ -25,15 +51,15 @@ void PBRPipeline::render(Scene &scene, RenderObject &obj)
   ubo_params_uniform_data.lightCount = static_cast<int>(light_manager.lights.size());
 
   // submit vertex uniforms
-  SDL_PushGPUVertexUniformData(scene.frame.cmd, 0, &ubo_uniform_data, sizeof(ubo_uniform_data));
+  SDL_PushGPUVertexUniformData(cmd, 0, &ubo_uniform_data, sizeof(ubo_uniform_data));
 
   // submit fragment uniforms
-  SDL_PushGPUFragmentUniformData(scene.frame.cmd, 0, &ubo_uniform_data, sizeof(ubo_uniform_data));
-  SDL_PushGPUFragmentUniformData(scene.frame.cmd, 1, &ubo_params_uniform_data, sizeof(ubo_params_uniform_data));
+  SDL_PushGPUFragmentUniformData(cmd, 0, &ubo_uniform_data, sizeof(ubo_uniform_data));
+  SDL_PushGPUFragmentUniformData(cmd, 1, &ubo_params_uniform_data, sizeof(ubo_params_uniform_data));
 
   // todo read push constants from 
-  SDL_PushGPUVertexUniformData(scene.frame.cmd, 1, &constants, sizeof(constants));
-  SDL_PushGPUFragmentUniformData(scene.frame.cmd, 2, &constants, sizeof(constants));
+  SDL_PushGPUVertexUniformData(cmd, 1, &constants, sizeof(constants));
+  SDL_PushGPUFragmentUniformData(cmd, 2, &constants, sizeof(constants));
 
   // submit vertex buffers
   SDL_GPUBufferBinding vertexBinding{.buffer=pbr_vertices.vertex_buffer, .offset=0};

@@ -4,7 +4,7 @@
 #include "lib/shapes/shape_manager.h"
 #include "portal.h"
 #include <set>
-#include "lib/pbr/render_object.h"
+#include "lib/pbr/pbr_render_object.h"
 
 class Room {
 private:
@@ -19,6 +19,6 @@ public:
   void addSurface(ShapeData& shape_data);
   void addPortal(Portal* portal);
   void updateVisibility();
-  void collect_visible_render_objects(std::vector<RenderObject>* objects);
+  void collect_visible_render_objects(std::vector<PBRRenderObject>* objects);
   bool isVisibleFrom(const Room& observer) const;
 };

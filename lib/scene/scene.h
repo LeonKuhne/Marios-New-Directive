@@ -8,7 +8,8 @@
 #include "lib/pbr/pbr_materials.h"
 #include "lib/pbr/pbr_vertices.h"
 #include "lib/pbr/pbr_pipeline.h"
-#include "lib/pipeline/overlay_pipeline.h"
+#include "lib/pipeline/overlay/overlay_pipeline.h"
+#include "lib/pipeline/overlay/render_objects/text_overlay_render_object.h"
 #include "lib/render/context.h"
 #include "lib/gui/gui.h"
 #include "lib/rooms/room_manager.h"
@@ -23,8 +24,6 @@ public:
   Context ctx;
   Window window;
   std::vector<glm::vec3> all_vertices;
-  PBRPipeline pbr_pipeline;
-  OverlayPipeline overlay_pipeline;
 
   // game objects
   Player player;
@@ -38,9 +37,15 @@ public:
   // rendering
   Frame frame;
   LightManager light_manager;
-  RoomManager room_manager;
   CollisionManager collision_manager;
+
+  // render pipelines
+  PBRPipeline pbr_pipeline;
+  OverlayPipeline<TextOverlayRenderObject> text_overlay_pipeline;
+
+  // render composites
   GUI gui;
+  RoomManager room_manager;
 
   // game state
   bool &running;

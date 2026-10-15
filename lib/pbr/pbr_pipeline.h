@@ -3,14 +3,17 @@
 #include <SDL3/SDL_gpu.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "lib/render/context.h"
+#include "lib/lights/light_manager.h"
+#include "lib/pbr/pbr_materials.h"
+#include "lib/pbr/pbr_vertices.h"
 #include "lib/pipeline/pipeline.h"
-#include "lib/pbr/render_object.h"
+#include "lib/pbr/pbr_render_object.h"
+#include "lib/scene/camera.h"
 
 class Scene;
 class Shape;
 
-class PBRPipeline : public Pipeline
+class PBRPipeline : public Pipeline<PBRRenderObject>
 {
 private:
   const SDL_FColor selected_color = {1.0f, 0.0f, 0.0f};
@@ -44,33 +47,17 @@ private:
   SDL_GPUSampler *sampler;
 
 public:
-  using Pipeline::Pipeline;
-  PBRPipeline(Context &ctx) : Pipeline(ctx, {
-    .vertex_path="pbr.vert", 
-    .fragment_path="material_pbr.frag", 
-    .num_vert_uniforms=2, // projection/model/view/camPos + indices
-    .num_vert_storage_buffers=1, 
-    .num_frag_uniforms=3, // UBO + UBOparams + indices 
-    .num_frag_samplers=8, 
-    .num_frag_storage_buffers=2
-  }) 
+  struct Info
   {
-    SDL_GPUSamplerCreateInfo sampler_info{};
-    sampler_info.min_filter = SDL_GPU_FILTER_LINEAR;
-    sampler_info.mag_filter = SDL_GPU_FILTER_LINEAR;
-    sampler_info.mipmap_mode = SDL_GPU_SAMPLERMIPMAPMODE_LINEAR;
-    sampler_info.address_mode_u = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
-    sampler_info.address_mode_v = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
-    sampler_info.address_mode_w = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
-    sampler = SDL_CreateGPUSampler(ctx.gpu, &sampler_info);
-    if (!sampler)
-    {
-      SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to create GPU sampler");
-    }
+    Context &ctx;
+    Camera &camera;
+    LightManager &light_manager;
+    PBRVertices &pbr_vertices;
+    PBRMaterials &pbr_materials;
+  };
 
-    // initialize storage buffers
+  Info state;
 
-  }
-
-  void render(Scene &scene, RenderObject &obj);
+  PBRPipeline(Info info);
+  void render(SDL_GPUCommandBuffer *cmd, PBRRenderObject &obj) override;
 };

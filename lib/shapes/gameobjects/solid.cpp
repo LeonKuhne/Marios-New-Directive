@@ -74,7 +74,7 @@ glm::vec3 Solid::inGlobalSpace(const glm::vec3 local_pos)
   return asGlmVec3(global_intersect);
 }
 
-void Solid::getRenderObject(RenderObject &obj)
+void Solid::getRenderObject(PBRRenderObject &obj)
 {
   obj.index_buffer = mesh.index_buffer;
   obj.num_indices = mesh.indices.size();
