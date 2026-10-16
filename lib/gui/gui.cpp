@@ -1,7 +1,7 @@
 #include "gui.h"
 #include "lib/gui/text_widget.h"
 
-GUI::GUI(Context &ctx) : text_pipeline(ctx), fps_display(ctx, text_pipeline) {}
+GUI::GUI(Window &window) : text_pipeline(window.ctx), fps_display(window, text_pipeline) {}
 
 void GUI::render(SDL_GPUCommandBuffer *cmd, SDL_GPURenderPass *pass)
 {

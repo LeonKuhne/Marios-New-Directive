@@ -5,15 +5,18 @@
 #include <SDL3/SDL_gpu.h>
 #include <concepts>
 
-template<std::derived_from<OverlayRenderObjectBase> T>
+template<
+  std::derived_from<OverlayRenderObjectBase> T,
+  std::derived_from<OverlayPipeline<T>> P
+>
 class Widget
 {
 protected:
-  OverlayPipeline<T> &pipeline;
+  P &pipeline;
   T render_data;
 
 public:
-  Widget(OverlayPipeline<T> &pipeline) : pipeline(pipeline) {};
+  Widget(P &pipeline) : pipeline(pipeline) {};
 
   void render(SDL_GPUCommandBuffer *cmd) {
     pipeline.render(cmd, render_data);

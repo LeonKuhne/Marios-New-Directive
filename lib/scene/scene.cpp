@@ -3,7 +3,6 @@
 #include "lib/engine/config.h"
 #include <tracy/Tracy.hpp>
 #include "lib/gpu/transfer.h"
-#include "lib/pipeline/overlay/render_objects/text_overlay_render_object.h"
 
 Scene::Scene(bool &running, Mouse &mouse)
     : window(Window(ctx)),
@@ -29,10 +28,9 @@ Scene::Scene(bool &running, Mouse &mouse)
         .pbr_vertices=pbr_vertices, 
         .pbr_materials=pbr_materials
       })),
-      text_overlay_pipeline(OverlayPipeline<TextOverlayRenderObject>(ctx)),
 
       // render composites
-      gui(GUI(ctx)),
+      gui(GUI(window)),
       room_manager(ctx, pbr_pipeline),
 
       // game state

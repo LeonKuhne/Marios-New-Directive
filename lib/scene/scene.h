@@ -8,8 +8,6 @@
 #include "lib/pbr/pbr_materials.h"
 #include "lib/pbr/pbr_vertices.h"
 #include "lib/pbr/pbr_pipeline.h"
-#include "lib/pipeline/overlay/overlay_pipeline.h"
-#include "lib/pipeline/overlay/render_objects/text_overlay_render_object.h"
 #include "lib/render/context.h"
 #include "lib/gui/gui.h"
 #include "lib/rooms/room_manager.h"
@@ -41,7 +39,6 @@ public:
 
   // render pipelines
   PBRPipeline pbr_pipeline;
-  OverlayPipeline<TextOverlayRenderObject> text_overlay_pipeline;
 
   // render composites
   GUI gui;

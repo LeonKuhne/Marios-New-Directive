@@ -2,7 +2,7 @@
 
 #include "lib/gui/text_widget.h"
 #include "lib/pipeline/overlay/text_overlay_pipeline.h"
-#include "lib/render/context.h"
+#include "lib/render/window.h"
 #include <SDL3/SDL_gpu.h>
 
 class GUI
@@ -11,6 +11,6 @@ class GUI
   TextWidget fps_display;
 
 public:
-  GUI(Context &ctx);
+  GUI(Window &window);
   void render(SDL_GPUCommandBuffer *cmd, SDL_GPURenderPass *pass);
 };
