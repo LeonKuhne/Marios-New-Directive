@@ -11,17 +11,28 @@ Frame::~Frame() {
 }
 
 void Frame::run() {
-  ZoneScoped;
   // start frame
-  cmd = SDL_AcquireGPUCommandBuffer(ctx.gpu);
-  SDL_AcquireGPUSwapchainTexture(cmd, ctx.window, &pass_info.texture, nullptr, nullptr);
-  if (pass_info.texture == nullptr) {
-    failed_swaps++;
-    return;
+  {
+    ZoneScopedN("Aquire GPU Command Buffer")
+    cmd = SDL_AcquireGPUCommandBuffer(ctx.gpu);
   }
+
+  {
+    ZoneScopedN("Aquire GPU Swapchain Texture")
+    SDL_AcquireGPUSwapchainTexture(cmd, ctx.window, &pass_info.texture, nullptr, nullptr);
+    if (pass_info.texture == nullptr) {
+      failed_swaps++;
+      return;
+    }
+  }
+
   // run passes
-  for (auto &pass : passes)
-    pass();
+  {
+    ZoneScopedN("Render Passes")
+    for (auto &pass : passes)
+      pass();
+  }
+
   // end frame
   SDL_SubmitGPUCommandBuffer(cmd);
 }

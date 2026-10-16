@@ -34,7 +34,6 @@ Solid::~Solid()
   delete body;
   delete motion_state;
   delete collision_shape;
-  body = nullptr;
 }
 
 void Solid::getTransform(glm::mat4 &transform_matrix)

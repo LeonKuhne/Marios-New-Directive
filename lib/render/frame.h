@@ -27,6 +27,13 @@ public:
 
   Frame(Window &window) : ctx(window.ctx)
   {
+    SDL_SetGPUSwapchainParameters(
+      ctx.gpu, 
+      ctx.window, 
+      SDL_GPU_SWAPCHAINCOMPOSITION_SDR,
+      SDL_GPU_PRESENTMODE_IMMEDIATE
+    );
+
     window.addListener([this, &window](uint w, uint h) {
       updateDepthTexture(w, h);
     });
