@@ -12,5 +12,6 @@ class GUI
 
 public:
   GUI(Window &window);
+  void tick(float delta_time);
   void render(SDL_GPUCommandBuffer *cmd, SDL_GPURenderPass *pass);
 };

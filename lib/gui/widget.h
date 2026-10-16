@@ -17,7 +17,6 @@ protected:
 
 public:
   Widget(P &pipeline) : pipeline(pipeline) {};
-
   void render(SDL_GPUCommandBuffer *cmd) {
     pipeline.render(cmd, render_data);
   };

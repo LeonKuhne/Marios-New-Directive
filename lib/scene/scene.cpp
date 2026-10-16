@@ -1,5 +1,5 @@
 #include "scene.h"
-#include "lib/pbr/gpu_stored_object.h"
+#include "lib/gpu/gpu_transferable.h"
 #include "lib/engine/config.h"
 #include <tracy/Tracy.hpp>
 #include "lib/gpu/transfer.h"
@@ -36,10 +36,7 @@ Scene::Scene(bool &running, Mouse &mouse)
       // game state
       running(running)
 {
-  // upload pending updates
-  transfer(ctx.gpu, [this](SDL_GPUCopyPass *pass) {
-    GPUStoredObject::processPendingUpdates(pass);
-  });
+  updateGPUData();
 
   // setup gravity
   ctx.world->setInternalTickCallback([](btDynamicsWorld *world, btScalar timeStep)
@@ -70,6 +67,12 @@ void Scene::tick()
   Uint64 current_time = SDL_GetPerformanceCounter();
   float delta_time = static_cast<float>(current_time - last_game_time) / static_cast<float>(SDL_GetPerformanceFrequency());
   last_game_time = current_time;
+  TracyPlot("FPS", 1.0f / delta_time);
+
+  {
+    ZoneScopedN("GPU Transfer");
+    updateGPUData();
+  }
 
   {
     ZoneScopedN("Step Simulation");
@@ -82,6 +85,10 @@ void Scene::tick()
   {
     ZoneScopedN("Camera Tick");
     camera.tick();
+  }
+  {
+    ZoneScopedN("GUI Tick");
+    gui.tick(delta_time);
   }
 }
 
@@ -98,4 +105,12 @@ void Scene::gravityTick(btScalar timeStep)
 
   btScalar gravity = gravity_strength;
   player.body->setGravity(gravity_dir * gravity);
+}
+
+void Scene::updateGPUData()
+{
+  // upload pending updates
+  transfer(ctx.gpu, [this](SDL_GPUCopyPass *pass) {
+    GPUTransferable::processPendingUpdates(pass);
+  });
 }

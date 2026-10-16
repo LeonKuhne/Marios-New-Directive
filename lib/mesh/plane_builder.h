@@ -1,13 +1,13 @@
 #pragma once
 
-#include "lib/pbr/gpu_stored_object.h"
+#include "lib/gpu/gpu_transferable.h"
 #include "lib/shapes/shape_data.h"
 #include <vector>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_gpu.h>
 #include <glm/glm.hpp>
 
-class PlaneBuilder : public GPUStoredObject
+class PlaneBuilder : public GPUTransferable
 {
 private:
   inline static std::vector<glm::vec3> plane_vertices{
@@ -24,7 +24,7 @@ public:
   std::vector<ushort> plane_indices;
 
   PlaneBuilder(SDL_GPUDevice *gpu, std::vector<glm::vec3> &all_vertices)
-    : GPUStoredObject(gpu), all_vertices(all_vertices) {}
+    : GPUTransferable(gpu), all_vertices(all_vertices) {}
 
   void build(ShapeData &info) {
     info.mesh.indices = plane_indices;

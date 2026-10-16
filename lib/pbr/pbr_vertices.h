@@ -5,9 +5,9 @@
 #include <vector>
 #include <sys/types.h>
 #include "lib/gpu/transfer_vec.h"
-#include "lib/pbr/gpu_stored_object.h"
+#include "lib/gpu/gpu_transferable.h"
 
-class PBRVertices : public GPUStoredObject
+class PBRVertices : public GPUTransferable
 {
 public:
   struct VertexData
@@ -36,7 +36,7 @@ public:
   SDL_GPUBuffer *vertex_buffer;
   SDL_GPUBuffer *mesh_shader_data_buffer;
 
-  PBRVertices(SDL_GPUDevice *gpu, std::vector<glm::vec3>& points) : GPUStoredObject(gpu), points(points) {}
+  PBRVertices(SDL_GPUDevice *gpu, std::vector<glm::vec3>& points) : GPUTransferable(gpu), points(points) {}
 
   void upload(SDL_GPUCopyPass *pass) override
   {

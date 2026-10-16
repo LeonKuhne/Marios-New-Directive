@@ -4,9 +4,9 @@
 #include <glm/glm.hpp>
 #include <sys/types.h>
 #include "lib/gpu/transfer.h"
-#include "lib/pbr/gpu_stored_object.h"
+#include "lib/gpu/gpu_transferable.h"
 
-class PBRMaterials : public GPUStoredObject
+class PBRMaterials : public GPUTransferable
 {
 
 private:
@@ -39,7 +39,7 @@ public:
   SDL_GPUTexture *default_cube_texture;
   SDL_GPUTexture *default_brdf_lut;
 
-  PBRMaterials(SDL_GPUDevice *gpu) : GPUStoredObject(gpu) {}
+  PBRMaterials(SDL_GPUDevice *gpu) : GPUTransferable(gpu) {}
 
   void upload(SDL_GPUCopyPass *pass) override
   {

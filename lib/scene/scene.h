@@ -56,4 +56,5 @@ public:
 
 private:
   void gravityTick(btScalar timeStep);
+  void updateGPUData();
 };
