@@ -1,4 +1,5 @@
 #include "context.h"
+#include <SDL3/SDL_gpu.h>
 
 Context::Context()
 {
@@ -41,6 +42,16 @@ Context::ErrorCode Context::initSDL()
     return GPU_ERROR;
   if (!SDL_ClaimWindowForGPUDevice(gpu, window))
     return GPU_ERROR;
+
+
+  if (!SDL_SetGPUSwapchainParameters(
+    gpu, 
+    window, 
+    SDL_GPU_SWAPCHAINCOMPOSITION_SDR,
+    SDL_GPU_PRESENTMODE_IMMEDIATE
+    //SDL_GPU_PRESENTMODE_VSYNC
+  ))
+    return SWAPCHAIN_ERROR;
 
   SDL_GPUSamplerCreateInfo sampler_info{};
   sampler_info.min_filter = SDL_GPU_FILTER_LINEAR;

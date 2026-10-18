@@ -26,8 +26,9 @@ private:
     WINDOW_ERROR = 2,
     RENDERER_ERROR = 3,
     GPU_ERROR = 4,
-    SAMPLER_ERROR = 5,
-    TTF_ERROR = 6
+    SWAPCHAIN_ERROR = 5,
+    SAMPLER_ERROR = 6,
+    TTF_ERROR = 7
   };
 
   ErrorCode initSDL();
