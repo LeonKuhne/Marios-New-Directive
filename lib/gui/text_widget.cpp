@@ -12,15 +12,19 @@ TextWidget::TextWidget(Window &window, TextOverlayPipeline& pipeline)
   gpu_content_handler(window.ctx.gpu)
 {
   setText("----");
-  render_data.vert.pos.x = 50;
-  render_data.vert.pos.y = 50;
+  setPosition(0, 0);
 
   window.addListener([this](uint w, uint h) {
     updateWindowSize(w, h);
   });
   updateWindowSize(window.width, window.height);
+}
 
-};
+void TextWidget::setPosition(uint x, uint y)
+{
+  render_data.vert.pos.x = x;
+  render_data.vert.pos.y = y;
+}
 
 void TextWidget::updateWindowSize(uint w, uint h) 
 {
@@ -34,7 +38,7 @@ void TextWidget::setText(const std::string &content) {
   render_data.vert.scale.width = pipeline.atlas_details.glyph.width * content.size();
   render_data.vert.scale.height = pipeline.atlas_details.glyph.height;
   markDirty();
-};
+}
 
 void TextWidget::upload(SDL_GPUCopyPass *copy_pass) {
   std::vector<Uint32> chars;
@@ -48,4 +52,4 @@ void TextWidget::upload(SDL_GPUCopyPass *copy_pass) {
     .data = chars.data(),
     .size = static_cast<Uint32>(chars.size() * sizeof(Uint32))
   });
-};
+}

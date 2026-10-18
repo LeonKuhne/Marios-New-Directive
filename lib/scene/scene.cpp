@@ -64,19 +64,22 @@ void Scene::setup(Mouse &mouse)
 void Scene::tick()
 {
   ZoneScoped;
-  Uint64 current_time = SDL_GetPerformanceCounter();
-  float delta_time = static_cast<float>(current_time - last_game_time) / static_cast<float>(SDL_GetPerformanceFrequency());
-  last_game_time = current_time;
-  TracyPlot("FPS", 1.0f / delta_time);
 
+  double tick_delta;
   {
-    ZoneScopedN("GPU Transfer");
-    updateGPUData();
+    ZoneScopedN("Track Tick Rate");
+    Uint64 current_tick_time = SDL_GetPerformanceCounter();
+    tick_delta = static_cast<double>(current_tick_time - last_tick_time) / performance_frequency;
+    last_tick_time = current_tick_time;
+    double fps = 1.0 / tick_delta;
+    std::string fps_content = std::format("tick rate: {:5}", round(fps));
+    gui.tick_rate_display.setText(fps_content);
+    TracyPlot("tick_rate", 1.0f / tick_delta);
   }
 
   {
     ZoneScopedN("Step Simulation");
-    ctx.world->stepSimulation(delta_time, 5, 1.0f / 60.0f);
+    ctx.world->stepSimulation(static_cast<float>(tick_delta), 5, 1.0f / 60.0f);
   }
   {
     ZoneScopedN("Player Tick");
@@ -86,16 +89,40 @@ void Scene::tick()
     ZoneScopedN("Camera Tick");
     camera.tick();
   }
-  {
-    ZoneScopedN("GUI Tick");
-    gui.tick(delta_time);
-  }
 }
 
 void Scene::render()
 {
   ZoneScoped;
-  frame.run();
+
+  // aquire next frame
+  {
+    ZoneScopedN("Render Frame");
+    if(!frame.load())
+      return;
+  }
+
+  {
+    ZoneScopedN("Track Render FPS");
+    Uint64 current_render_time = SDL_GetPerformanceCounter();
+    double render_delta = static_cast<double>(current_render_time - last_render_time) / performance_frequency;
+    last_render_time = current_render_time;
+
+    double fps = 1.0 / render_delta;
+    std::string fps_content = std::format("render fps: {:5}", round(fps));
+    gui.render_fps_display.setText(fps_content);
+    TracyPlot("render_fps", fps);
+  }
+
+  {
+    ZoneScopedN("GPU Transfer");
+    updateGPUData();
+  }
+
+  {
+    ZoneScopedN("Render Frame");
+    frame.publish();
+  }
 }
 
 void Scene::gravityTick(btScalar timeStep)

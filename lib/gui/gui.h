@@ -8,10 +8,11 @@
 class GUI
 {
   TextOverlayPipeline text_pipeline;
-  TextWidget fps_display;
 
 public:
+  TextWidget render_fps_display;
+  TextWidget tick_rate_display;
+
   GUI(Window &window);
-  void tick(float delta_time);
   void render(SDL_GPUCommandBuffer *cmd, SDL_GPURenderPass *pass);
 };

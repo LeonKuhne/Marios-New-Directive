@@ -10,7 +10,8 @@ Frame::~Frame() {
     SDL_Log("Swapchain texture failures: %d\n", failed_swaps);
 }
 
-void Frame::run() {
+bool Frame::load()
+{
   // start frame
   {
     ZoneScopedN("Aquire GPU Command Buffer")
@@ -22,10 +23,14 @@ void Frame::run() {
     SDL_AcquireGPUSwapchainTexture(cmd, ctx.window, &pass_info.texture, nullptr, nullptr);
     if (pass_info.texture == nullptr) {
       failed_swaps++;
-      return;
+      return false;
     }
   }
 
+  return true;
+}
+
+void Frame::publish() {
   // run passes
   {
     ZoneScopedN("Render Passes")

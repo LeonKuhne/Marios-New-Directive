@@ -1,5 +1,6 @@
 #pragma once
 
+#include <SDL3/SDL_timer.h>
 #include <btBulletDynamicsCommon.h>
 #include "camera.h"
 #include "lib/collisions/collision_manager.h"
@@ -46,7 +47,9 @@ public:
 
   // game state
   bool &running;
-  Uint64 last_game_time = SDL_GetPerformanceCounter();
+  double performance_frequency = static_cast<double>(SDL_GetPerformanceFrequency());
+  Uint64 last_tick_time = SDL_GetPerformanceCounter();
+  Uint64 last_render_time = SDL_GetPerformanceCounter();
 
   Scene(bool &running, Mouse &mouse);
 

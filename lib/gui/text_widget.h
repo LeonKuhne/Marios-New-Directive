@@ -14,6 +14,7 @@ class TextWidget : public Widget<TextOverlayRenderObject, TextOverlayPipeline>, 
   GPUStoredObject gpu_content_handler;
 public:
   TextWidget(Window &window, TextOverlayPipeline& pipeline);
+  void setPosition(uint x, uint y);
   void setText(const std::string &content);
 private:
   void updateWindowSize(uint w, uint h);

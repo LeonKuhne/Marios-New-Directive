@@ -43,7 +43,8 @@ public:
 
   void addPass(const Pass &callback); 
 
-  void run();
+  bool load();
+  void publish();
 
 private:
   void updateDepthTexture(uint width, uint height) {
