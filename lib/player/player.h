@@ -7,6 +7,10 @@
 #include "lib/engine/config.h"
 #include "lib/player/player_body.h"
 
+class RoomManager;
+class Portal;
+class Room;
+
 class Player
 {
 public:
@@ -17,7 +21,9 @@ public:
     float linear_damping = 0.0f;
     float angular_damping = 1.0f;
     float mass = 70.0f;
+    RoomManager& room_manager;
   };
+
   PlayerBody* body;
   bool isGrounded = false;
   bool isSprinting = false;
@@ -25,6 +31,10 @@ public:
   glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
   float eye_height = Config::PlayerSettings::eye_height;
   Uint64 last_jump_time = 0;
+
+  RoomManager& room_manager;
+  Room* player_room;
+
 private:
   glm::vec2 move_dir = glm::vec2(0.0f, 0.0f);
 
@@ -42,6 +52,10 @@ public:
   void setSprinting(bool sprinting) { isSprinting = sprinting; }
   void move(const glm::vec2 &direction);
   void jump();
+
+  // room management
+  void setRoom(Room* room);
+  void enterPortal(Portal* portal);
 
 private:
   void applyMove();

@@ -7,6 +7,7 @@
 class ColliderBody : public btRigidBody {
 private:
   const uint8_t collision_group;
+  void* owner = nullptr;
 
 public:
   std::function<void(CollisionEvent&)> on_enter;
@@ -16,6 +17,17 @@ public:
     : btRigidBody(info), collision_group(collision_group)
   {
     setUserPointer(this);
+  }
+
+  void setOwner(void* owner)
+  {
+    this->owner = owner;
+  }
+
+  template<typename T>
+  T* getOwner()
+  {
+    return static_cast<T*>(owner);
   }
 
   bool isGroup(const uint8_t group) const

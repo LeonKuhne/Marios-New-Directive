@@ -7,10 +7,6 @@
 Scene::Scene(bool &running, Mouse &mouse)
     : window(Window(ctx)),
 
-      // game objects
-      player(Player({ .pos = Config::PlayerSettings::spawn_pos })),
-      camera(Camera(window, player, mouse)),
-
       // gpu storage
       plane_builder(ctx.gpu, all_vertices),
       pbr_vertices(ctx.gpu, all_vertices),
@@ -32,6 +28,10 @@ Scene::Scene(bool &running, Mouse &mouse)
       // render composites
       gui(GUI(window)),
       room_manager(ctx, pbr_pipeline),
+
+      // game objects
+      player(Player({ .pos = Config::PlayerSettings::spawn_pos, .room_manager = room_manager })),
+      camera(Camera(window, player, mouse)),
 
       // game state
       running(running)

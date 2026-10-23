@@ -1,10 +1,17 @@
 #include "player_body.h"
 #include "player.h"
+#include "lib/rooms/portal.h"
 
 void PlayerBody::onEnter(CollisionEvent& event)
 {
   if (!isPlayerCollidingWithSolid(event.other))
     return;
+
+  if (isPlayerCollidingWithPortal(event.other))
+  {
+    Portal* portal = event.other->getOwner<Portal>();
+    player.enterPortal(portal);
+  }
 
   for (int contact_index = 0; contact_index < event.manifold->getNumContacts(); ++contact_index)
   {
@@ -58,4 +65,9 @@ void PlayerBody::onExit(CollisionEvent& event)
 bool PlayerBody::isPlayerCollidingWithSolid(const ColliderBody *other)
 {
     return other->isGroup(Config::Colliders::SURFACE);
+}
+
+bool PlayerBody::isPlayerCollidingWithPortal(const ColliderBody *other)
+{
+    return other->isGroup(Config::Colliders::PORTAL);
 }

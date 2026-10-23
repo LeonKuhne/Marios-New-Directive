@@ -18,6 +18,7 @@ public:
 
 private:
   bool isPlayerCollidingWithSolid(const ColliderBody *other);
+  bool isPlayerCollidingWithPortal(const ColliderBody *other);
 
   void onEnter(CollisionEvent& event);
   void onExit(CollisionEvent& event);

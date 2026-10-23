@@ -24,12 +24,7 @@ Portal::Portal(Trigger* trigger, Room& room_a, Room& room_b)
   std::reverse(reverse_vertices.begin(), reverse_vertices.end());
 
   // handle portal triggers
-  trigger->body->on_enter = [this](CollisionEvent& event) {
-    // todo
-  };
-  trigger->body->on_exit = [this](CollisionEvent& event) {
-    // todo
-  };
+  trigger->body->setOwner(this);
 }
 
 glm::vec3 Portal::normal() const

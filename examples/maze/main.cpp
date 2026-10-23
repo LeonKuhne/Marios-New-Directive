@@ -9,7 +9,7 @@ int main() {
   roomManager.onRoomLoad([&](Room *room){
     hallwayGenerator.renderMap(roomManager.active_rooms);
   });
-  roomManager.setActive(roomManager.find(0));
+  engine.getScene().player.setRoom(roomManager.find(0));
   engine.run();
   return EXIT_SUCCESS;
 }

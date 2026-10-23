@@ -1,8 +1,10 @@
 #include "player.h"
 #include <glm/ext/vector_float3.hpp>
 #include <glm/fwd.hpp>
+#include "lib/rooms/room_manager.h"
+#include "lib/rooms/portal.h"
 
-Player::Player(Info info)
+Player::Player(Info info) : room_manager(info.room_manager)
 {
   btVector3 localInertia;
   btScalar capsule_height = Config::PlayerSettings::height - 2.0f * Config::PlayerSettings::radius;
@@ -85,3 +87,17 @@ void Player::jump()
   body->activate(true);
   body->applyCentralImpulse(asBtVector3(up_axis * Config::PlayerSettings::jump_strength * body->getMass()));
 }
+
+void Player::setRoom(Room* room)
+{
+  player_room = room;
+  room_manager.setActive(room);
+}
+
+void Player::enterPortal(Portal* portal)
+  {
+    if (&portal->room_a == player_room)
+      setRoom(&portal->room_b);
+    else if (&portal->room_b == player_room)
+      setRoom(&portal->room_a);
+  }
