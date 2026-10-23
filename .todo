@@ -1,3 +1,4 @@
+[ ] fix player room setting callback to not throw exception, ie have rooms set properly on switching
 [ ] use the built in gravity in bullet instead of ticking internally in scene to apply the gravity
 [ ] have player extend gameobject body.h
 [ ] have portal extend gameobject trigger.h
