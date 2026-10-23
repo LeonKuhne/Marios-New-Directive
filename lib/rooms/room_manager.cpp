@@ -80,8 +80,3 @@ void RoomManager::loadRoom(Room* room)
   for (std::function<void (Room*)>& callback : roomLoadCallbacks)
     callback(room);
 }
-
-void RoomManager::enterPortal(Player &player, Portal *portal)
-{
-  
-}

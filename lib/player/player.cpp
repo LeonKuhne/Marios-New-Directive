@@ -91,6 +91,8 @@ void Player::jump()
 void Player::setRoom(Room* room)
 {
   player_room = room;
+  size_t room_id = std::hash<Room*>{}(room);
+  SDL_Log("Player entered room: %zu", room_id);
   room_manager.setActive(room);
 }
 
@@ -100,4 +102,6 @@ void Player::enterPortal(Portal* portal)
       setRoom(&portal->room_b);
     else if (&portal->room_b == player_room)
       setRoom(&portal->room_a);
+    else
+      throw std::runtime_error("Player is not in either room of the portal");
   }

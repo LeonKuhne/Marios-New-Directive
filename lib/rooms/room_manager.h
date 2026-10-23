@@ -53,7 +53,6 @@ public:
   void setActive(Room *room);
   void onRoomLoad(const std::function<void(Room*)> &callback);
   Room* find(int index) const { return room_pointers[index]; }
-  void enterPortal(Player &player, Portal *portal);
 
   const std::vector<Room*>& rooms() const { return room_pointers; }
   const std::vector<PortalConnection>& portals() const { return portal_connections; }
