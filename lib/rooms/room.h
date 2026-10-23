@@ -3,14 +3,13 @@
 #include "lib/shapes/shape_data.h"
 #include "lib/shapes/shape_manager.h"
 #include "portal.h"
+#include <SDL3/SDL_gpu.h>
 #include <set>
-#include "lib/pbr/pbr_render_object.h"
+#include "lib/pipeline/render_event.h"
 
 class Room {
-private:
-  std::set<Room*> visible_rooms;
-
 public:
+  std::set<Room*> visible_rooms;
   std::vector<Portal*> portals;
   ShapeManager shapes;
 
@@ -19,6 +18,6 @@ public:
   void addSurface(ShapeData& shape_data);
   void addPortal(Portal* portal);
   void updateVisibility();
-  void collect_visible_render_objects(std::vector<PBRRenderObject>* objects);
   bool isVisibleFrom(const Room& observer) const;
+  template<typename T> void render(RenderEvent<T>& event) { shapes.render(event); };
 };

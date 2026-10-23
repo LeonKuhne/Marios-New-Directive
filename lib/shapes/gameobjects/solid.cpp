@@ -2,8 +2,7 @@
 #include "lib/util/vertex.h"
 #include <glm/gtc/type_ptr.hpp>
 
-Solid::Solid(const Solid::Info &info)
-  : Shape(info.shape)
+Solid::Solid(const Solid::Info &info) : Shape(info.shape)
 {
   // create collider
   if (info.shape.collider)
@@ -21,6 +20,8 @@ Solid::Solid(const Solid::Info &info)
     collider, 
     btVector3(0,0,0));
   body = new ColliderBody(info.shape.collider_type, rbInfo);
+
+  updateRenderObject();
 }
 
 Solid::~Solid()
@@ -36,6 +37,9 @@ Solid::~Solid()
   delete collision_shape;
 }
 
+//
+// public read methods
+
 void Solid::getTransform(glm::mat4 &transform_matrix)
 {
     btTransform transform;
@@ -46,14 +50,6 @@ void Solid::getTransform(glm::mat4 &transform_matrix)
     transform_matrix[0] *= scale.x;
     transform_matrix[1] *= scale.y;
     transform_matrix[2] *= scale.z;
-}
-
-void Solid::setPosition(btVector3 pos)
-{
-  btTransform transform;
-  body->getMotionState()->getWorldTransform(transform);
-  transform.setOrigin(pos);
-  body->getMotionState()->setWorldTransform(transform);
 }
 
 glm::vec3 Solid::inLocalSpace(const glm::vec3 global_pos)
@@ -73,9 +69,22 @@ glm::vec3 Solid::inGlobalSpace(const glm::vec3 local_pos)
   return asGlmVec3(global_intersect);
 }
 
-void Solid::getRenderObject(PBRRenderObject &obj)
+//
+// public write methods
+void Solid::setPosition(btVector3 pos)
 {
-  obj.index_buffer = mesh.index_buffer;
-  obj.num_indices = mesh.indices.size();
-  getTransform(obj.transform_matrix);
+  btTransform transform;
+  body->getMotionState()->getWorldTransform(transform);
+  transform.setOrigin(pos);
+  body->getMotionState()->setWorldTransform(transform);
+  updateRenderObject();
+}
+
+// private write methods
+
+void Solid::updateRenderObject()
+{
+  render_object.index_buffer = mesh.index_buffer;
+  render_object.num_indices = mesh.indices.size();
+  getTransform(render_object.transform_matrix);
 }

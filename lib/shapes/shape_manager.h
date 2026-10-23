@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lib/pbr/pbr_pipeline.h"
+#include <SDL3/SDL_gpu.h>
 #include <btBulletDynamicsCommon.h>
 #include <vector>
 #include "lib/shapes/gameobjects/shape.h"
@@ -26,6 +27,11 @@ public:
   void add(Solid *solid);
   Shape* add(ShapeData& data);
   void remove(Shape *shape);
-  void render(Scene& scene, SDL_GPURenderPass *pass);
   void collect(ShapeManager* target);
+
+  template<typename T> void render(RenderEvent<T>& event)
+  {
+    for (auto shape : visible_shapes)
+      event.render(shape->render_object);
+  }
 };

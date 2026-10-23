@@ -41,16 +41,14 @@ void RoomManager::connect(Room &first, ShapeData &shape_data, Room &second)
 
 void RoomManager::setActive(Room* room)
 {
+  active_rooms.clear();
   active_rooms.push_back(room);
+  loadRoom(room);
+}
 
-  // create shape manager for active room
-  bool active_room_exists = active_render_objects.contains(room);
-  if (active_room_exists)
-    active_render_objects.erase(room);
-  std::vector<PBRRenderObject>* render_objects = active_render_objects.emplace(room, new std::vector<PBRRenderObject>).first->second;
-  
-  // insert room's shapes into the shape manager
-  room->collect_visible_render_objects(render_objects);
+void RoomManager::onRoomLoad(const std::function<void (Room *)> &callback)
+{
+  roomLoadCallbacks.emplace_back(callback);
 }
 
 void RoomManager::updateVisibility()
@@ -61,10 +59,13 @@ void RoomManager::updateVisibility()
 
 void RoomManager::render(SDL_GPUCommandBuffer *cmd, SDL_GPURenderPass *pass)
 {
-  pbr_pipeline.startRender(pass);
-  for (auto [room, objects] : active_render_objects)
-    for (PBRRenderObject &obj : *objects)
-      pbr_pipeline.render(cmd, obj);
+  RenderEvent event = pbr_pipeline.startRender(cmd, pass);
+  for (Room* active_room : active_rooms)
+  {
+    active_room->render(event);
+    for (Room* visible_room : active_room->visible_rooms)
+      visible_room->render(event);
+  }
 }
 
 size_t RoomManager::ConnectionHash::operator()(const ConnectionKey &key) const
@@ -72,4 +73,10 @@ size_t RoomManager::ConnectionHash::operator()(const ConnectionKey &key) const
   size_t first_hash = std::hash<Room*>{}(key.first);
   size_t second_hash = std::hash<Room*>{}(key.second);
   return first_hash ^ (second_hash + 0x9e3779b9u + (first_hash << 6) + (first_hash >> 2));
+}
+
+void RoomManager::loadRoom(Room* room)
+{
+  for (std::function<void (Room*)>& callback : roomLoadCallbacks)
+    callback(room);
 }

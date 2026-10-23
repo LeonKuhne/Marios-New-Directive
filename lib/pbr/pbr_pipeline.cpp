@@ -14,8 +14,11 @@ PBRPipeline::PBRPipeline(Info info) : Pipeline(info.ctx, {
   // initialize storage buffers
 }
 
-void PBRPipeline::render(SDL_GPUCommandBuffer *cmd, PBRRenderObject &obj)
+void PBRPipeline::render(RenderEvent<PBRRenderObject> &event, PBRRenderObject &obj)
 {
+  SDL_GPUCommandBuffer* cmd = event.cmd;
+  SDL_GPURenderPass* render_pass = event.pass;
+
   struct PushConstants
   {
       int32_t meshIndex = 0;

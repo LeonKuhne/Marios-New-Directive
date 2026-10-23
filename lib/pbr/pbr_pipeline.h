@@ -57,5 +57,5 @@ public:
   Info state;
 
   PBRPipeline(Info info);
-  void render(SDL_GPUCommandBuffer *cmd, PBRRenderObject &obj) override;
+  void render(RenderEvent<PBRRenderObject> &event, PBRRenderObject &obj) override;
 };

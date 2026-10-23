@@ -2,7 +2,6 @@
 
 #include "room.h"
 #include <cwchar>
-#include <map>
 #include <memory>
 #include <unordered_set>
 #include <vector>
@@ -39,8 +38,8 @@ private:
   std::vector<std::unique_ptr<Portal>> owned_portals;
   std::unordered_set<ConnectionKey, ConnectionHash> connections;
   std::vector<PortalConnection> portal_connections;
+  std::vector<std::function<void(Room*)>> roomLoadCallbacks;
   std::function<void(const std::vector<Room*>&)> active_rooms_changed;
-  std::map<Room*, std::vector<PBRRenderObject>*> active_render_objects;
 
 public:
   std::vector<Room*> active_rooms;
@@ -52,8 +51,12 @@ public:
   void updateVisibility();
   void render(SDL_GPUCommandBuffer *cmd, SDL_GPURenderPass *pass);
   void setActive(Room *room);
+  void onRoomLoad(const std::function<void(Room*)> &callback);
   Room* find(int index) const { return room_pointers[index]; }
 
   const std::vector<Room*>& rooms() const { return room_pointers; }
   const std::vector<PortalConnection>& portals() const { return portal_connections; }
+
+private:
+  void loadRoom(Room *room);
 };

@@ -12,7 +12,7 @@ GUI::GUI(Window &window)
 
 void GUI::render(SDL_GPUCommandBuffer *cmd, SDL_GPURenderPass *pass)
 {
-  text_pipeline.startRender(pass),
-  tick_rate_display.render(cmd);
-  render_fps_display.render(cmd);
+  RenderEvent render_text_event = text_pipeline.startRender(cmd, pass);
+  tick_rate_display.render(render_text_event);
+  render_fps_display.render(render_text_event);
 }

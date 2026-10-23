@@ -1,5 +1,6 @@
 #pragma once
 
+#include "lib/pbr/pbr_pipeline.h"
 #include "lib/pbr/pbr_render_object.h"
 #include "shape.h"
 #include "lib/collisions/collider_body.h"
@@ -11,6 +12,7 @@ protected:
 
 public:
   ColliderBody* body;
+  PBRRenderObject render_object;
 
   struct Info
   {
@@ -27,5 +29,7 @@ public:
   void setPosition(btVector3 pos);
   glm::vec3 inLocalSpace(const glm::vec3 global_pos);
   glm::vec3 inGlobalSpace(const glm::vec3 local_pos);
-  void getRenderObject(PBRRenderObject &obj);
+
+private:
+  void updateRenderObject();
 };

@@ -30,7 +30,9 @@ private:
 public:
   OverlayPipeline(Context &ctx, PipelineInfo info) : Pipeline<T>(ctx, info + base_info) {};
 
-  void render(SDL_GPUCommandBuffer *cmd, T &render_data) override {
+  void render(RenderEvent<T> &event, T &render_data) override {
+    SDL_GPUCommandBuffer* cmd = event.cmd;
+
     // shared data
     SDL_PushGPUVertexUniformData(cmd, 0, &render_data.shared, sizeof(render_data.shared));
     SDL_PushGPUFragmentUniformData(cmd, 0, &render_data.shared, sizeof(render_data.shared));
@@ -40,6 +42,6 @@ public:
     SDL_PushGPUFragmentUniformData(cmd, 1, &render_data.frag, sizeof(render_data.frag));
 
     // draw
-    SDL_DrawGPUPrimitives(this->render_pass, 6, 1, 0, 0);
+    SDL_DrawGPUPrimitives(event.pass, 6, 1, 0, 0);
   };
 };

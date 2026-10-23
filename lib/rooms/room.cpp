@@ -85,18 +85,6 @@ void Room::updateVisibility()
   }
 }
 
-void Room::collect_visible_render_objects(std::vector<PBRRenderObject>* objects)
-{
-  for (Room* visible_room : visible_rooms)
-  {
-    for (Solid* solid : visible_room->shapes.visible_shapes)
-    {
-      PBRRenderObject& obj = objects->emplace_back();
-      solid->getRenderObject(obj);
-    }
-  }
-}
-
 bool Room::isVisibleFrom(const Room& observer) const
 {
   return this == &observer || observer.visible_rooms.contains(const_cast<Room*>(this));

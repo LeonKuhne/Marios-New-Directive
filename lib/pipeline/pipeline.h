@@ -2,6 +2,7 @@
 
 #include <sys/types.h>
 #include "lib/pipeline/pipeline_info.h"
+#include "lib/pipeline/render_event.h"
 #include "lib/render/context.h"
 #include "lib/pbr/pbr_vertices.h"
 #include "lib/shader/shader.h"
@@ -11,11 +12,9 @@ class Scene;
 template<typename T>
 class Pipeline
 {
-protected:
-  SDL_GPUGraphicsPipeline *pipeline;
-  SDL_GPURenderPass *render_pass;
-
 public:
+  SDL_GPUGraphicsPipeline *pipeline;
+
   Pipeline(Context &ctx, PipelineInfo info)
   {
     SDL_GPUVertexAttribute vertexAttributes[7] = {};
@@ -95,11 +94,10 @@ public:
       SDL_Log("Failed to create compute pipeline: %s\n", SDL_GetError());
   }
 
-  void startRender(SDL_GPURenderPass *p)
+  RenderEvent<T> startRender(SDL_GPUCommandBuffer* cmd, SDL_GPURenderPass *pass)
   {
-    render_pass = p;
-    SDL_BindGPUGraphicsPipeline(render_pass, pipeline);
-  }
+    return RenderEvent<T>(*this, cmd, pass);
+  };
 
-  virtual void render(SDL_GPUCommandBuffer *cmd, T &render_data) = 0;
+  virtual void render(RenderEvent<T> &event, T &render_data) = 0;
 };

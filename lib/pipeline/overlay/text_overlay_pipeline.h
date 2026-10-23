@@ -108,17 +108,17 @@ public:
     SDL_DestroySurface(atlas);
   };
 
-  void render(SDL_GPUCommandBuffer *cmd, TextOverlayRenderObject &render_data) override {
+  void render(RenderEvent<TextOverlayRenderObject> &event, TextOverlayRenderObject &render_data) override {
     // pipeline data
-    SDL_PushGPUFragmentUniformData(cmd, 2, &atlas_details, sizeof(atlas_details));
+    SDL_PushGPUFragmentUniformData(event.cmd, 2, &atlas_details, sizeof(atlas_details));
 
     // atlas sampler
-    SDL_BindGPUFragmentSamplers(this->render_pass, 0, &atlas_binding, 1);
+    SDL_BindGPUFragmentSamplers(event.pass, 0, &atlas_binding, 1);
 
     // text buffer
-    SDL_BindGPUFragmentStorageBuffers(render_pass, 0, &render_data.buffers.text, 1);
+    SDL_BindGPUFragmentStorageBuffers(event.pass, 0, &render_data.buffers.text, 1);
 
     // overlay render
-    OverlayPipeline<TextOverlayRenderObject>::render(cmd, render_data);
+    OverlayPipeline<TextOverlayRenderObject>::render(event, render_data);
   };
 };

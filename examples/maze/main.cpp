@@ -6,8 +6,10 @@ int main() {
   HallwayGenerator hallwayGenerator;
   hallwayGenerator.generate(engine.getScene(), 580085);
   RoomManager& roomManager = engine.getScene().room_manager;
+  roomManager.onRoomLoad([&](Room *room){
+    hallwayGenerator.renderMap(roomManager.active_rooms);
+  });
   roomManager.setActive(roomManager.find(0));
-  hallwayGenerator.renderMap(roomManager.active_rooms);
   engine.run();
   return EXIT_SUCCESS;
 }

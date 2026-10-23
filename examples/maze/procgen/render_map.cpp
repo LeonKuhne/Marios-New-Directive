@@ -154,7 +154,7 @@ void RenderMap::renderAscii(
   for (int16_t y = bounds.max_y; y >= bounds.min_y; --y)
   {
     std::string row;
-    for (int16_t x = bounds.min_x; x <= bounds.max_x; ++x)
+    for (int16_t x = bounds.max_x; x >= bounds.min_x; --x)
       row += cellSymbol(rooms, active_rooms, {x, y}, direct_neighbors, visible_count, missing_direct_count);
     SDL_Log("%s", row.c_str());
   }
@@ -208,7 +208,7 @@ bool RenderMap::renderPng(
       else
         color = color_inactive;
 
-      int pixel_x = (x - bounds.min_x) * cell_size;
+      int pixel_x = (bounds.max_x - x) * cell_size;
       int pixel_y = (bounds.max_y - y) * cell_size;
       for (int row = 0; row < cell_size - cell_gap; ++row)
         for (int column = 0; column < cell_size - cell_gap; ++column)
