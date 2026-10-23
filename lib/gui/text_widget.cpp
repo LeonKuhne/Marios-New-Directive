@@ -1,15 +1,14 @@
 #include "text_widget.h"
 #include <SDL3/SDL_gpu.h>
 #include <SDL3/SDL_surface.h>
-#include "lib/pipeline/overlay/text_overlay_pipeline.h"
 
 // TODO: use buffers for pretty much everything here
 // also get rid of the window width/height for the frag shader
 
-TextWidget::TextWidget(Window &window, TextOverlayPipeline& pipeline) 
-  : Widget(pipeline), 
-  GPUTransferable(window.ctx.gpu),
-  gpu_content_handler(window.ctx.gpu)
+TextWidget::TextWidget(Window &window, std::pair<Uint32, Uint32> glyph_size)
+  : GPUTransferable(window.ctx.gpu),
+  gpu_content_handler(window.ctx.gpu),
+  glyph_size(glyph_size)
 {
   setText("----");
   setPosition(0, 0);
@@ -35,8 +34,8 @@ void TextWidget::updateWindowSize(uint w, uint h)
 void TextWidget::setText(const std::string &content) {
   this->content = content;
   render_data.frag.text_num_chars = content.size();
-  render_data.vert.scale.width = pipeline.atlas_details.glyph.width * content.size();
-  render_data.vert.scale.height = pipeline.atlas_details.glyph.height;
+  render_data.vert.scale.width = glyph_size.first * content.size();
+  render_data.vert.scale.height = glyph_size.second;
   markDirty();
 }
 

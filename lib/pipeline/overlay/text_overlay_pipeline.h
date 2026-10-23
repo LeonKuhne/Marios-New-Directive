@@ -16,10 +16,7 @@ private:
 
 public:
   struct {
-    struct {
-      Uint32 width;
-      Uint32 height;
-    } glyph;
+    std::pair<Uint32, Uint32> glyph;
     Uint32 atlas_width;
     Uint32 _pad;
   } atlas_details;
@@ -75,8 +72,8 @@ public:
     if (!atlas)
       throw std::runtime_error(SDL_GetError());
 
-    atlas_details.glyph.width = max_glyph_size.width;
-    atlas_details.glyph.height = max_glyph_size.height;
+    atlas_details.glyph.first = max_glyph_size.width;
+    atlas_details.glyph.second = max_glyph_size.height;
     atlas_details.atlas_width = atlas->w;
 
     int x = 0;

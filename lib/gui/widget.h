@@ -1,23 +1,18 @@
 #pragma once
 
-#include "lib/pipeline/overlay/overlay_pipeline.h"
 #include "lib/pipeline/overlay/render_objects/overlay_render_object_base.h"
+#include "lib/pipeline/render_event.h"
 #include <SDL3/SDL_gpu.h>
 #include <concepts>
 
-template<
-  std::derived_from<OverlayRenderObjectBase> T,
-  std::derived_from<OverlayPipeline<T>> P
->
+template<std::derived_from<OverlayRenderObjectBase> T>
 class Widget
 {
 protected:
-  P &pipeline;
   T render_data;
 
 public:
-  Widget(P &pipeline) : pipeline(pipeline) {};
   void render(RenderEvent<T> &event) {
-    pipeline.render(event, render_data);
+    event.render(render_data);
   };
 };
