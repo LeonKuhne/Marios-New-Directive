@@ -4,14 +4,14 @@
 
 void PlayerBody::onEnter(CollisionEvent& event)
 {
-  if (!isPlayerCollidingWithSolid(event.other))
-    return;
-
   if (isPlayerCollidingWithPortal(event.other))
   {
     Portal* portal = event.other->getOwner<Portal>();
     player.enterPortal(portal);
   }
+
+  if (!isPlayerCollidingWithSolid(event.other))
+    return;
 
   for (int contact_index = 0; contact_index < event.manifold->getNumContacts(); ++contact_index)
   {
